@@ -38,12 +38,16 @@ Tokens e classes da marca em `app/globals.css`. Peças reutilizáveis em `compon
 ## Estrutura
 
 - `app/`: rotas (App Router). `/` Início, `/quiz`, `/plano`, `/detalhe/[id]` (protocolo-NN ou
-  programa-gluteo), `/treino/[id]` sessão de treino em tela cheia, `/evolucao` e `/perfil` (em construção).
+  programa-gluteo), `/treino/[id]` sessão de treino em tela cheia,
+  `/entrar` (primeiro acesso), `/evolucao` (+ `/fotos`, `/medidas`), `/stories`, `/oferta`, `/reativar`, `/perfil`.
 - `components/`: telas e componentes. `inicio/`, `quiz/`, `plano/`, `detalhe/`, `treino/`, `abas/`.
 - `lib/quiz.ts`: perguntas, áreas do mapa de regiões e respostas salvas no aparelho (localStorage) até
   existir banco. `lib/plano.ts`: **protocolo e programa de exemplo**.
 - `lib/tipos.ts`: tipos do domínio. `lib/sessao.ts`: estado da sessão de treino (reducer).
   `lib/midia.ts`: boneco, foto e vídeo por nome. `lib/dados-exemplo.ts`: **dados fictícios** do protótipo.
+- `lib/armazenamento.ts`: dados pequenos no aparelho (lembretes, prontidão, medidas). `lib/fotos-corpo.ts`:
+  fotos do corpo no IndexedDB, nunca enviadas. `lib/stories.ts`: desenho do stories em canvas.
+  `lib/config.ts`: treinador, CREF e preços.
 - `lib/demo.ts`: controles de demonstração pela URL (`?estado=programa|pausada`, `?sexo=masculino`,
   `?dia=descanso`, `?descanso=faixa`). Sai quando o estado real do aluno vier do banco.
 - `public/assets/`: bonecos do mapa muscular (20 de 58), fotos recortadas e vídeos de exemplo.

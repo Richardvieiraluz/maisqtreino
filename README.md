@@ -26,6 +26,11 @@ Enquanto não existe login, o estado do aluno é escolhido pela URL:
 | `/plano` | Meu plano: protocolo em grade ou lista, programa e mudar de local |
 | `/detalhe/protocolo-07` | Detalhe de um treino do protocolo (01 a 24) |
 | `/detalhe/programa-gluteo` | Detalhe do programa, com a ordem sugerida |
+| `/entrar` | Primeiro acesso: login, boas-vindas, prontidão, instalar e lembrete |
+| `/evolucao` | Evolução, com fotos do corpo e medidas |
+| `/stories` | Stories 1080 × 1920 para compartilhar |
+| `/oferta` e `/reativar` | Oferta da assinatura e reativação |
+| `/perfil` | Perfil, lembretes e excluir conta |
 | `/treino/gluteo-posterior-07` | Execução do treino |
 | `/treino/gluteo-posterior-07?descanso=faixa` | Descanso em faixa, em vez de tela cheia |
 
@@ -39,3 +44,7 @@ tempo, descanso, recorde, voz, explicação, trocar exercício e aviso de dor), 
 Rodada 2 do design recriada: Quiz (10 perguntas, mapa de regiões, equipamentos por academia
 completa, lista ou foto), Resultado, Detalhe do treino e Meu plano. A análise da foto ainda é
 simulada: a foto fica só no aparelho e nunca é enviada.
+
+Rodada 3 do design recriada: primeiro acesso, Evolução, fotos do corpo (câmera com silhueta,
+guardadas só no aparelho), medidas, stories gerado como imagem e compartilhado pelo celular,
+oferta, reativação e Perfil. Login e pagamento ainda não existem: entram com o backend.

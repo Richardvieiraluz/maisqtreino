@@ -41,7 +41,7 @@ export function SessaoTreino({ treino }: { treino: TreinoSessao }) {
         volume={volume()}
         recordes={s.recordes}
         sequencia={ALUNO_EXEMPLO.sequenciaDias + 1}
-        onStories={() => aviso.mostrar("A montagem do stories 1080 × 1920 entra na próxima etapa.")}
+        onStories={() => router.push(`/stories?min=${minutos}&seq=${ALUNO_EXEMPLO.sequenciaDias + 1}`)}
         onInicio={voltarAoInicio}
       />
     );

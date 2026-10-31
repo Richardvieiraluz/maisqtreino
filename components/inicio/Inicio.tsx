@@ -23,14 +23,7 @@ export function Inicio() {
 
   // Telas das próximas etapas: por enquanto, um aviso no lugar da navegação.
   const emBreve = (tela: string) => aviso.mostrar(`${tela} entra na próxima etapa do desenvolvimento.`);
-  const abrirOferta = () =>
-    aviso.mostrar(
-      pausada
-        ? "Abre a tela de reativação da assinatura. Próxima etapa."
-        : demo.estado === "programa"
-          ? "Abre a oferta da assinatura com 50% no primeiro mês. Próxima etapa."
-          : "Abre a oferta da assinatura. Próxima etapa.",
-    );
+  const abrirOferta = () => router.push(`${pausada ? "/reativar" : "/oferta"}${demo.qs}`);
 
   const sep = demo.qs ? "&" : "?";
   const abrirDetalhe = (id: string) => router.push(`/detalhe/${id}${demo.qs}${sep}de=inicio`);

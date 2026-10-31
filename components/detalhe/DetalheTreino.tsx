@@ -33,8 +33,7 @@ export function DetalheTreino({ id }: { id: string }) {
   const mapa = bonecoDe(`${tituloInteiro} ${dados.exercicios.map((e) => e[0]).join(" ")}`, demo.sexo);
   const abaAtiva = params.get("de") === "inicio" ? "/" : "/plano";
 
-  const abrirOferta = () =>
-    aviso.mostrar(pausada ? "Abre a tela de reativação da assinatura. Próxima etapa." : "Abre a oferta da assinatura com 50% no primeiro mês. Próxima etapa.");
+  const abrirOferta = () => router.push(`${pausada ? "/reativar" : "/oferta"}${demo.qs}`);
 
   const comecar = () => {
     if (bloqueado) return abrirOferta();
