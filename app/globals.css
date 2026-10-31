@@ -1,0 +1,632 @@
+/* +Q Treino · tokens e componentes da marca.
+   Fonte: docs/design/handoff-README.md. Regras que não podem quebrar:
+   - um único amarelo forte por tela (elementos de sistema não contam);
+   - vermelho só dentro do mapa muscular;
+   - raio 0, sem sombra, sem gradiente, sem emoji. */
+
+:root {
+  --bg: #ffffff;
+  --ink: #111111;
+  --accent: #ffe600;
+  --muscle: #c8202a;
+  --ink-2: #5c5c5c;
+  --line: #d6d5d0;
+  --track: #e2e1dc;
+  --bg-soft: #f4f3ee;
+  --ink-on-dark-2: #b5b5b0;
+  --body: #1e1e20;
+  --font: "Archivo Variable", "Archivo", system-ui, sans-serif;
+  --border: 1px solid #111111;
+  --border-strong: 3px solid #111111;
+  --margin-screen: 20px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg-soft);
+  color: var(--ink);
+  font-family: var(--font);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button {
+  color: var(--ink);
+  font-family: inherit;
+  border-radius: 0;
+}
+
+input {
+  font-family: inherit;
+  border-radius: 0;
+}
+
+input:focus {
+  outline: none;
+}
+
+h1,
+h2,
+p {
+  margin: 0;
+}
+
+/* Coluna do app: celular primeiro. No computador, coluna de 390 a 430 px
+   centralizada sobre o fundo neutro. */
+.app {
+  width: 100%;
+  max-width: 430px;
+  min-width: 320px;
+  height: 100dvh;
+  margin: 0 auto;
+  position: relative;
+  overflow: hidden;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+}
+
+.app--escuro {
+  background: var(--ink);
+  color: #ffffff;
+}
+
+.rolagem {
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.rolagem::-webkit-scrollbar,
+.fileira-trilho::-webkit-scrollbar {
+  display: none;
+}
+
+.topo-seguro {
+  flex: none;
+  height: env(safe-area-inset-top, 0px);
+}
+
+/* ── Tipografia ─────────────────────────────────────────── */
+
+.rotulo {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  color: var(--ink-2);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.titulo-tela {
+  font-size: 40px;
+  font-weight: 850;
+  font-stretch: 70%;
+  letter-spacing: -0.02em;
+  line-height: 0.92;
+  text-transform: uppercase;
+}
+
+.titulo-capa {
+  font-size: 52px;
+  font-weight: 850;
+  font-stretch: 66%;
+  letter-spacing: -0.02em;
+  line-height: 0.9;
+  text-transform: uppercase;
+}
+
+.titulo-secao {
+  font-size: 22px;
+  font-weight: 850;
+  font-stretch: 72%;
+  letter-spacing: -0.015em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.nome-card {
+  font-size: 18px;
+  font-weight: 850;
+  font-stretch: 74%;
+  letter-spacing: -0.015em;
+  line-height: 0.98;
+  text-transform: uppercase;
+  text-wrap: pretty;
+}
+
+.numero-grande {
+  font-weight: 900;
+  font-stretch: 65%;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.texto {
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.texto-apoio {
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--ink-2);
+}
+
+/* Destaque de palavra: fundo amarelo atrás de uma palavra do título. */
+.destaque {
+  background: var(--accent);
+  padding: 0 4px;
+}
+
+/* ── Assinatura (logo) ──────────────────────────────────── */
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 900;
+  font-stretch: 75%;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.logo__q {
+  background: var(--accent);
+  color: var(--ink);
+  padding: 3px 5px;
+}
+
+.logo__nome {
+  letter-spacing: 0.04em;
+}
+
+.logo--escuro .logo__nome {
+  color: #ffffff;
+}
+
+.logo--amarelo .logo__q {
+  background: var(--ink);
+  color: var(--accent);
+}
+
+/* ── Selo ───────────────────────────────────────────────── */
+
+.selo {
+  display: inline-block;
+  background: var(--ink);
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  padding: 4px 6px;
+  text-transform: uppercase;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.selo--pequeno {
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  padding: 3px 5px;
+}
+
+/* ── Botões ─────────────────────────────────────────────── */
+
+.botao {
+  width: 100%;
+  height: 52px;
+  border: none;
+  font-weight: 800;
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  padding: 0 16px;
+}
+
+.botao--primario {
+  background: var(--ink);
+  color: #ffffff;
+}
+
+.botao--primario:disabled {
+  background: var(--track);
+  cursor: default;
+}
+
+.botao--destaque {
+  background: var(--accent);
+  color: var(--ink);
+  border: 2px solid var(--ink);
+}
+
+.botao--secundario {
+  background: #ffffff;
+  color: var(--ink);
+  border: 2px solid var(--ink);
+}
+
+.botao--branco {
+  background: #ffffff;
+  color: var(--ink);
+}
+
+.botao--contorno-claro {
+  background: transparent;
+  color: #ffffff;
+  border: 2px solid #ffffff;
+}
+
+.botao--opcao {
+  height: 56px;
+  text-align: left;
+  background: #ffffff;
+  border: 1px solid var(--ink);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+/* ── ✓ de concluído ─────────────────────────────────────── */
+
+.check {
+  flex: none;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 3px solid var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  color: var(--ink);
+}
+
+/* ── Barra segmentada ───────────────────────────────────── */
+
+.segmentos {
+  display: flex;
+  gap: 6px;
+}
+
+.segmentos > span {
+  flex: 1;
+  height: 10px;
+  background: var(--track);
+}
+
+.segmentos > .feito {
+  background: var(--ink);
+}
+
+.segmentos > .atual {
+  background: var(--accent);
+}
+
+/* Barra contínua (timer, descanso, progresso de card). */
+.trilho {
+  height: 10px;
+  background: var(--track);
+}
+
+.trilho > span {
+  display: block;
+  height: 100%;
+  background: var(--ink);
+  transition: width 1s linear;
+}
+
+/* ── Lista da marca ─────────────────────────────────────── */
+
+.lista-marca__linha {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.lista-marca__linha:last-child {
+  border-bottom: var(--border-strong);
+}
+
+.lista-marca__chave {
+  font-size: 14px;
+  color: var(--ink-2);
+}
+
+.lista-marca__valor {
+  font-size: 20px;
+  font-weight: 850;
+  font-stretch: 76%;
+}
+
+/* ── Bloco "O ajuste:" ──────────────────────────────────── */
+
+.ajuste {
+  border-top: var(--border-strong);
+  padding-top: 10px;
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.ajuste b {
+  font-weight: 800;
+}
+
+/* ── Aviso ──────────────────────────────────────────────── */
+
+.aviso {
+  border: var(--border-strong);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: #ffffff;
+}
+
+.aviso__icone {
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 14px;
+  flex: none;
+}
+
+/* ── Rodapé de abas ─────────────────────────────────────── */
+
+.abas {
+  flex: none;
+  height: calc(64px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  border-top: var(--border);
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  background: #ffffff;
+}
+
+.abas a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-2);
+  text-decoration: none;
+}
+
+.abas a > i {
+  width: 28px;
+  height: 4px;
+  background: transparent;
+}
+
+.abas a[aria-current="page"] {
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.abas a[aria-current="page"] > i {
+  background: var(--accent);
+}
+
+/* ── Fileiras da vitrine ────────────────────────────────── */
+
+.fileira {
+  margin-top: 32px;
+}
+
+.fileira-cabeca {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  padding: 0 var(--margin-screen);
+  margin-bottom: 12px;
+}
+
+.fileira-cabeca .titulo-secao {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ver-tudo {
+  background: none;
+  border: none;
+  padding: 12px 0;
+  margin: -12px 0;
+  cursor: pointer;
+  flex: none;
+}
+
+.fileira-trilho {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding: 0 var(--margin-screen);
+  scrollbar-width: none;
+  scroll-snap-type: x proximity;
+  scroll-padding-inline: var(--margin-screen);
+}
+
+.fileira-trilho > * {
+  scroll-snap-align: start;
+}
+
+.fileira-trilho--tiles {
+  gap: 8px;
+}
+
+/* Card de treino 148 × 184. */
+.card-treino {
+  flex: none;
+  width: 148px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  text-align: left;
+}
+
+.card-treino__capa {
+  position: relative;
+  height: 184px;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  overflow: hidden;
+}
+
+.card-treino__capa--bloqueado {
+  background: var(--track);
+}
+
+.card-treino__foto {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center bottom;
+}
+
+.card-treino__mapa {
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  width: 56px;
+  height: 47px;
+  object-fit: contain;
+  background: #ffffff;
+  border: 1px solid var(--ink);
+}
+
+.card-treino__check {
+  position: absolute;
+  right: 6px;
+  top: 6px;
+  width: 26px;
+  height: 26px;
+  font-size: 12px;
+}
+
+.card-treino__progresso {
+  height: 4px;
+  background: var(--track);
+}
+
+.card-treino__progresso > span {
+  display: block;
+  height: 4px;
+  background: var(--ink);
+}
+
+.card-treino__meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: var(--ink-2);
+}
+
+.tile {
+  flex: none;
+  width: 118px;
+  height: 84px;
+  border: var(--border);
+  padding: 10px;
+  display: flex;
+  align-items: flex-end;
+  font-size: 16px;
+  font-weight: 850;
+  font-stretch: 74%;
+  line-height: 0.98;
+  text-transform: uppercase;
+  cursor: pointer;
+  background: #ffffff;
+  text-align: left;
+}
+
+.tile:hover {
+  border-width: 3px;
+  padding: 8px;
+}
+
+/* Cadeado em traço: alça arredondada + corpo retangular. */
+.cadeado {
+  position: relative;
+  display: inline-block;
+}
+
+.cadeado > i:first-child {
+  position: absolute;
+  top: 0;
+  border: 2px solid var(--ink);
+  border-bottom: none;
+}
+
+.cadeado > i:last-child {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  border: 2px solid var(--ink);
+}
+
+/* ── Folha inferior (menu, trocar, dor) ─────────────────── */
+
+.folha-fundo {
+  position: absolute;
+  inset: 0;
+  background: rgba(17, 17, 17, 0.45);
+  z-index: 20;
+}
+
+.folha {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 21;
+  background: #ffffff;
+  border-top: var(--border-strong);
+  padding: 20px 20px calc(24px + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.aviso-rapido {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(min(100vw, 430px) - 40px);
+  bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+  z-index: 30;
+  background: var(--ink);
+  color: #ffffff;
+  padding: 14px 16px;
+  font-size: 14px;
+  line-height: 1.4;
+  border: 2px solid #ffffff;
+}
