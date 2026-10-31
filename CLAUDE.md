@@ -57,6 +57,14 @@ Tokens e classes da marca em `app/globals.css`. Peças reutilizáveis em `compon
   `?dia=descanso`, `?descanso=faixa`). Sai quando o estado real do aluno vier do banco.
 - `public/assets/`: bonecos do mapa muscular (20 de 58), fotos recortadas e vídeos de exemplo.
 
+## Banco (Supabase)
+
+Migrations em `supabase/migrations/*.sql`, aplicadas **à mão** no SQL Editor (sem CLI), em ordem, com o
+mesmo padrão do +Q Pilates: idempotentes, número seguinte, `<n>a` para correção logo em seguida.
+Toda escrita passa pelo servidor (service role); RLS só libera leitura (aluno lê as próprias linhas,
+catálogo publicado para qualquer logado, Master lê tudo via `is_master()`). Papel `master` nunca vem do
+cadastro: é promovido à mão. `exercicios.id` é o mesmo uuid do +Q Pilates. Fotos do corpo nunca sobem.
+
 ## Estados do aluno
 
 `assinante` (tudo liberado), `programa` (programa comprado + 1ª semana do protocolo; resto com cadeado),
