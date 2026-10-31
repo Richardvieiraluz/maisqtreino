@@ -1,4 +1,4 @@
-// Dados fixos do produto. O CREF veio do handoff do design: confirmar antes do lançamento.
+// Dados fixos do produto. CREF confirmado pelo Richard em 31/10/2026.
 export const TREINADOR = {
   nome: "Richard Vieira",
   profissao: "Profissional de educação física",
