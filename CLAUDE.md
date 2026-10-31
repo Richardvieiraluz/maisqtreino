@@ -37,9 +37,11 @@ Tokens e classes da marca em `app/globals.css`. Peças reutilizáveis em `compon
 
 ## Estrutura
 
-- `app/`: rotas (App Router). `/` Início, `/treino/[id]` sessão de treino em tela cheia, abas
-  `/plano`, `/evolucao`, `/perfil` (ainda em construção).
-- `components/`: telas e componentes. `inicio/`, `treino/`, `abas/`.
+- `app/`: rotas (App Router). `/` Início, `/quiz`, `/plano`, `/detalhe/[id]` (protocolo-NN ou
+  programa-gluteo), `/treino/[id]` sessão de treino em tela cheia, `/evolucao` e `/perfil` (em construção).
+- `components/`: telas e componentes. `inicio/`, `quiz/`, `plano/`, `detalhe/`, `treino/`, `abas/`.
+- `lib/quiz.ts`: perguntas, áreas do mapa de regiões e respostas salvas no aparelho (localStorage) até
+  existir banco. `lib/plano.ts`: **protocolo e programa de exemplo**.
 - `lib/tipos.ts`: tipos do domínio. `lib/sessao.ts`: estado da sessão de treino (reducer).
   `lib/midia.ts`: boneco, foto e vídeo por nome. `lib/dados-exemplo.ts`: **dados fictícios** do protótipo.
 - `lib/demo.ts`: controles de demonstração pela URL (`?estado=programa|pausada`, `?sexo=masculino`,

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ALUNO_EXEMPLO, FILEIRAS_CARDS, FILEIRAS_TILES, RAPIDOS_MIN, TREINO_HOJE } from "@/lib/dados-exemplo";
 import { useDemo } from "@/lib/demo";
+import { useRespostasSalvas } from "@/lib/quiz";
 import { bonecoDe, fotoDe, videoDe } from "@/lib/midia";
 import { useAvisoRapido } from "../AvisoRapido";
 import { Cadeado, doisDigitos, Logo, Selo, TituloDestaque } from "../marca";
@@ -14,6 +15,8 @@ export function Inicio() {
   const demo = useDemo();
   const router = useRouter();
   const aviso = useAvisoRapido();
+  const [respostas] = useRespostasSalvas();
+  const local = respostas?.local ?? TREINO_HOJE.local;
   const pausada = demo.estado === "pausada";
   const t = TREINO_HOJE;
   const posicao = `PROTOCOLO ${doisDigitos(t.posicaoProtocolo)} / ${t.totalProtocolo}`;
@@ -28,6 +31,9 @@ export function Inicio() {
           ? "Abre a oferta da assinatura com 50% no primeiro mês. Próxima etapa."
           : "Abre a oferta da assinatura. Próxima etapa.",
     );
+
+  const sep = demo.qs ? "&" : "?";
+  const abrirDetalhe = (id: string) => router.push(`/detalhe/${id}${demo.qs}${sep}de=inicio`);
 
   const comecar = () => {
     if (pausada) return abrirOferta();
@@ -110,11 +116,11 @@ export function Inicio() {
                   <span className="rotulo">PRÓXIMO · AMANHÃ, {ALUNO_EXEMPLO.proximoTreinoHora}</span>
                   <span style={{ fontSize: 20, fontWeight: 850, fontStretch: "74%", textTransform: "uppercase", lineHeight: 1 }}>{t.nome}</span>
                   <span style={{ fontSize: 12, color: "var(--ink-2)" }}>
-                    {t.duracaoMin} min · {t.local}
+                    {t.duracaoMin} min · {local}
                   </span>
                 </div>
               </div>
-              <button type="button" className="botao botao--secundario" onClick={() => emBreve("O detalhe do treino")}>
+              <button type="button" className="botao botao--secundario" onClick={() => abrirDetalhe(`protocolo-${doisDigitos(t.posicaoProtocolo)}`)}>
                 Ver o próximo treino
               </button>
             </div>
@@ -153,7 +159,7 @@ export function Inicio() {
             </h1>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16, flexWrap: "wrap" }}>
               <span style={{ fontSize: 13, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase" }}>
-                {t.duracaoMin} min · {t.exercicios.length} exercícios · {t.local}
+                {t.duracaoMin} min · {t.exercicios.length} exercícios · {local}
               </span>
               <Selo>{t.nivel}</Selo>
             </div>
@@ -181,7 +187,7 @@ export function Inicio() {
                     card={c}
                     sexo={demo.sexo}
                     bloqueado={bloqueado}
-                    onToque={bloqueado ? abrirOferta : () => emBreve("O detalhe do treino")}
+                    onToque={bloqueado ? abrirOferta : () => abrirDetalhe(c.id === "programa-gluteo" ? "programa-gluteo" : `protocolo-${doisDigitos(t.posicaoProtocolo)}`)}
                   />
                 );
               })}

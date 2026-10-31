@@ -11,15 +11,16 @@ const ABAS = [
   { href: "/perfil", rotulo: "Perfil" },
 ];
 
-export function RodapeAbas() {
+/** ativa: força a aba destacada (telas fora das 4 rotas, como o detalhe do treino). */
+export function RodapeAbas({ ativa }: { ativa?: string } = {}) {
   const caminho = usePathname();
   const { qs } = useDemo();
   return (
     <nav className="abas" aria-label="Navegação principal">
       {ABAS.map((a) => {
-        const ativa = a.href === "/" ? caminho === "/" : caminho.startsWith(a.href);
+        const marcada = ativa ? a.href === ativa : a.href === "/" ? caminho === "/" : caminho.startsWith(a.href);
         return (
-          <Link key={a.href} href={a.href + qs} aria-current={ativa ? "page" : undefined}>
+          <Link key={a.href} href={a.href + qs} aria-current={marcada ? "page" : undefined}>
             <span>{a.rotulo}</span>
             <i />
           </Link>

@@ -22,12 +22,20 @@ Enquanto não existe login, o estado do aluno é escolhido pela URL:
 | `/?estado=pausada` | Assinatura pausada |
 | `/?dia=descanso` | Início em dia de descanso |
 | `/?sexo=masculino` | Mapa muscular masculino |
+| `/quiz` | Quiz de entrada (as respostas ficam salvas no aparelho) |
+| `/plano` | Meu plano: protocolo em grade ou lista, programa e mudar de local |
+| `/detalhe/protocolo-07` | Detalhe de um treino do protocolo (01 a 24) |
+| `/detalhe/programa-gluteo` | Detalhe do programa, com a ordem sugerida |
 | `/treino/gluteo-posterior-07` | Execução do treino |
 | `/treino/gluteo-posterior-07?descanso=faixa` | Descanso em faixa, em vez de tela cheia |
 
 Todos os números e nomes nas telas são **dados de exemplo**.
 
-## Etapa atual
+## Etapas prontas
 
 Rodada 1 do design recriada: Início (com vitrine, cadeados e dia de descanso), Execução (repetição,
 tempo, descanso, recorde, voz, explicação, trocar exercício e aviso de dor), Avaliação e Resumo.
+
+Rodada 2 do design recriada: Quiz (10 perguntas, mapa de regiões, equipamentos por academia
+completa, lista ou foto), Resultado, Detalhe do treino e Meu plano. A análise da foto ainda é
+simulada: a foto fica só no aparelho e nunca é enviada.

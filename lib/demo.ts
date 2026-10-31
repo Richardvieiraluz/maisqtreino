@@ -3,13 +3,14 @@
 // Controles de demonstração pela URL, para revisar as telas em cada estado
 // enquanto não existe login nem banco. Ex.: /?estado=programa&sexo=masculino
 //   estado   = assinante | programa | pausada   (padrão: assinante)
-//   sexo     = feminino | masculino              (padrão: feminino)
+//   sexo     = feminino | masculino              (padrão: o do quiz, ou feminino)
 //   dia      = descanso                          (Início em dia de descanso)
 //   descanso = tela | faixa                      (padrão: tela)
 // Some quando o estado real do aluno vier do banco.
 
 import { useSearchParams } from "next/navigation";
 import type { Sexo } from "./midia";
+import { useRespostasSalvas } from "./quiz";
 import type { EstadoAcesso } from "./tipos";
 
 export interface Demo {
@@ -24,7 +25,10 @@ export interface Demo {
 export function useDemo(): Demo {
   const p = useSearchParams();
   const estado = (["assinante", "programa", "pausada"] as const).find((v) => v === p.get("estado")) ?? "assinante";
-  const sexo: Sexo = p.get("sexo") === "masculino" ? "masculino" : "feminino";
+  const [respostas] = useRespostasSalvas();
+  // URL manda; sem ela, vale o sexo respondido no quiz.
+  const sexoUrl = p.get("sexo");
+  const sexo: Sexo = (sexoUrl ?? respostas?.sexo?.toLowerCase()) === "masculino" ? "masculino" : "feminino";
   const qs = p.toString();
   return {
     estado,
