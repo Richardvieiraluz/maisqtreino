@@ -168,7 +168,7 @@ export function PrimeiroAcesso() {
             SENHA
           </label>
           <input id="senha" type="password" autoComplete="current-password" value={senha} onChange={(e) => setSenha(e.target.value)} placeholder="Sua senha" style={campo} />
-          <button type="button" style={{ ...linkSublinhado, alignSelf: "flex-start" }} onClick={() => aviso.mostrar("Enviamos um link para criar uma senha nova no seu e-mail.")}>
+          <button type="button" style={{ ...linkSublinhado, alignSelf: "flex-start" }} onClick={() => router.push("/entrar/esqueci")}>
             Esqueci a senha
           </button>
           <button type="submit" className="botao botao--primario" style={{ marginTop: "auto", background: email && senha ? "#111" : "var(--track)" }}>

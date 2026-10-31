@@ -31,6 +31,12 @@ Enquanto não existe login, o estado do aluno é escolhido pela URL:
 | `/stories` | Stories 1080 × 1920 para compartilhar |
 | `/oferta` e `/reativar` | Oferta da assinatura e reativação |
 | `/perfil` | Perfil, lembretes e excluir conta |
+| `/perfil/dados`, `/equipamentos`, `/lembretes`, `/faq`, `/termos` | Subtelas do Perfil (termos com download dos dados e revogação) |
+| `/busca` e `/busca?q=Glúteo` | Busca de treinos |
+| `/ver-tudo?fileira=Rápidos` | Fileira em grade, com filtros de nível, duração e local |
+| `/entrar/esqueci` | Esqueci a senha |
+| `/lesoes?regiao=joelho` | Trilha de lesões em 4 fases, com checagem de dor de 0 a 10 |
+| `/master` | Painel do Master (+ `/funil`, `/alunos`, `/alunos/[id]`, `/parou`, `/protocolos`, `/explicacoes`, `/vitrine`) |
 | `/treino/gluteo-posterior-07` | Execução do treino |
 | `/treino/gluteo-posterior-07?descanso=faixa` | Descanso em faixa, em vez de tela cheia |
 
@@ -48,3 +54,7 @@ simulada: a foto fica só no aparelho e nunca é enviada.
 Rodada 3 do design recriada: primeiro acesso, Evolução, fotos do corpo (câmera com silhueta,
 guardadas só no aparelho), medidas, stories gerado como imagem e compartilhado pelo celular,
 oferta, reativação e Perfil. Login e pagamento ainda não existem: entram com o backend.
+
+Rodadas 4 e 5 do design recriadas: busca, ver tudo, esqueci a senha, subtelas do Perfil, trilha de
+lesões e o painel Master completo (painel, funil, alunos e ficha, quem parou, protocolos com
+avaliações e auditoria, explicações em lote e ordem da vitrine). Números do Master são de exemplo.

@@ -6,7 +6,7 @@ import { lembretes as armLembretes } from "@/lib/armazenamento";
 import { useDemo } from "@/lib/demo";
 import { apagarFotos } from "@/lib/fotos-corpo";
 import { RESPOSTAS_PADRAO, useRespostasSalvas } from "@/lib/quiz";
-import { fmtHora, PassosInstalar, SeletorLembrete } from "../acesso/PrimeiroAcesso";
+import { fmtHora, PassosInstalar } from "../acesso/PrimeiroAcesso";
 import { useAvisoRapido } from "../AvisoRapido";
 import { Logo, Selo } from "../marca";
 import { RodapeAbas } from "../RodapeAbas";
@@ -15,14 +15,14 @@ import { RodapeAbas } from "../RodapeAbas";
 const ALUNO = { nome: "Mariana Costa", email: "mariana.costa@email.com", iniciais: "MC" };
 const NOMES_DIAS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 
-type Folha = null | "lembretes" | "instalar" | "excluir";
+type Folha = null | "instalar" | "excluir";
 
 export function Perfil() {
   const demo = useDemo();
   const router = useRouter();
   const aviso = useAvisoRapido();
   const [respostas] = useRespostasSalvas();
-  const [lemb, setLemb] = armLembretes.usar();
+  const [lemb] = armLembretes.usar();
   const [folha, setFolha] = useState<Folha>(null);
   const [so, setSo] = useState<"ios" | "android">("ios");
   const pausada = demo.estado === "pausada";
@@ -40,16 +40,16 @@ export function Perfil() {
     {
       titulo: "TREINO",
       linhas: [
-        { k: "Dados pessoais", v: `${r.sexo} · ${r.idade} · ${r.nivel}`, acao: () => router.push(`/quiz${demo.qs}`) },
-        { k: "Equipamentos", v: r.equip === "Academia completa" ? "Academia completa" : `${r.local} · ${equipamentos}`, acao: () => router.push(`/plano${demo.qs}`) },
-        { k: "Lembretes", v: lemb.ativo ? `${fmtHora(lemb.horario)} · ${lemb.dias.map((d) => NOMES_DIAS[d]).join(", ")}` : "Desligados", acao: () => setFolha("lembretes") },
+        { k: "Dados pessoais", v: `${r.sexo} · ${r.idade} · ${r.nivel}`, acao: () => router.push(`/perfil/dados${demo.qs}`) },
+        { k: "Equipamentos", v: r.equip === "Academia completa" ? "Academia completa" : `${r.local} · ${equipamentos}`, acao: () => router.push(`/perfil/equipamentos${demo.qs}`) },
+        { k: "Lembretes", v: lemb.ativo ? `${fmtHora(lemb.horario)} · ${lemb.dias.map((d) => NOMES_DIAS[d]).join(", ")}` : "Desligados", acao: () => router.push(`/perfil/lembretes${demo.qs}`) },
       ],
     },
     {
       titulo: "AJUDA",
       linhas: [
-        { k: "Perguntas frequentes", v: "Treino, pagamento e acesso", acao: () => aviso.mostrar("Perguntas frequentes entram na próxima etapa.") },
-        { k: "Termos e privacidade", v: "Termo de responsabilidade e dados de saúde", acao: () => aviso.mostrar("Termos e privacidade entram na próxima etapa.") },
+        { k: "Perguntas frequentes", v: "Treino, pagamento e acesso", acao: () => router.push(`/perfil/faq${demo.qs}`) },
+        { k: "Termos e privacidade", v: "Termo de responsabilidade e dados de saúde", acao: () => router.push(`/perfil/termos${demo.qs}`) },
         { k: "Instalar o app", v: "Passo a passo para iPhone e Android", acao: () => setFolha("instalar") },
       ],
     },
@@ -133,31 +133,6 @@ export function Perfil() {
         <>
           <div className="folha-fundo" onClick={() => setFolha(null)} />
           <div className="folha" role="dialog" aria-modal="true" style={{ maxHeight: "90%", overflowY: "auto" }}>
-            {folha === "lembretes" && (
-              <>
-                <div style={{ fontSize: 26, fontWeight: 850, fontStretch: "72%", letterSpacing: "-0.02em", textTransform: "uppercase", lineHeight: 0.95 }}>Lembretes</div>
-                <SeletorLembrete horario={lemb.horario} dias={lemb.dias} onHorario={(h) => setLemb({ ...lemb, horario: h })} onDias={(d) => setLemb({ ...lemb, dias: d })} />
-                <button
-                  type="button"
-                  className="botao botao--primario"
-                  style={{ marginTop: 8 }}
-                  onClick={async () => {
-                    let ok = lemb.ativo;
-                    if (!ok && typeof Notification !== "undefined") ok = (await Notification.requestPermission().catch(() => "denied")) === "granted";
-                    setLemb({ ...lemb, ativo: ok });
-                    setFolha(null);
-                    aviso.mostrar(ok ? "Lembretes salvos." : "Permita as notificações do app para receber os lembretes.");
-                  }}
-                >
-                  Salvar
-                </button>
-                {lemb.ativo && (
-                  <button type="button" className="botao botao--secundario" onClick={() => (setLemb({ ...lemb, ativo: false }), setFolha(null))}>
-                    Desligar lembretes
-                  </button>
-                )}
-              </>
-            )}
             {folha === "instalar" && (
               <>
                 <div style={{ fontSize: 26, fontWeight: 850, fontStretch: "72%", letterSpacing: "-0.02em", textTransform: "uppercase", lineHeight: 0.95 }}>Instalar o app</div>

@@ -21,8 +21,6 @@ export function Inicio() {
   const t = TREINO_HOJE;
   const posicao = `PROTOCOLO ${doisDigitos(t.posicaoProtocolo)} / ${t.totalProtocolo}`;
 
-  // Telas das próximas etapas: por enquanto, um aviso no lugar da navegação.
-  const emBreve = (tela: string) => aviso.mostrar(`${tela} entra na próxima etapa do desenvolvimento.`);
   const abrirOferta = () => router.push(`${pausada ? "/reativar" : "/oferta"}${demo.qs}`);
 
   const sep = demo.qs ? "&" : "?";
@@ -65,7 +63,7 @@ export function Inicio() {
         <div style={{ padding: "0 20px 20px" }}>
           <button
             type="button"
-            onClick={() => emBreve("A busca")}
+            onClick={() => router.push(`/busca${demo.qs}`)}
             style={{ width: "100%", height: 46, border: "1px solid #111", display: "flex", alignItems: "center", gap: 10, padding: "0 14px", background: "#fff", cursor: "pointer" }}
           >
             <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden>
@@ -167,7 +165,7 @@ export function Inicio() {
           <section className="fileira" key={f.titulo}>
             <div className="fileira-cabeca">
               <h2 className="titulo-secao">{f.titulo}</h2>
-              <button type="button" className="ver-tudo rotulo" onClick={() => emBreve(`"${f.titulo}" em grade`)}>
+              <button type="button" className="ver-tudo rotulo" onClick={() => router.push(`/ver-tudo${demo.qs}${sep}fileira=${encodeURIComponent(f.titulo)}`)}>
                 VER TUDO
               </button>
             </div>
@@ -196,7 +194,7 @@ export function Inicio() {
             </h2>
             <div className="fileira-trilho fileira-trilho--tiles">
               {f.itens.map((n) => (
-                <button type="button" className="tile" key={n} onClick={() => emBreve(`A lista de "${n}"`)}>
+                <button type="button" className="tile" key={n} onClick={() => router.push(`/busca${demo.qs}${sep}q=${encodeURIComponent(n)}`)}>
                   {n}
                 </button>
               ))}
@@ -207,7 +205,7 @@ export function Inicio() {
         {/* Trilha de lesões */}
         <button
           type="button"
-          onClick={() => emBreve("A trilha de lesões")}
+          onClick={() => router.push(`/lesoes${demo.qs}`)}
           style={{ margin: "32px 20px 0", width: "calc(100% - 40px)", background: "#111", color: "#fff", padding: 16, display: "flex", alignItems: "center", gap: 14, border: "none", cursor: "pointer", textAlign: "left" }}
         >
           <span style={{ flex: 1, display: "flex", flexDirection: "column", gap: 6 }}>
@@ -234,7 +232,7 @@ export function Inicio() {
               <button
                 type="button"
                 key={m}
-                onClick={() => emBreve(`Os treinos de ${m} minutos`)}
+                onClick={() => router.push(`/ver-tudo${demo.qs}${sep}fileira=R%C3%A1pidos`)}
                 style={{ border: "1px solid #111", padding: "12px 10px", display: "flex", flexDirection: "column", gap: 2, background: "#fff", cursor: "pointer", textAlign: "left" }}
               >
                 <span className="numero-grande" style={{ fontSize: 48, lineHeight: 0.9 }}>

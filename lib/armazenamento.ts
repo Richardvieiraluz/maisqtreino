@@ -60,8 +60,11 @@ export interface Lembretes {
   horario: number;
   /** 0 = domingo ... 6 = sábado. */
   dias: number[];
+  /** Lembrete das medidas (a cada 4 semanas) e das fotos do corpo (junto com as medidas). */
+  medidas: boolean;
+  fotos: boolean;
 }
-export const lembretes = criarArmazem<Lembretes>("maisqtreino:lembretes", { ativo: false, horario: 420, dias: [1, 3, 5, 6] });
+export const lembretes = criarArmazem<Lembretes>("maisqtreino:lembretes", { ativo: false, horario: 420, dias: [1, 3, 5, 6], medidas: true, fotos: false });
 
 export interface Prontidao {
   respondido: boolean;
@@ -77,3 +80,6 @@ export interface RegistroMedidas {
   valores: Record<string, number>;
 }
 export const medidas = criarArmazem<{ registros: RegistroMedidas[] }>("maisqtreino:medidas", { registros: [] });
+
+/** Uso dos dados de saúde revogado (LGPD): o plano fica pausado. */
+export const consentimento = criarArmazem<{ dadosSaudeRevogado: boolean }>("maisqtreino:consentimento", { dadosSaudeRevogado: false });
