@@ -1,7 +1,8 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
+import { entrarAction, salvarProntidaoAction } from "@/app/entrar/actions";
 import { lembretes as armLembretes, prontidao as armProntidao } from "@/lib/armazenamento";
 import { TREINADOR } from "@/lib/config";
 import { useDemo } from "@/lib/demo";
@@ -127,8 +128,11 @@ const soDoAparelho = (): "ios" | "android" =>
 export function PrimeiroAcesso() {
   const demo = useDemo();
   const router = useRouter();
+  const params = useSearchParams();
   const aviso = useAvisoRapido();
-  const [etapa, setEtapa] = useState<Etapa>("login");
+  // ?etapa=boasVindas: vem da tela de criar senha, com a sessão já aberta.
+  const [etapa, setEtapa] = useState<Etapa>(params.get("etapa") === "boasVindas" ? "boasVindas" : "login");
+  const [enviando, setEnviando] = useState(false);
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [parq, setParq] = useState<Record<number, "s" | "n">>({});
@@ -146,11 +150,17 @@ export function PrimeiroAcesso() {
         <div className="topo-seguro" />
         <form
           style={tela}
-          onSubmit={(e) => {
+          onSubmit={async (e) => {
             e.preventDefault();
-            // Sem backend ainda: qualquer e-mail e senha seguem. O login real vem com o Supabase.
-            if (email && senha) setEtapa("boasVindas");
-            else aviso.mostrar("Preencha e-mail e senha.");
+            if (!email || !senha) return aviso.mostrar("Preencha e-mail e senha.");
+            if (enviando) return;
+            // Sem as chaves do Supabase (modo demonstração), a action deixa qualquer login seguir.
+            setEnviando(true);
+            const r = await entrarAction(email, senha).catch(() => ({ ok: false as const, error: "Sem conexão. Tente de novo." }));
+            setEnviando(false);
+            if (!r.ok) return aviso.mostrar(r.error);
+            if (r.destino === "boasVindas") setEtapa("boasVindas");
+            else router.replace(r.destino);
           }}
         >
           <Logo />
@@ -171,8 +181,8 @@ export function PrimeiroAcesso() {
           <button type="button" style={{ ...linkSublinhado, alignSelf: "flex-start" }} onClick={() => router.push("/entrar/esqueci")}>
             Esqueci a senha
           </button>
-          <button type="submit" className="botao botao--primario" style={{ marginTop: "auto", background: email && senha ? "#111" : "var(--track)" }}>
-            Entrar
+          <button type="submit" className="botao botao--primario" style={{ marginTop: "auto", background: email && senha && !enviando ? "#111" : "var(--track)" }}>
+            {enviando ? "Entrando" : "Entrar"}
           </button>
         </form>
         {aviso.elemento}
@@ -262,8 +272,10 @@ export function PrimeiroAcesso() {
             type="button"
             className="botao botao--primario"
             style={{ background: parqOk ? "#111" : "var(--track)" }}
-            onClick={() => {
+            onClick={async () => {
               if (!parqOk) return aviso.mostrar(parqCompleto ? "Falta aceitar o termo e o uso dos dados." : "Responda as 7 perguntas.");
+              const r = await salvarProntidaoAction(parq).catch(() => ({ ok: false as const, error: "Sem conexão. Tente de novo." }));
+              if (!r.ok) return aviso.mostrar(r.error);
               armProntidao.salvar({ respondido: true, algumSim, aceitouTermo: true, aceitouDados: true });
               setEtapa("instalar");
             }}

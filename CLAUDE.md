@@ -65,6 +65,17 @@ Toda escrita passa pelo servidor (service role); RLS só libera leitura (aluno l
 catálogo publicado para qualquer logado, Master lê tudo via `is_master()`). Papel `master` nunca vem do
 cadastro: é promovido à mão. `exercicios.id` é o mesmo uuid do +Q Pilates. Fotos do corpo nunca sobem.
 
+## Login
+
+Supabase Auth com e-mail e senha, tudo por Server Action em `app/entrar/actions.ts` (cookie HttpOnly,
+sem cliente do Supabase no navegador; não reintroduzir `createBrowserClient`). Clientes em `lib/supabase/`:
+`server.ts` (sessão do usuário), `admin.ts` (chave de serviço, `server-only`). `getSessao()` em `lib/auth.ts`
+(cache só da requisição) devolve papel e estado; a regra do estado é `lib/acesso.ts`. `proxy.ts` manda para
+`/entrar` quem não está logado; `app/master/layout.tsx` barra quem não é master. Primeiro acesso e esqueci a
+senha chegam por e-mail em `/entrar/senha?token_hash=…&type=invite|recovery`. Limite de tentativas em
+`lib/limite-tentativas.ts` (migration 002). **Sem as variáveis do Supabase o app roda em modo demonstração**
+(qualquer login entra). Variáveis e passo a passo: `docs/configurar-login.md`.
+
 ## Estados do aluno
 
 `assinante` (tudo liberado), `programa` (programa comprado + 1ª semana do protocolo; resto com cadeado),

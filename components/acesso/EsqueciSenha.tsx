@@ -2,13 +2,14 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { esqueciSenhaAction } from "@/app/entrar/actions";
 import { useAvisoRapido } from "../AvisoRapido";
 import { BotaoVoltar } from "../quiz/pecas";
 
 const REENVIO_S = 59;
 
 /** Esqueci a senha: link de 1 hora por e-mail, com reenvio a cada 59 s.
- *  O envio real entra com o Supabase Auth. */
+ *  A resposta é sempre a mesma, exista ou não cadastro com esse e-mail. */
 export function EsqueciSenha() {
   const router = useRouter();
   const aviso = useAvisoRapido();
@@ -39,6 +40,7 @@ export function EsqueciSenha() {
           onSubmit={(e) => {
             e.preventDefault();
             if (!valido) return aviso.mostrar("Digite o e-mail da compra.");
+            void esqueciSenhaAction(email).catch(() => undefined);
             setEnviado(true);
             setEspera(REENVIO_S);
           }}
@@ -76,6 +78,7 @@ export function EsqueciSenha() {
               style={{ background: "#fff", border: `2px solid ${espera > 0 ? "var(--line)" : "#111"}`, color: espera > 0 ? "var(--ink-2)" : "#111" }}
               onClick={() => {
                 setEspera(REENVIO_S);
+                void esqueciSenhaAction(email).catch(() => undefined);
                 aviso.mostrar("Link reenviado.");
               }}
             >

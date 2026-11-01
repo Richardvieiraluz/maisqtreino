@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { sairAction } from "@/app/entrar/actions";
 import { lembretes as armLembretes } from "@/lib/armazenamento";
 import { useDemo } from "@/lib/demo";
 import { apagarFotos } from "@/lib/fotos-corpo";
@@ -115,7 +116,7 @@ export function Perfil() {
         ))}
 
         <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 4 }}>
-          <button type="button" onClick={() => router.push("/entrar")} style={{ height: 44, padding: 0, background: "none", border: "none", fontWeight: 700, fontSize: 15, cursor: "pointer" }}>
+          <button type="button" onClick={() => void sairAction()} style={{ height: 44, padding: 0, background: "none", border: "none", fontWeight: 700, fontSize: 15, cursor: "pointer" }}>
             Sair
           </button>
           <button
