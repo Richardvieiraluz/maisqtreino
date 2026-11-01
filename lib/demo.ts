@@ -6,10 +6,12 @@
 //   sexo     = feminino | masculino              (padrão: o do quiz, ou feminino)
 //   dia      = descanso                          (Início em dia de descanso)
 //   descanso = tela | faixa                      (padrão: tela)
-// Some quando o estado real do aluno vier do banco.
+// Logado como aluno, o estado vem da compra real (o ?estado= da URL é ignorado). O Master
+// continua podendo usar ?estado= para ver o app como cada tipo de aluno.
 
 import { useSearchParams } from "next/navigation";
 import type { Sexo } from "./midia";
+import { useConta } from "./conta";
 import { useRespostasSalvas } from "./quiz";
 import type { EstadoAcesso } from "./tipos";
 
@@ -24,7 +26,11 @@ export interface Demo {
 
 export function useDemo(): Demo {
   const p = useSearchParams();
-  const estado = (["assinante", "programa", "pausada"] as const).find((v) => v === p.get("estado")) ?? "assinante";
+  const conta = useConta();
+  const daUrl = (["assinante", "programa", "pausada"] as const).find((v) => v === p.get("estado"));
+  // Aluno sem compra vigente vê tudo com cadeado, como a assinatura pausada.
+  const real: EstadoAcesso | undefined = conta && conta.papel === "aluno" ? (conta.estado === "sem_acesso" ? "pausada" : conta.estado) : undefined;
+  const estado: EstadoAcesso = real ?? daUrl ?? "assinante";
   const [respostas] = useRespostasSalvas();
   // URL manda; sem ela, vale o sexo respondido no quiz.
   const sexoUrl = p.get("sexo");

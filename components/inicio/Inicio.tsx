@@ -10,8 +10,10 @@ import { useAvisoRapido } from "../AvisoRapido";
 import { Cadeado, doisDigitos, Logo, Selo, TituloDestaque } from "../marca";
 import { RodapeAbas } from "../RodapeAbas";
 import { CardTreino } from "./CardTreino";
+import { useAlunoExibido } from "@/lib/conta";
 
 export function Inicio() {
+  const aluno = useAlunoExibido();
   const demo = useDemo();
   const router = useRouter();
   const aviso = useAvisoRapido();
@@ -54,7 +56,7 @@ export function Inicio() {
               aria-label="Perfil"
               style={{ width: 38, height: 38, border: "2px solid #111", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 13, color: "#111", textDecoration: "none" }}
             >
-              {ALUNO_EXEMPLO.iniciais}
+              {aluno.iniciais}
             </Link>
           </div>
         </div>

@@ -77,6 +77,19 @@ senha chegam por e-mail em `/entrar/senha`, em três formatos aceitos: `?token_h
 `lib/limite-tentativas.ts` (migration 002). **Sem as variáveis do Supabase o app roda em modo demonstração**
 (qualquer login entra). Variáveis e passo a passo: `docs/configurar-login.md`.
 
+## Conta nas telas
+
+`app/layout.tsx` lê a sessão e o último quiz e entrega a conta às telas por `ProvedorConta` (`lib/conta.tsx`).
+`useConta()` é null no modo demonstração. `useRespostasSalvas()` (lib/quiz.ts) usa o quiz da conta e grava
+cada versão em `respostas_quiz` (`lib/acoes/conta.ts`); sem conta, usa o aparelho. `useDemo().estado` vem da
+compra real para aluno (`sem_acesso` vira cadeado e a Início manda para /oferta); o Master continua podendo
+usar `?estado=`. `useAlunoExibido()` dá nome, e-mail e iniciais.
+
+Master real: `lib/dados/master.ts` lê o banco (de 1000 em 1000), `lib/master-calculos.ts` faz as contas
+(funções puras), as rotas `app/master/*` passam os dados e os componentes de `TelasMaster` usam os exemplos
+quando não recebem nada. Ações (convidar aluno, liberar acesso, reenviar login) em `lib/acoes/master.ts`,
+cada uma confere o papel master de novo. Protocolos, Explicações e Vitrine seguem de exemplo até o catálogo.
+
 ## Estados do aluno
 
 `assinante` (tudo liberado), `programa` (programa comprado + 1ª semana do protocolo; resto com cadeado),

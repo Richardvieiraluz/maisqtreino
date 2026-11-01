@@ -27,7 +27,8 @@ const hoje = () => {
 };
 
 /** Moldura do Master: cabeçalho, área cinza e rodapé com 4 abas (Conteúdo abre um menu). */
-export function LayoutMaster({ children, voltar }: { children: ReactNode; voltar?: string }) {
+/** aviso: faixa preta abaixo do cabeçalho. Padrão = dados de exemplo; null = sem faixa (dados reais). */
+export function LayoutMaster({ children, voltar, aviso = "DADOS DE EXEMPLO · ENTRAM OS REAIS COM O BANCO E A EDUZZ" }: { children: ReactNode; voltar?: string; aviso?: string | null }) {
   const caminho = usePathname();
   const router = useRouter();
   const [menu, setMenu] = useState(false);
@@ -56,7 +57,7 @@ export function LayoutMaster({ children, voltar }: { children: ReactNode; voltar
           </span>
         )}
       </div>
-      <div style={{ flex: "none", background: "var(--ink)", color: "#fff", fontSize: 11, fontWeight: 700, letterSpacing: ".06em", padding: "6px 20px" }}>DADOS DE EXEMPLO · ENTRAM OS REAIS COM O BANCO E A EDUZZ</div>
+      {aviso && <div style={{ flex: "none", background: "var(--ink)", color: "#fff", fontSize: 11, fontWeight: 700, letterSpacing: ".06em", padding: "6px 20px" }}>{aviso}</div>}
       <div className="rolagem">{children}</div>
       <nav className="abas" aria-label="Navegação do Master">
         {ABAS.map((a) =>

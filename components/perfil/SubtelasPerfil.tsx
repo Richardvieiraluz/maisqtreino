@@ -10,6 +10,7 @@ import { SeletorLembrete } from "../acesso/PrimeiroAcesso";
 import { useAvisoRapido } from "../AvisoRapido";
 import { Check, Selo } from "../marca";
 import { BotaoVoltar } from "../quiz/pecas";
+import { useAlunoExibido } from "@/lib/conta";
 
 export type Subtela = "dados" | "equipamentos" | "lembretes" | "faq" | "termos";
 export const SUBTELAS: Record<Subtela, string> = {
@@ -20,7 +21,6 @@ export const SUBTELAS: Record<Subtela, string> = {
   termos: "Termos e privacidade",
 };
 
-const ALUNO = { nome: "Mariana Costa", email: "mariana.costa@email.com" };
 const ITENS = ["Halter", "Elástico", "Banco", "Mini band", "Kettlebell", "Barra", "TRX", "Bola suíça", "Caneleira", "Colchonete"];
 const FAQ: [string, string][] = [
   ["Preciso de academia?", "Não. O protocolo é montado com o que você marcou no quiz: casa, condomínio ou academia."],
@@ -42,6 +42,7 @@ function Interruptor({ ligado }: { ligado: boolean }) {
 }
 
 export function SubtelaPerfil({ tela }: { tela: Subtela }) {
+  const ALUNO = useAlunoExibido();
   const demo = useDemo();
   const router = useRouter();
   const aviso = useAvisoRapido();

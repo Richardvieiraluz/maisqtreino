@@ -11,14 +11,15 @@ import { fmtHora, PassosInstalar } from "../acesso/PrimeiroAcesso";
 import { useAvisoRapido } from "../AvisoRapido";
 import { Logo, Selo } from "../marca";
 import { RodapeAbas } from "../RodapeAbas";
+import { useAlunoExibido } from "@/lib/conta";
 
 // Aluno de exemplo até existir login.
-const ALUNO = { nome: "Mariana Costa", email: "mariana.costa@email.com", iniciais: "MC" };
 const NOMES_DIAS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 
 type Folha = null | "instalar" | "excluir";
 
 export function Perfil() {
+  const ALUNO = useAlunoExibido();
   const demo = useDemo();
   const router = useRouter();
   const aviso = useAvisoRapido();

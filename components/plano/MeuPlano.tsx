@@ -3,13 +3,13 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { ALUNO_EXEMPLO } from "@/lib/dados-exemplo";
 import { useDemo } from "@/lib/demo";
 import { progressoProtocolo, PROGRAMA_GLUTEO, situacaoDoTreino, tipoDoTreino, TREINOS_TIPO, type SituacaoTreino } from "@/lib/plano";
 import { RESPOSTAS_PADRAO, useRespostasSalvas } from "@/lib/quiz";
 import { useAvisoRapido } from "../AvisoRapido";
 import { Check, doisDigitos, Logo, Selo } from "../marca";
 import { RodapeAbas } from "../RodapeAbas";
+import { useAlunoExibido } from "@/lib/conta";
 
 const TOTAL = 24;
 const LOCAIS = ["Em casa", "Academia", "Condomínio"];
@@ -24,6 +24,7 @@ function CadeadoMini() {
 }
 
 export function MeuPlano() {
+  const aluno = useAlunoExibido();
   const demo = useDemo();
   const router = useRouter();
   const aviso = useAvisoRapido();
@@ -60,7 +61,7 @@ export function MeuPlano() {
             aria-label="Perfil"
             style={{ width: 38, height: 38, border: "2px solid #111", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 13, color: "#111", textDecoration: "none" }}
           >
-            {ALUNO_EXEMPLO.iniciais}
+            {aluno.iniciais}
           </Link>
         </div>
         <div style={{ padding: "0 20px 24px" }}>

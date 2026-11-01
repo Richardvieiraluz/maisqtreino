@@ -1,8 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { ALUNOS, AUDITORIA, AVALIACOES, diasDesde, EXPLICACOES, EXPLICACOES_OUTRAS, FILEIRAS_VITRINE, FUNIL, iniciais, MAIS_TROCADOS, PAINEL, PARADOS } from "@/lib/master-exemplo";
+import { convidarAlunoAction, liberarAcessoAction, reenviarLoginAction } from "@/lib/acoes/master";
+import type { FichaDados, ProdutoOpcao } from "@/lib/dados/master";
+import type { AlunoLista, PainelDados, Parado, Periodo } from "@/lib/master-calculos";
+import { ALUNOS, AUDITORIA, AVALIACOES, diasDesde, EXPLICACOES, EXPLICACOES_OUTRAS, FILEIRAS_VITRINE, FUNIL as FUNIL_EXEMPLO, iniciais, MAIS_TROCADOS, PAINEL as PAINEL_EXEMPLO, PARADOS as PARADOS_EXEMPLO } from "@/lib/master-exemplo";
 import { useAvisoRapido } from "../AvisoRapido";
 import { doisDigitos, Selo } from "../marca";
 import { cartao, LayoutMaster, pagina, Segmentado, TituloMaster } from "./LayoutMaster";
@@ -25,11 +29,13 @@ function Numero({ rotulo, valor, sub }: { rotulo: string; valor: string; sub: st
 
 // ── Painel ───────────────────────────────────────────────────────────────────
 
-export function PainelMaster() {
-  const maior = Math.max(...PAINEL.faturamento.map((f) => f[2]));
+export function PainelMaster({ dados }: { dados?: PainelDados }) {
+  const real = !!dados;
+  const PAINEL: PainelDados = dados ?? PAINEL_EXEMPLO;
+  const maior = Math.max(1, ...PAINEL.faturamento.map((f) => f[2]));
   const mes = new Date().toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
   return (
-    <LayoutMaster>
+    <LayoutMaster aviso={real ? "VALORES EM REAIS ENTRAM COM A EDUZZ" : undefined}>
       <div style={pagina}>
         <TituloMaster sub={`${mes[0].toUpperCase()}${mes.slice(1)}, até hoje.`}>Painel</TituloMaster>
         <div style={{ ...cartao, padding: 16 }}>
@@ -48,7 +54,7 @@ export function PainelMaster() {
         </div>
 
         <h2 className="titulo-secao" style={tituloSecao}>
-          Faturamento por produto
+          {real ? "Acessos ativos por produto" : "Faturamento por produto"}
         </h2>
         <div style={{ ...cartao, padding: "4px 14px 14px" }}>
           {PAINEL.faturamento.map(([nome, vendas, pct], i) => (
@@ -65,7 +71,10 @@ export function PainelMaster() {
               </div>
             </div>
           ))}
-          <p style={{ fontSize: 12, color: "var(--ink-2)", marginTop: 10 }}>Valores em reais vêm da Eduzz. Barras mostram a parte de cada produto no total do mês.</p>
+          {!PAINEL.faturamento.length && <p style={{ fontSize: 14, padding: "12px 0 0" }}>Nenhum acesso ativo ainda.</p>}
+          <p style={{ fontSize: 12, color: "var(--ink-2)", marginTop: 10 }}>
+            {real ? "Barras mostram a parte de cada produto nos acessos ativos. Valores em reais entram com a Eduzz." : "Valores em reais vêm da Eduzz. Barras mostram a parte de cada produto no total do mês."}
+          </p>
         </div>
 
         <h2 className="titulo-secao" style={tituloSecao}>
@@ -76,7 +85,8 @@ export function PainelMaster() {
             {PAINEL.conversao.pct}%
           </span>
           <span style={{ fontSize: 14, lineHeight: 1.4 }}>
-            dos {PAINEL.conversao.compraram} que compraram um programa assinaram depois. Com o cupom de 50%: {PAINEL.conversao.assinaramComCupom} dos {PAINEL.conversao.comCupom}.
+            dos {PAINEL.conversao.compraram} que compraram um programa assinaram depois.
+            {PAINEL.conversao.comCupom !== undefined && ` Com o cupom de 50%: ${PAINEL.conversao.assinaramComCupom} dos ${PAINEL.conversao.comCupom}.`}
           </span>
         </div>
 
@@ -99,16 +109,19 @@ export function PainelMaster() {
 
 // ── Funil ────────────────────────────────────────────────────────────────────
 
-export function FunilMaster() {
-  const [periodo, setPeriodo] = useState<keyof typeof FUNIL>("30 DIAS");
+export function FunilMaster({ dados }: { dados?: Record<Periodo, [number, number, number]> }) {
+  const FUNIL = dados ?? FUNIL_EXEMPLO;
+  const [periodo, setPeriodo] = useState<Periodo>("30 DIAS");
   const P = FUNIL[periodo];
+  const pct = (v: number, de: number) => (de ? Math.round((v / de) * 100) : 0);
+  const quedas = [pct(P[0] - P[1], P[0]), pct(P[1] - P[2], P[1])];
   const etapas: [string, number][] = [
     ["FIZERAM O QUIZ", P[0]],
     ["TREINARAM NA SEMANA LIBERADA", P[1]],
     ["ASSINARAM", P[2]],
   ];
   return (
-    <LayoutMaster>
+    <LayoutMaster aviso={dados ? null : undefined}>
       <div style={pagina}>
         <TituloMaster sub="Quem comprou um programa e fez o quiz.">Funil do quiz</TituloMaster>
         <div style={{ marginBottom: 18 }}>
@@ -124,20 +137,20 @@ export function FunilMaster() {
                   <span className="rotulo" style={{ whiteSpace: "normal" }}>
                     0{i + 1} · {k}
                   </span>
-                  <span style={{ fontSize: 13, fontWeight: 700 }}>{Math.round((v / P[0]) * 100)}%</span>
+                  <span style={{ fontSize: 13, fontWeight: 700 }}>{pct(v, P[0])}%</span>
                 </div>
                 <div className="numero-grande" style={{ fontSize: 56, lineHeight: 0.9, margin: "6px 0 10px" }}>
                   {fmtNum(v)}
                 </div>
                 <div className="trilho">
-                  <span style={{ width: `${(v / P[0]) * 100}%`, background: ultima ? "var(--accent)" : "#111", transition: "none" }} />
+                  <span style={{ width: `${pct(v, P[0])}%`, background: ultima ? "var(--accent)" : "#111", transition: "none" }} />
                 </div>
               </div>
               {prox && (
                 <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 0 10px 16px" }}>
                   <div style={{ width: 3, height: 28, background: "#111" }} />
                   <span style={{ fontSize: 14 }}>
-                    <b style={{ fontWeight: 800 }}>−{Math.round((1 - prox[1] / v) * 100)}%</b> {i === 0 ? "não treinaram na semana liberada" : "treinaram, mas não assinaram"}
+                    <b style={{ fontWeight: 800 }}>−{quedas[i]}%</b> {i === 0 ? "não treinaram na semana liberada" : "treinaram, mas não assinaram"}
                   </span>
                 </div>
               )}
@@ -145,7 +158,19 @@ export function FunilMaster() {
           );
         })}
         <div className="ajuste" style={{ marginTop: 18 }}>
-          <b>Maior queda:</b> entre treinar a semana liberada e assinar. Quem treinou 3 ou mais vezes assina 2,4× mais.
+          {!dados ? (
+            <>
+              <b>Maior queda:</b> entre treinar a semana liberada e assinar. Quem treinou 3 ou mais vezes assina 2,4× mais.
+            </>
+          ) : !P[0] ? (
+            <>
+              <b>Sem dados no período:</b> ninguém que comprou um programa fez o quiz ainda.
+            </>
+          ) : (
+            <>
+              <b>Maior queda:</b> {quedas[0] >= quedas[1] ? "entre fazer o quiz e treinar a semana liberada" : "entre treinar a semana liberada e assinar"}.
+            </>
+          )}
         </div>
       </div>
     </LayoutMaster>
@@ -156,21 +181,80 @@ export function FunilMaster() {
 
 const FILTROS = ["Todos", "Assinantes", "Programa", "Pausada", "Parados há 7+ dias"];
 
-export function AlunosMaster() {
+const campoMaster: React.CSSProperties = { height: 48, border: "1px solid #111", padding: "0 12px", fontSize: 16, color: "#111", background: "#fff", width: "100%" };
+const rotuloMaster: React.CSSProperties = { fontSize: 11, fontWeight: 700, letterSpacing: ".09em", color: "var(--ink-2)", margin: "12px 0 6px", display: "block" };
+
+/** Escolha de produto, usada no convite e no "Liberar acesso". */
+function SeletorProduto({ produtos, valor, onTroca, comNenhum }: { produtos: ProdutoOpcao[]; valor: string; onTroca: (v: string) => void; comNenhum?: boolean }) {
+  return (
+    <select value={valor} onChange={(e) => onTroca(e.target.value)} style={{ ...campoMaster, appearance: "auto" }} aria-label="Produto">
+      {comNenhum && <option value="">Só criar a conta, sem acesso</option>}
+      {produtos.map((p) => (
+        <option key={p.id} value={p.id}>
+          {p.nome}
+        </option>
+      ))}
+    </select>
+  );
+}
+
+function Folha({ titulo, children, onFechar }: { titulo: string; children: React.ReactNode; onFechar: () => void }) {
+  return (
+    <>
+      <div className="folha-fundo" onClick={onFechar} />
+      <div className="folha" role="dialog" aria-modal="true" aria-label={titulo} style={{ maxHeight: "90%", overflowY: "auto" }}>
+        <div style={{ fontSize: 26, fontWeight: 850, fontStretch: "72%", letterSpacing: "-0.02em", textTransform: "uppercase", lineHeight: 0.95 }}>{titulo}</div>
+        {children}
+      </div>
+    </>
+  );
+}
+
+export function AlunosMaster({ alunos, produtos }: { alunos?: AlunoLista[]; produtos?: ProdutoOpcao[] }) {
+  const router = useRouter();
+  const aviso = useAvisoRapido();
+  const real = !!alunos;
+  const base: AlunoLista[] = alunos ?? ALUNOS.map((a) => ({ ...a, dias: diasDesde(a.ultimoTreino), nunca: false }));
   const [q, setQ] = useState("");
   const [filtro, setFiltro] = useState("Todos");
-  const lista = ALUNOS.filter((a) => {
+  const [convite, setConvite] = useState(false);
+  const [nome, setNome] = useState("");
+  const [email, setEmail] = useState("");
+  const [produto, setProduto] = useState(produtos?.[0]?.id ?? "");
+  const [enviando, setEnviando] = useState(false);
+
+  const lista = base.filter((a) => {
     if (q && !`${a.nome} ${a.email}`.toLowerCase().includes(q.toLowerCase())) return false;
     if (filtro === "Assinantes") return a.estado === "assinante";
     if (filtro === "Programa") return a.estado === "programa";
     if (filtro === "Pausada") return a.estado === "pausada";
-    if (filtro === "Parados há 7+ dias") return diasDesde(a.ultimoTreino) >= 7;
+    if (filtro === "Parados há 7+ dias") return a.dias >= 7;
     return true;
   });
+
+  const enviarConvite = async () => {
+    if (!real) return aviso.mostrar("O convite funciona quando o banco estiver ligado.");
+    if (enviando) return;
+    setEnviando(true);
+    const r = await convidarAlunoAction(nome, email, produto).catch(() => ({ ok: false as const, error: "Sem conexão. Tente de novo." }));
+    setEnviando(false);
+    if (!r.ok) return aviso.mostrar(r.error);
+    setConvite(false);
+    setNome("");
+    setEmail("");
+    aviso.mostrar(r.msg);
+    router.refresh();
+  };
+
   return (
-    <LayoutMaster>
+    <LayoutMaster aviso={real ? null : undefined}>
       <div style={pagina}>
-        <TituloMaster>Alunos</TituloMaster>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
+          <TituloMaster>Alunos</TituloMaster>
+          <button type="button" className="botao botao--secundario" style={{ width: "auto", height: 40, padding: "0 12px", fontSize: 12, letterSpacing: ".06em", flex: "none" }} onClick={() => setConvite(true)}>
+            Convidar aluno
+          </button>
+        </div>
         <label style={{ height: 46, border: "1px solid #111", background: "#fff", display: "flex", alignItems: "center", gap: 10, padding: "0 14px" }}>
           <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden>
             <circle cx="7.5" cy="7.5" r="5.5" fill="none" stroke="#111" strokeWidth="2" />
@@ -197,6 +281,7 @@ export function AlunosMaster() {
           </span>
           <span>ÚLTIMO TREINO</span>
         </div>
+        {!base.length && <p style={{ fontSize: 14, padding: "16px 0" }}>Nenhum aluno ainda. Use Convidar aluno para dar acesso a alguém.</p>}
         {lista.map((a, j) => (
           <Link
             key={a.id}
@@ -205,43 +290,101 @@ export function AlunosMaster() {
           >
             <span style={{ width: 40, height: 40, flex: "none", border: "2px solid #111", background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 800 }}>{iniciais(a.nome)}</span>
             <span style={{ flex: 1, display: "flex", flexDirection: "column", gap: 4, minWidth: 0 }}>
-              <span style={{ fontSize: 16, fontWeight: 800 }}>{a.nome}</span>
+              <span style={{ fontSize: 16, fontWeight: 800, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{a.nome}</span>
               <span style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
                 <span style={{ fontSize: 12, color: "var(--ink-2)" }}>{a.produto}</span>
                 {a.estado === "pausada" && <Selo pequeno>Pausada</Selo>}
               </span>
             </span>
-            <span style={{ fontSize: 14, fontWeight: 700, color: diasDesde(a.ultimoTreino) >= 7 ? "#111" : "var(--ink-2)" }}>{a.ultimoTreino}</span>
+            <span style={{ fontSize: 14, fontWeight: 700, color: a.dias >= 7 ? "#111" : "var(--ink-2)", flex: "none" }}>{a.ultimoTreino}</span>
           </Link>
         ))}
       </div>
+      {convite && (
+        <Folha titulo="Convidar aluno" onFechar={() => setConvite(false)}>
+          <p style={{ fontSize: 14, color: "var(--ink-2)", lineHeight: 1.4 }}>A pessoa recebe um e-mail para criar a senha. Assinatura liberada aqui vale 30 dias (mensal) ou 1 ano (anual).</p>
+          <label style={rotuloMaster} htmlFor="conv-nome">
+            NOME
+          </label>
+          <input id="conv-nome" value={nome} onChange={(e) => setNome(e.target.value)} style={campoMaster} autoComplete="off" />
+          <label style={rotuloMaster} htmlFor="conv-email">
+            E-MAIL
+          </label>
+          <input id="conv-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} style={campoMaster} autoComplete="off" />
+          <label style={rotuloMaster}>ACESSO</label>
+          <SeletorProduto produtos={produtos ?? []} valor={produto} onTroca={setProduto} comNenhum />
+          <button type="button" className="botao botao--primario" style={{ marginTop: 16 }} onClick={enviarConvite}>
+            {enviando ? "Enviando" : "Enviar convite"}
+          </button>
+        </Folha>
+      )}
+      {aviso.elemento}
     </LayoutMaster>
   );
 }
 
-export function FichaAluno({ id }: { id: string }) {
+export function FichaAluno({ id, ficha, produtos }: { id: string; ficha?: FichaDados; produtos?: ProdutoOpcao[] }) {
+  const router = useRouter();
   const aviso = useAvisoRapido();
+  const [liberar, setLiberar] = useState(false);
+  const [produto, setProduto] = useState(produtos?.[0]?.id ?? "");
+  const [enviando, setEnviando] = useState(false);
   const a = ALUNOS.find((x) => x.id === id) ?? ALUNOS[0];
-  const grupos: [string, [string, string][]][] = [
-    ["PRODUTOS", [["Atual", a.produto], ["Desde", "12 ago 2026"], ["Estado", a.estado === "pausada" ? "Pausada · cartão recusado" : "Ativo"]]],
-    ["QUIZ", [["Objetivo", "Ganhar massa muscular"], ["Nível", "Intermediário"], ["Dias e tempo", "4 por semana · 40 min"], ["Foco", "Glúteo, posterior"], ["Dores", "Lombar"]]],
-    ["EQUIPAMENTOS", [["Local", "Em casa"], ["Itens", "Halter, elástico, banco, mini band"], ["Informado por", "Fotos · conferido"]]],
-  ];
+  const q = ficha?.quiz;
+  const lista = (v?: string[]) => (v?.length ? v.join(", ") : "Nenhuma");
+  const nome = ficha ? ficha.nome : a.nome;
+  const email = ficha ? ficha.email : a.email;
+
+  const grupos: [string, [string, string][]][] = ficha
+    ? [
+        ["CONTA", [["Desde", ficha.desde], ["Situação", ficha.estado]]],
+        ["PRODUTOS", ficha.produtos.length ? ficha.produtos.map((p) => [p.nome, p.situacao] as [string, string]) : [["Compras", "Nenhuma"]]],
+        q
+          ? ["QUIZ", [["Objetivo", q.objetivo ?? "-"], ["Nível", q.nivel ?? "-"], ["Dias e tempo", `${q.dias ?? "-"} · ${q.tempo ?? "-"}`], ["Foco", lista(q.regioes)], ["Dores", lista(q.dores)]]]
+          : ["QUIZ", [["Respostas", "Ainda não fez o quiz"]]],
+        ["EQUIPAMENTOS", q ? [["Local", q.local ?? "-"], ["Itens", q.equip === "Academia completa" ? "Academia completa" : lista(q.equipamentos)], ["Informado por", q.equip ?? "-"]] : [["Itens", "Ainda não informou"]]],
+        ["TREINOS", [["Feitos", String(ficha.treinos.total)], ["Último", ficha.treinos.ultimo ?? "Nunca treinou"]]],
+      ]
+    : [
+        ["PRODUTOS", [["Atual", a.produto], ["Desde", "12 ago 2026"], ["Estado", a.estado === "pausada" ? "Pausada · cartão recusado" : "Ativo"]]],
+        ["QUIZ", [["Objetivo", "Ganhar massa muscular"], ["Nível", "Intermediário"], ["Dias e tempo", "4 por semana · 40 min"], ["Foco", "Glúteo, posterior"], ["Dores", "Lombar"]]],
+        ["EQUIPAMENTOS", [["Local", "Em casa"], ["Itens", "Halter, elástico, banco, mini band"], ["Informado por", "Fotos · conferido"]]],
+      ];
+
+  const avaliacoes: [string, number][] = ficha ? [["FÁCIL", ficha.treinos.facil], ["IDEAL", ficha.treinos.ideal], ["DIFÍCIL", ficha.treinos.dificil]] : [["FÁCIL", 1], ["IDEAL", 6], ["DIFÍCIL", 1]];
+
+  const executar = async (acao: () => Promise<{ ok: true; msg: string } | { ok: false; error: string }>) => {
+    if (enviando) return;
+    setEnviando(true);
+    const r = await acao().catch(() => ({ ok: false as const, error: "Sem conexão. Tente de novo." }));
+    setEnviando(false);
+    aviso.mostrar(r.ok ? r.msg : r.error);
+    if (r.ok) {
+      setLiberar(false);
+      router.refresh();
+    }
+  };
+
   return (
-    <LayoutMaster voltar="/master/alunos">
+    <LayoutMaster voltar="/master/alunos" aviso={ficha ? null : undefined}>
       <div style={pagina}>
         <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 6 }}>
-          <span style={{ width: 56, height: 56, border: "var(--border-strong)", background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, fontWeight: 900, fontStretch: "70%", flex: "none" }}>{iniciais(a.nome)}</span>
+          <span style={{ width: 56, height: 56, border: "var(--border-strong)", background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, fontWeight: 900, fontStretch: "70%", flex: "none" }}>{iniciais(nome)}</span>
           <div style={{ display: "flex", flexDirection: "column", gap: 4, minWidth: 0 }}>
-            <span style={{ fontSize: 28, fontWeight: 850, fontStretch: "70%", letterSpacing: "-0.02em", lineHeight: 0.95, textTransform: "uppercase" }}>{a.nome}</span>
-            <span style={{ fontSize: 13, color: "var(--ink-2)", overflowWrap: "anywhere" }}>{a.email}</span>
+            <span style={{ fontSize: 28, fontWeight: 850, fontStretch: "70%", letterSpacing: "-0.02em", lineHeight: 0.95, textTransform: "uppercase" }}>{nome}</span>
+            <span style={{ fontSize: 13, color: "var(--ink-2)", overflowWrap: "anywhere" }}>{email}</span>
           </div>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, margin: "16px 0 24px" }}>
-          <button type="button" className="botao botao--primario" style={{ fontSize: 13, letterSpacing: ".06em" }} onClick={() => aviso.mostrar(`Acesso liberado para ${a.nome}. Vale até a próxima cobrança.`)}>
+          <button type="button" className="botao botao--primario" style={{ fontSize: 13, letterSpacing: ".06em" }} onClick={() => (ficha ? setLiberar(true) : aviso.mostrar(`Acesso liberado para ${a.nome}. Vale até a próxima cobrança.`))}>
             Liberar acesso
           </button>
-          <button type="button" className="botao botao--secundario" style={{ fontSize: 13, letterSpacing: ".06em" }} onClick={() => aviso.mostrar(`Login reenviado para ${a.email}.`)}>
+          <button
+            type="button"
+            className="botao botao--secundario"
+            style={{ fontSize: 13, letterSpacing: ".06em" }}
+            onClick={() => (ficha ? executar(() => reenviarLoginAction(ficha.id)) : aviso.mostrar(`Login reenviado para ${a.email}.`))}
+          >
             Reenviar login
           </button>
         </div>
@@ -251,29 +394,33 @@ export function FichaAluno({ id }: { id: string }) {
               {titulo}
             </div>
             {linhas.map(([k, v], i) => (
-              <div key={k} style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 14, padding: "10px 0", borderBottom: linhaFinal(i, linhas.length) }}>
-                <span style={{ fontSize: 14, color: "var(--ink-2)", flex: "none" }}>{k}</span>
+              <div key={k + i} style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 14, padding: "10px 0", borderBottom: linhaFinal(i, linhas.length) }}>
+                <span style={{ fontSize: 14, color: "var(--ink-2)", flex: "none", maxWidth: "45%" }}>{k}</span>
                 <span style={{ fontSize: 15, fontWeight: 800, textAlign: "right" }}>{v}</span>
               </div>
             ))}
           </div>
         ))}
         <div style={{ ...cartao, padding: 14 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 8 }}>
-            <span className="rotulo">PROTOCOLO</span>
-            <span style={{ fontSize: 13, fontWeight: 700 }}>09 de 24</span>
-          </div>
-          <div className="segmentos" style={{ gap: 4 }}>
-            {Array.from({ length: 24 }, (_, i) => (
-              <span key={i} className={i < 8 ? "feito" : i === 8 ? "atual" : undefined} />
-            ))}
-          </div>
-          <div style={{ display: "flex", gap: 16, marginTop: 14 }}>
-            {[
-              ["FÁCIL", "1"],
-              ["IDEAL", "6"],
-              ["DIFÍCIL", "1"],
-            ].map(([k, v]) => (
+          {ficha ? (
+            <div className="rotulo" style={{ marginBottom: 8 }}>
+              AVALIAÇÃO DOS TREINOS
+            </div>
+          ) : (
+            <>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 8 }}>
+                <span className="rotulo">PROTOCOLO</span>
+                <span style={{ fontSize: 13, fontWeight: 700 }}>09 de 24</span>
+              </div>
+              <div className="segmentos" style={{ gap: 4 }}>
+                {Array.from({ length: 24 }, (_, i) => (
+                  <span key={i} className={i < 8 ? "feito" : i === 8 ? "atual" : undefined} />
+                ))}
+              </div>
+            </>
+          )}
+          <div style={{ display: "flex", gap: 16, marginTop: ficha ? 0 : 14 }}>
+            {avaliacoes.map(([k, v]) => (
               <div key={k} style={{ display: "flex", flexDirection: "column", gap: 2 }}>
                 <span className="numero-grande" style={{ fontSize: 32, lineHeight: 0.9 }}>
                   {v}
@@ -285,6 +432,16 @@ export function FichaAluno({ id }: { id: string }) {
         </div>
         <p style={{ fontSize: 12, color: "var(--ink-2)", marginTop: 12, lineHeight: 1.4 }}>Fotos do corpo e medidas não aparecem aqui. Só o aluno vê.</p>
       </div>
+      {liberar && ficha && (
+        <Folha titulo="Liberar acesso" onFechar={() => setLiberar(false)}>
+          <p style={{ fontSize: 14, color: "var(--ink-2)", lineHeight: 1.4 }}>Assinatura liberada aqui vale 30 dias (mensal) ou 1 ano (anual). Programa é vitalício.</p>
+          <label style={rotuloMaster}>PRODUTO</label>
+          <SeletorProduto produtos={produtos ?? []} valor={produto} onTroca={setProduto} />
+          <button type="button" className="botao botao--primario" style={{ marginTop: 16 }} onClick={() => executar(() => liberarAcessoAction(ficha.id, produto))}>
+            {enviando ? "Liberando" : "Liberar"}
+          </button>
+        </Folha>
+      )}
       {aviso.elemento}
     </LayoutMaster>
   );
@@ -292,12 +449,13 @@ export function FichaAluno({ id }: { id: string }) {
 
 // ── Quem parou ───────────────────────────────────────────────────────────────
 
-export function QuemParou() {
+export function QuemParou({ dados }: { dados?: Parado[] }) {
   const aviso = useAvisoRapido();
   const [minimo, setMinimo] = useState(10);
-  const lista = PARADOS.filter((p) => p.dias >= minimo).sort((a, b) => a.dias - b.dias);
+  const base: (Omit<Parado, "id"> & { id?: string })[] = dados ?? PARADOS_EXEMPLO;
+  const lista = base.filter((p) => p.dias >= minimo).sort((a, b) => a.dias - b.dias);
   return (
-    <LayoutMaster voltar="/master">
+    <LayoutMaster voltar="/master" aviso={dados ? "MENSAGENS AUTOMÁTICAS AINDA NÃO LIGADAS" : undefined}>
       <div style={pagina}>
         <TituloMaster sub="Sem treinar há pelo menos:">Quem parou</TituloMaster>
         <div style={{ marginBottom: 16 }}>
@@ -320,15 +478,11 @@ export function QuemParou() {
           <span>{lista.length} ALUNOS</span>
           <span>MENSAGEM AUTOMÁTICA</span>
         </div>
+        {!lista.length && <p style={{ fontSize: 14, padding: "16px 0" }}>Ninguém com acesso ativo está parado há {minimo} dias ou mais.</p>}
         {lista.map((p, i) => {
           const voltou = p.status === "VOLTOU";
-          return (
-            <button
-              type="button"
-              key={p.nome}
-              onClick={() => aviso.mostrar(`A ficha de ${p.nome} entra com o banco.`)}
-              style={{ width: "100%", display: "flex", alignItems: "center", gap: 12, minHeight: 64, padding: "8px 0", background: "none", border: "none", borderBottom: linhaFinal(i, lista.length), cursor: "pointer", textAlign: "left" }}
-            >
+          const conteudo = (
+            <>
               <span className="numero-grande" style={{ fontSize: 32, width: 40, flex: "none", lineHeight: 0.9 }}>
                 {p.dias}
               </span>
@@ -352,6 +506,16 @@ export function QuemParou() {
                 </span>
                 <span style={{ fontSize: 11, color: "var(--ink-2)" }}>{p.quando}</span>
               </span>
+            </>
+          );
+          const estilo: React.CSSProperties = { width: "100%", display: "flex", alignItems: "center", gap: 12, minHeight: 64, padding: "8px 0", background: "none", border: "none", borderBottom: linhaFinal(i, lista.length), cursor: "pointer", textAlign: "left", textDecoration: "none", color: "#111" };
+          return p.id ? (
+            <Link key={p.id} href={`/master/alunos/${p.id}`} style={estilo}>
+              {conteudo}
+            </Link>
+          ) : (
+            <button type="button" key={p.nome} onClick={() => aviso.mostrar(`A ficha de ${p.nome} entra com o banco.`)} style={estilo}>
+              {conteudo}
             </button>
           );
         })}

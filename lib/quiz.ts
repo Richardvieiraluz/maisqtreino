@@ -2,6 +2,7 @@
 // Cada resposta alimenta a escolha do protocolo (nenhuma é decorativa).
 
 import { useCallback, useSyncExternalStore } from "react";
+import { useConta } from "./conta";
 
 export type TipoPergunta = "lista" | "grade" | "equip" | "mapa" | "multi";
 
@@ -140,7 +141,7 @@ export interface RespostasQuiz {
   dores?: string[];
 }
 
-// ── Armazenamento no aparelho até existir banco ─────────────────────────────
+// ── Armazenamento no aparelho (modo demonstração) ─────────────────────────────
 
 const CHAVE = "maisqtreino:quiz";
 const ouvintes = new Set<() => void>();
@@ -184,11 +185,14 @@ function assinar(f: () => void) {
   };
 }
 
-/** Respostas salvas no aparelho (null antes do quiz). */
+/** Respostas do quiz (null antes do quiz). Logado: as da conta, gravadas no banco.
+ *  Modo demonstração: as do aparelho. */
 export function useRespostasSalvas() {
-  const r = useSyncExternalStore(assinar, ler, () => null);
-  const salvar = useCallback((nova: RespostasQuiz) => salvarRespostas(nova), []);
-  return [r, salvar] as const;
+  const conta = useConta();
+  const local = useSyncExternalStore(assinar, ler, () => null);
+  const salvarLocal = useCallback((nova: RespostasQuiz) => salvarRespostas(nova), []);
+  if (conta) return [conta.quiz, conta.salvarQuiz] as const;
+  return [local, salvarLocal] as const;
 }
 
 /** Valores usados quando o quiz ainda não foi feito (iguais ao protótipo). */
