@@ -3,7 +3,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { cleanEnv, supabaseAnon, supabaseUrl } from "@/lib/supabase/env";
 
 // Diagnóstico da configuração: testa as 3 variáveis do Supabase e responde só "ok" ou o problema.
-// Nunca devolve valor de chave, e-mail ou dado de aluno.
+// Nunca devolve valor de chave, e-mail ou dado de aluno. O endereço do projeto não é segredo: aparece
+// só quando está no formato errado, para dar para corrigir.
 export const dynamic = "force-dynamic";
 
 export async function GET() {
@@ -16,7 +17,7 @@ export async function GET() {
     ? "faltando"
     : /^https:\/\/[a-z0-9]{10,}\.supabase\.co$/.test(url)
       ? "ok"
-      : "formato errado (deve ser https://xxxx.supabase.co, sem nada no final)";
+      : `formato errado. Está salvo: "${url.slice(0, 120)}". O certo é https://xxxx.supabase.co, sem nada no final`;
 
   if (!publica) r.chave_publica = "faltando";
   else if (publica.startsWith("sb_secret_")) r.chave_publica = "ERRADA: aqui foi colada a Secret key. Troque pela Publishable key";
