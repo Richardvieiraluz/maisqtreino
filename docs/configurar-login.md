@@ -15,7 +15,9 @@ SQL Editor → New query → colar `supabase/migrations/002_tentativas_login.sql
 **Sign In / Providers → Email**
 - Desligar "Allow new users to sign up". Ninguém cria conta sozinho: quem cria é a compra (Eduzz) ou o Master.
 
-**Emails → Templates** (trocar assunto e corpo de dois modelos)
+**Emails → Templates**: o Supabase só deixa editar os modelos com SMTP próprio. Sem ele, os e-mails
+saem no modelo padrão em inglês e o app aceita o link padrão do mesmo jeito (convite chega com
+`#access_token=…`, senha nova com `?code=…`). Quando o SMTP estiver ligado, trocar os dois modelos:
 
 *Invite user*
 - Assunto: `Seu acesso ao +Q Treino`

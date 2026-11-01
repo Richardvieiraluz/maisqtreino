@@ -68,39 +68,64 @@ export async function esqueciSenhaAction(emailBruto: string): Promise<{ ok: true
   const origem = { email, ip: ipDaRequisicao(await headers()) };
   if (await tentativaBloqueada("esqueci", origem)) return { ok: true };
   await registrarTentativa("esqueci", origem);
-  const { error } = await (await createClient()).auth.resetPasswordForEmail(email);
+  // O link do e-mail volta para /entrar/senha (precisa estar em Redirect URLs no Supabase).
+  const h = await headers();
+  const base = h.get("origin") ?? process.env.APP_BASE_URL ?? "";
+  const { error } = await (await createClient()).auth.resetPasswordForEmail(email, base ? { redirectTo: `${base}/entrar/senha` } : undefined);
   if (error) console.error("[esqueci-senha] envio falhou", { status: error.status });
   return { ok: true };
 }
 
+/** O que o link do e-mail trouxe. Três formatos, conforme o modelo de e-mail em uso:
+ *  - token: modelo próprio (com SMTP próprio), ?token_hash=…&type=invite|recovery
+ *  - codigo: modelo padrão de "esqueci a senha", ?code=… (o verificador ficou num cookie)
+ *  - sessao: modelo padrão de convite, #access_token=…&refresh_token=… (só o navegador vê o #) */
+export type LinkDoEmail =
+  | { modo: "token"; token_hash: string; tipo: string }
+  | { modo: "codigo"; codigo: string }
+  | { modo: "sessao"; access_token: string; refresh_token: string };
+
 /**
- * Link do e-mail (convite do primeiro acesso ou "esqueci a senha"): /entrar/senha?token_hash=…&type=…
- * O token só é usado quando a pessoa envia a senha nova, então um antivírus de e-mail que abre o
- * link antes não queima o acesso.
+ * Cria a senha a partir do link do e-mail (convite do primeiro acesso ou "esqueci a senha").
+ * O link só é usado quando a pessoa envia a senha, então um antivírus de e-mail que abre o link
+ * antes não queima o acesso. A sessão fica gravada no cookie e a senha é trocada pelo servidor.
  */
-export async function definirSenhaAction(tokenBruto: string, tipoBruto: string, senhaBruta: string): Promise<Resultado> {
+export async function definirSenhaAction(link: LinkDoEmail, senhaBruta: string): Promise<Resultado> {
   if (!supabaseConfigurado()) return { ok: true, destino: "boasVindas" };
-  const token_hash = texto(tokenBruto, 512);
-  const type = tipoBruto === "invite" ? "invite" : tipoBruto === "recovery" ? "recovery" : null;
   const senha = typeof senhaBruta === "string" ? senhaBruta.slice(0, 200) : "";
   if (senha.length < 8) return { ok: false, error: "A senha precisa de pelo menos 8 caracteres." };
-  if (!token_hash || !type) return { ok: false, error: MSG_LINK };
 
-  const origem = { email: token_hash, ip: ipDaRequisicao(await headers()) };
+  const marca = link?.modo === "token" ? link.token_hash : link?.modo === "codigo" ? link.codigo : link?.modo === "sessao" ? link.refresh_token : "";
+  const origem = { email: texto(marca, 512), ip: ipDaRequisicao(await headers()) };
+  if (!origem.email) return { ok: false, error: MSG_LINK };
   if (await tentativaBloqueada("senha", origem)) return { ok: false, error: MSG_LIMITE };
 
-  const { data, error } = await (await createClient()).auth.verifyOtp({ token_hash, type });
-  if (error || !data.user) {
+  const auth = (await createClient()).auth;
+  let userId: string | null = null;
+  if (link.modo === "token") {
+    const type = link.tipo === "invite" ? "invite" : link.tipo === "recovery" ? "recovery" : null;
+    if (type) {
+      const { data } = await auth.verifyOtp({ token_hash: texto(link.token_hash, 512), type });
+      userId = data.user?.id ?? null;
+    }
+  } else if (link.modo === "codigo") {
+    const { data } = await auth.exchangeCodeForSession(texto(link.codigo, 512));
+    userId = data.user?.id ?? null;
+  } else if (link.modo === "sessao") {
+    const { data } = await auth.setSession({ access_token: texto(link.access_token, 4096), refresh_token: texto(link.refresh_token, 512) });
+    userId = data.user?.id ?? null;
+  }
+  if (!userId) {
     await registrarTentativa("senha", origem);
     return { ok: false, error: MSG_LINK };
   }
-  // A sessão já foi gravada no cookie pelo verifyOtp; a senha é trocada pelo servidor.
-  const troca = await createAdminClient().auth.admin.updateUserById(data.user.id, { password: senha });
+
+  const troca = await createAdminClient().auth.admin.updateUserById(userId, { password: senha });
   if (troca.error) {
     console.error("[definir-senha] troca falhou", { status: troca.error.status });
     return { ok: false, error: "Não deu para salvar a senha. Tente de novo." };
   }
-  return { ok: true, destino: await destinoPosLogin(data.user.id) };
+  return { ok: true, destino: await destinoPosLogin(userId) };
 }
 
 /** Prontidão do primeiro acesso: termo de responsabilidade e consentimento de dados de saúde. */

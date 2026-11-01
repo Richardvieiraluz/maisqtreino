@@ -72,7 +72,8 @@ sem cliente do Supabase no navegador; não reintroduzir `createBrowserClient`). 
 `server.ts` (sessão do usuário), `admin.ts` (chave de serviço, `server-only`). `getSessao()` em `lib/auth.ts`
 (cache só da requisição) devolve papel e estado; a regra do estado é `lib/acesso.ts`. `proxy.ts` manda para
 `/entrar` quem não está logado; `app/master/layout.tsx` barra quem não é master. Primeiro acesso e esqueci a
-senha chegam por e-mail em `/entrar/senha?token_hash=…&type=invite|recovery`. Limite de tentativas em
+senha chegam por e-mail em `/entrar/senha`, em três formatos aceitos: `?token_hash=&type=` (modelo próprio),
+`?code=` (esqueci a senha padrão) e `#access_token=` (convite padrão, encaminhado pela tela `/entrar`). Limite de tentativas em
 `lib/limite-tentativas.ts` (migration 002). **Sem as variáveis do Supabase o app roda em modo demonstração**
 (qualquer login entra). Variáveis e passo a passo: `docs/configurar-login.md`.
 

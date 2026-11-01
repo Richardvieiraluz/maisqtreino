@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { entrarAction, salvarProntidaoAction } from "@/app/entrar/actions";
 import { lembretes as armLembretes, prontidao as armProntidao } from "@/lib/armazenamento";
 import { TREINADOR } from "@/lib/config";
@@ -133,6 +133,13 @@ export function PrimeiroAcesso() {
   // ?etapa=boasVindas: vem da tela de criar senha, com a sessão já aberta.
   const [etapa, setEtapa] = useState<Etapa>(params.get("etapa") === "boasVindas" ? "boasVindas" : "login");
   const [enviando, setEnviando] = useState(false);
+
+  // Convite pelo e-mail padrão do Supabase: chega no site com #access_token=… (ou #error=… se venceu).
+  // O # passa pelos redirecionamentos e é lido aqui; a tela de criar senha cuida do resto.
+  useEffect(() => {
+    const h = window.location.hash;
+    if (/[#&](access_token|error)=/.test(h)) window.location.replace(`/entrar/senha${h}`);
+  }, []);
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [parq, setParq] = useState<Record<number, "s" | "n">>({});

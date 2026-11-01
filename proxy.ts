@@ -26,6 +26,13 @@ export async function proxy(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const { pathname, searchParams } = request.nextUrl;
+
+  // Link padrão de "esqueci a senha" que voltou para a raiz (?code=…): leva para a tela de senha.
+  if (pathname === "/" && searchParams.has("code")) {
+    const destino = new URL("/entrar/senha", request.url);
+    destino.searchParams.set("code", searchParams.get("code") ?? "");
+    return NextResponse.redirect(destino);
+  }
   const rotaDeEntrada = pathname === "/entrar" || pathname.startsWith("/entrar/");
   if (!user && !rotaDeEntrada) return NextResponse.redirect(new URL("/entrar", request.url));
 
