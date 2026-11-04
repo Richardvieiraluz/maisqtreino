@@ -90,6 +90,14 @@ Master real: `lib/dados/master.ts` lê o banco (de 1000 em 1000), `lib/master-ca
 quando não recebem nada. Ações (convidar aluno, liberar acesso, reenviar login) em `lib/acoes/master.ts`,
 cada uma confere o papel master de novo. Protocolos, Explicações e Vitrine seguem de exemplo até o catálogo.
 
+## Eduzz
+
+Webhook em `app/api/webhooks/eduzz/route.ts` (fora do proxy; confere `x-signature` = HMAC-SHA256 com
+`EDUZZ_WEBHOOK_SECRET`, hex ou base64). Leitura dos avisos e regras de acesso em `lib/eduzz.ts` (puras);
+gravação em `lib/dados/eduzz.ts` (idempotente por `eventos_eduzz.chave`; 500 só para erro passageiro).
+Produto da Eduzz liga ao app por `produtos.eduzz_produto_id`. O registro guarda só um resumo, sem CPF,
+endereço ou telefone. Passo a passo: `docs/configurar-eduzz.md`.
+
 ## Estados do aluno
 
 `assinante` (tudo liberado), `programa` (programa comprado + 1ª semana do protocolo; resto com cadeado),
@@ -97,5 +105,5 @@ cada uma confere o papel master de novo. Protocolos, Explicações e Vitrine seg
 
 ## Próximas etapas
 
-Supabase (projeto novo), login, webhook da Eduzz, importação do catálogo do +Q Pilates (só exercícios com
+Importação do catálogo do +Q Pilates (só exercícios com
 `revisado = true`), quiz, Meu plano, Evolução, Perfil, Oferta, Master, stories, voz guia (ElevenLabs).

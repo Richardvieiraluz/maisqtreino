@@ -39,6 +39,15 @@ export async function GET() {
   const { error: erroTentativas } = r.chave_secreta === "ok" ? await createAdminClient().from("tentativas_login").select("id", { head: true, count: "exact" }) : { error: null };
   if (r.chave_secreta === "ok") r.sql_002 = erroTentativas ? "tabela tentativas_login não encontrada" : "ok";
 
-  r.resumo = Object.values(r).every((v) => v.startsWith("ok")) ? "TUDO CERTO" : "tem item para corrigir";
+  // Eduzz: não entra no resumo enquanto não for configurada.
+  r.eduzz_chave = cleanEnv(process.env.EDUZZ_WEBHOOK_SECRET) ? "ok" : "ainda não configurada";
+  if (r.chave_secreta === "ok") {
+    const { data } = await createAdminClient().from("produtos").select("nome, eduzz_produto_id").eq("ativo", true);
+    const faltam = (data ?? []).filter((p) => !p.eduzz_produto_id).map((p) => p.nome);
+    r.eduzz_produtos = faltam.length ? `falta o código da Eduzz em: ${faltam.join(", ")}` : "ok";
+  }
+
+  const essenciais = Object.entries(r).filter(([k]) => !k.startsWith("eduzz"));
+  r.resumo = essenciais.every(([, v]) => v.startsWith("ok")) ? "TUDO CERTO" : "tem item para corrigir";
   return NextResponse.json(r, { headers: { "cache-control": "no-store" } });
 }
