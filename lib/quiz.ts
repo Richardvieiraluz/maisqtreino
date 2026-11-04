@@ -82,48 +82,6 @@ export const REGIOES: Record<string, string> = {
   panturrilha: "Panturrilha",
 };
 
-/** Áreas de toque sobre o boneco base (caixa 160 × 330): [região, x, y, largura, altura, rótulo]. */
-export type Area = [string, number, number, number, number, string];
-export const AREAS: Record<"feminino" | "masculino", { frente: Area[]; costas: Area[] }> = {
-  feminino: {
-    frente: [
-      ["bracos", 28, 90, 28, 74, "Braço esquerdo"],
-      ["bracos", 104, 90, 28, 74, "Braço direito"],
-      ["quadriceps", 45, 149, 70, 84, "Quadríceps"],
-      ["abdomen", 67, 91, 27, 72, "Abdômen"],
-      ["ombros", 42, 65, 22, 31, "Ombro esquerdo"],
-      ["ombros", 96, 65, 22, 31, "Ombro direito"],
-      ["peito", 53, 66, 55, 35, "Peito"],
-    ],
-    costas: [
-      ["costas", 56, 89, 49, 45, "Costas"],
-      ["posterior", 48, 179, 64, 65, "Posterior"],
-      ["panturrilha", 50, 246, 60, 68, "Panturrilha"],
-      ["gluteo", 54, 135, 53, 49, "Glúteo"],
-      ["lombar", 68, 115, 24, 46, "Lombar"],
-    ],
-  },
-  masculino: {
-    frente: [
-      ["bracos", 26, 90, 29, 74, "Braço esquerdo"],
-      ["bracos", 107, 90, 28, 74, "Braço direito"],
-      ["quadriceps", 48, 149, 64, 84, "Quadríceps"],
-      ["abdomen", 65, 91, 30, 72, "Abdômen"],
-      ["ombros", 39, 65, 23, 31, "Ombro esquerdo"],
-      ["ombros", 99, 65, 22, 31, "Ombro direito"],
-      ["peito", 50, 66, 61, 35, "Peito"],
-    ],
-    costas: [
-      ["costas", 54, 89, 53, 45, "Costas"],
-      ["posterior", 51, 179, 58, 65, "Posterior"],
-      ["panturrilha", 50, 246, 60, 68, "Panturrilha"],
-      ["gluteo", 55, 135, 51, 49, "Glúteo"],
-      ["lombar", 65, 115, 30, 46, "Lombar"],
-    ],
-  },
-};
-
-/** Itens da lista de equipamentos do quiz. Depois, mapeados ao vocabulário de 45 do catálogo. */
 export const EQUIPAMENTOS = ["Halter", "Kettlebell", "Barra e anilhas", "Banco", "Elástico", "Mini band", "TRX", "Bola suíça", "Colchonete", "Caneleira", "Step", "Barra fixa"];
 
 export interface RespostasQuiz {
