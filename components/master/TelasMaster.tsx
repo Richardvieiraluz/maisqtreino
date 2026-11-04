@@ -3,10 +3,12 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { convidarAlunoAction, liberarAcessoAction, reenviarLoginAction } from "@/lib/acoes/master";
+import { aprovarExplicacoesAction, auditarProtocoloAction, convidarAlunoAction, gerarExplicacoesAction, liberarAcessoAction, publicarVitrineAction, reenviarLoginAction, salvarExplicacaoAction } from "@/lib/acoes/master";
+import type { ExplicacoesDados, ExplicacaoMaster, ProtocolosDados, StatusExplicacao } from "@/lib/dados/master-conteudo";
+import { vitrineFinal, type Fileira } from "@/lib/vitrine";
 import type { FichaDados, ProdutoOpcao } from "@/lib/dados/master";
 import type { AlunoLista, PainelDados, Parado, Periodo } from "@/lib/master-calculos";
-import { ALUNOS, AUDITORIA, AVALIACOES, diasDesde, EXPLICACOES, EXPLICACOES_OUTRAS, FILEIRAS_VITRINE, FUNIL as FUNIL_EXEMPLO, iniciais, MAIS_TROCADOS, PAINEL as PAINEL_EXEMPLO, PARADOS as PARADOS_EXEMPLO } from "@/lib/master-exemplo";
+import { ALUNOS, AUDITORIA, AVALIACOES, diasDesde, EXPLICACOES, EXPLICACOES_OUTRAS, FUNIL as FUNIL_EXEMPLO, iniciais, MAIS_TROCADOS, PAINEL as PAINEL_EXEMPLO, PARADOS as PARADOS_EXEMPLO } from "@/lib/master-exemplo";
 import { useAvisoRapido } from "../AvisoRapido";
 import { doisDigitos, Selo } from "../marca";
 import { cartao, LayoutMaster, pagina, Segmentado, TituloMaster } from "./LayoutMaster";
@@ -530,23 +532,55 @@ export function QuemParou({ dados }: { dados?: Parado[] }) {
 
 // ── Conteúdo: protocolos, explicações e vitrine ──────────────────────────────
 
-export function ProtocolosMaster() {
+
+const PROTOCOLOS_EXEMPLO: ProtocolosDados = {
+  ativos: 186,
+  prontos: 1240,
+  erros: 3,
+  avaliacoes: AVALIACOES.map(([n, f, i, d]) => [n, f, i, d, 100]),
+  maisTrocados: MAIS_TROCADOS,
+  auditoria: AUDITORIA.map((a) => ({ protocoloId: "", para: a.para, titulo: a.titulo, exercicios: a.exercicios as [string, string][] })),
+  auditoriaPendentes: 20,
+};
+
+/** dados: banco (Master real). Sem eles, o exemplo do protótipo. */
+export function ProtocolosMaster({ dados }: { dados?: ProtocolosDados }) {
+  const router = useRouter();
   const aviso = useAvisoRapido();
+  const D = dados ?? PROTOCOLOS_EXEMPLO;
   const [amostra, setAmostra] = useState(0);
-  const au = AUDITORIA[amostra % AUDITORIA.length];
+  const [nota, setNota] = useState<string | null>(null);
+  const [ocupado, setOcupado] = useState(false);
+  const au = D.auditoria.length ? D.auditoria[amostra % D.auditoria.length] : null;
   const legenda = (cor: string, rotulo: string, borda = false) => (
     <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
       <i style={{ width: 10, height: 10, background: cor, border: borda ? "1px solid #111" : "none", display: "inline-block" }} />
       {rotulo}
     </span>
   );
+  const auditar = async (aprovado: boolean) => {
+    if (!au) return;
+    if (!au.protocoloId) {
+      setNota(null);
+      setAmostra(amostra + 1);
+      return aviso.mostrar(aprovado ? "Aprovado. Próxima amostra." : "Problema anotado.");
+    }
+    setOcupado(true);
+    const r = await auditarProtocoloAction(au.protocoloId, aprovado, nota ?? "");
+    setOcupado(false);
+    aviso.mostrar(r.ok ? r.msg : r.error);
+    if (r.ok) {
+      setNota(null);
+      router.refresh();
+    }
+  };
   return (
-    <LayoutMaster>
+    <LayoutMaster aviso={dados ? null : undefined}>
       <div style={pagina}>
         <TituloMaster>Protocolos</TituloMaster>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 24 }}>
-          <Numero rotulo="PUBLICADOS" valor="186" sub="treinos" />
-          <Numero rotulo="RASCUNHOS" valor="12" sub="a revisar" />
+          <Numero rotulo="PROTOCOLOS ATIVOS" valor={fmtNum(D.ativos)} sub="um por aluno" />
+          <Numero rotulo="TREINOS GERADOS" valor={fmtNum(D.prontos)} sub={D.erros ? `${D.erros} com erro` : "nenhum com erro"} />
         </div>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 10 }}>
           <h2 className="titulo-secao">Avaliações</h2>
@@ -557,18 +591,22 @@ export function ProtocolosMaster() {
           </span>
         </div>
         <div style={{ ...cartao, padding: "4px 14px 6px" }}>
-          {AVALIACOES.map(([nome, f, i, d], k) => {
-            const revisar = d >= 25;
+          {!D.avaliacoes.length && <p className="texto-apoio" style={{ padding: "10px 0" }}>Aparece quando os alunos avaliarem os treinos no fim de cada sessão.</p>}
+          {D.avaliacoes.map(([nome, f, i, d, n], k) => {
+            const revisar = d >= 25 && n >= 5;
             return (
-              <div key={nome} style={{ padding: "10px 0", borderBottom: linhaFinal(k, AVALIACOES.length) }}>
+              <div key={nome} style={{ padding: "10px 0", borderBottom: linhaFinal(k, D.avaliacoes.length) }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 6, gap: 8 }}>
                   <span style={{ fontSize: 15, fontWeight: 700 }}>{nome}</span>
-                  <span style={{ fontSize: 12, color: revisar ? "#111" : "var(--ink-2)", fontWeight: revisar ? 800 : 500, whiteSpace: "nowrap" }}>{revisar ? `${d}% difícil · revisar` : f >= 20 ? `${f}% fácil` : `${i}% ideal`}</span>
+                  <span style={{ fontSize: 12, color: revisar ? "#111" : "var(--ink-2)", fontWeight: revisar ? 800 : 500, whiteSpace: "nowrap" }}>
+                    {revisar ? `${d}% difícil · revisar` : f >= 20 ? `${f}% fácil` : `${i}% ideal`}
+                    {dados ? ` · ${n}` : ""}
+                  </span>
                 </div>
                 <div style={{ display: "flex", height: 12 }} aria-label={`${f}% fácil, ${i}% ideal, ${d}% difícil`}>
                   <div style={{ width: `${f}%`, background: "var(--line)" }} />
                   <div style={{ width: `${i}%`, background: "#111" }} />
-                  <div style={{ width: `${d}%`, background: "var(--accent)", border: "1px solid #111" }} />
+                  <div style={{ width: `${d}%`, background: "var(--accent)", border: d ? "1px solid #111" : "none" }} />
                 </div>
               </div>
             );
@@ -578,8 +616,9 @@ export function ProtocolosMaster() {
         <h2 className="titulo-secao" style={{ marginTop: 28, marginBottom: 6 }}>
           Mais trocados
         </h2>
-        {MAIS_TROCADOS.map(([nome, por, n], i) => (
-          <div key={nome} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 0", borderBottom: linhaFinal(i, MAIS_TROCADOS.length) }}>
+        {!D.maisTrocados.length && <p className="texto-apoio" style={{ padding: "8px 0", borderBottom: "var(--border-strong)" }}>Nenhuma troca ainda. Cada &quot;Trocar exercício&quot; na execução aparece aqui.</p>}
+        {D.maisTrocados.map(([nome, por, n], i) => (
+          <div key={nome} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 0", borderBottom: linhaFinal(i, D.maisTrocados.length) }}>
             <span className="numero-grande" style={{ fontSize: 32, width: 30, lineHeight: 0.9 }}>
               {doisDigitos(i + 1)}
             </span>
@@ -593,145 +632,211 @@ export function ProtocolosMaster() {
 
         <div style={{ marginTop: 28, display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 10 }}>
           <h2 className="titulo-secao">Auditar gerados</h2>
-          <span className="rotulo">{(amostra % AUDITORIA.length) + 1} DE 20 DA SEMANA</span>
+          {au && <span className="rotulo">{(amostra % D.auditoria.length) + 1} DE {D.auditoriaPendentes} A AUDITAR</span>}
         </div>
-        <div style={{ background: "#fff", border: "var(--border-strong)", padding: 14 }}>
-          <div className="rotulo" style={{ whiteSpace: "normal" }}>
-            {au.para}
-          </div>
-          <div style={{ fontSize: 24, fontWeight: 850, fontStretch: "72%", textTransform: "uppercase", lineHeight: 1, margin: "6px 0 10px" }}>{au.titulo}</div>
-          {au.exercicios.map(([n, s]) => (
-            <div key={n} style={{ display: "flex", justifyContent: "space-between", padding: "7px 0", borderBottom: "1px solid var(--line)", fontSize: 14 }}>
-              <span>{n}</span>
-              <span style={{ color: "var(--ink-2)" }}>{s}</span>
+        {!au ? (
+          <p className="texto-apoio" style={{ padding: "8px 0", borderBottom: "var(--border-strong)" }}>Nenhum protocolo esperando auditoria.</p>
+        ) : (
+          <div style={{ background: "#fff", border: "var(--border-strong)", padding: 14 }}>
+            <div className="rotulo" style={{ whiteSpace: "normal" }}>
+              {au.para}
             </div>
-          ))}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 12 }}>
-            <button type="button" className="botao botao--secundario" style={{ height: 48, fontSize: 12, letterSpacing: ".06em" }} onClick={() => aviso.mostrar("Abre um campo para descrever o problema. O treino volta para revisão.")}>
-              Marcar problema
-            </button>
-            <button
-              type="button"
-              className="botao botao--primario"
-              style={{ height: 48, fontSize: 12, letterSpacing: ".06em" }}
-              onClick={() => {
-                setAmostra(amostra + 1);
-                aviso.mostrar("Aprovado. Próxima amostra.");
-              }}
-            >
-              Aprovar
-            </button>
+            <div style={{ fontSize: 24, fontWeight: 850, fontStretch: "72%", textTransform: "uppercase", lineHeight: 1, margin: "6px 0 10px" }}>{au.titulo}</div>
+            {au.exercicios.map(([n, s], k) => (
+              <div key={`${n}-${k}`} style={{ display: "flex", justifyContent: "space-between", gap: 10, padding: "7px 0", borderBottom: "1px solid var(--line)", fontSize: 14 }}>
+                <span>{n}</span>
+                <span style={{ color: "var(--ink-2)", whiteSpace: "nowrap" }}>{s}</span>
+              </div>
+            ))}
+            {nota !== null && (
+              <textarea
+                value={nota}
+                onChange={(e) => setNota(e.target.value)}
+                placeholder="O que está errado neste protocolo?"
+                aria-label="Descrição do problema"
+                rows={3}
+                style={{ width: "100%", marginTop: 12, border: "1px solid #111", padding: 10, fontSize: 15, fontFamily: "inherit", resize: "vertical" }}
+              />
+            )}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 12 }}>
+              <button
+                type="button"
+                className="botao botao--secundario"
+                disabled={ocupado}
+                style={{ height: 48, fontSize: 12, letterSpacing: ".06em" }}
+                onClick={() => (nota === null ? setNota("") : auditar(false))}
+              >
+                {nota === null ? "Marcar problema" : "Salvar problema"}
+              </button>
+              <button type="button" className="botao botao--primario" disabled={ocupado} style={{ height: 48, fontSize: 12, letterSpacing: ".06em" }} onClick={() => (nota === null ? auditar(true) : setNota(null))}>
+                {nota === null ? "Aprovar" : "Cancelar"}
+              </button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
       {aviso.elemento}
     </LayoutMaster>
   );
 }
 
-type StatusExp = "pendente" | "aprovado" | "audio";
+const EXPLICACOES_EXEMPLO: ExplicacoesDados = {
+  contagem: { pendente: EXPLICACOES.length - 1 + EXPLICACOES_OUTRAS.pendente, aprovado: EXPLICACOES_OUTRAS.aprovado, com_audio: 1 + EXPLICACOES_OUTRAS.audio },
+  semExplicacao: 0,
+  lista: EXPLICACOES.map((e, i) => ({ exercicioId: "", nome: e.nome, videoUrl: null, posicao: e.posicao, movimento: e.movimento, cuidado: e.cuidado, status: i === 3 ? "com_audio" : "pendente" })),
+};
 
-export function ExplicacoesMaster() {
+export function ExplicacoesMaster({ dados }: { dados?: ExplicacoesDados }) {
+  const router = useRouter();
   const aviso = useAvisoRapido();
-  const [aba, setAba] = useState<StatusExp>("pendente");
-  const [status, setStatus] = useState<Record<number, StatusExp>>({ 3: "audio" });
-  const de = (i: number): StatusExp => status[i] ?? "pendente";
-  const contagem = (k: StatusExp) => EXPLICACOES.filter((_, i) => de(i) === k).length + EXPLICACOES_OUTRAS[k];
-  const lista = EXPLICACOES.map((e, i) => ({ e, i })).filter(({ i }) => de(i) === aba);
-  const rotulos: Record<StatusExp, string> = { pendente: "REVISAR", aprovado: "APROVADOS", audio: "COM ÁUDIO" };
+  const D = dados ?? EXPLICACOES_EXEMPLO;
+  const [aba, setAba] = useState<StatusExplicacao>("pendente");
+  const [editando, setEditando] = useState<ExplicacaoMaster | null>(null);
+  const [ocupado, setOcupado] = useState<string | null>(null);
+  const lista = D.lista.filter((e) => e.status === aba);
+  const rotulos: Record<StatusExplicacao, string> = { pendente: "REVISAR", aprovado: "APROVADOS", com_audio: "COM ÁUDIO" };
 
-  const emLote = () => {
-    const n = { ...status };
-    EXPLICACOES.forEach((_, i) => {
-      if (aba === "pendente" && de(i) === "pendente") n[i] = "aprovado";
-      if (aba === "aprovado" && de(i) === "aprovado") n[i] = "audio";
-    });
-    setStatus(n);
-    if (aba === "audio") setAba("pendente");
+  const rodar = async (chave: string, f: () => Promise<{ ok: true; msg: string } | { ok: false; error: string }>) => {
+    if (!dados) return aviso.mostrar("No exemplo nada é gravado. Com o banco ligado, isto salva de verdade.");
+    setOcupado(chave);
+    const r = await f();
+    setOcupado(null);
+    aviso.mostrar(r.ok ? r.msg : r.error);
+    if (r.ok) router.refresh();
+    return r.ok;
   };
 
   return (
-    <LayoutMaster>
+    <LayoutMaster aviso={dados ? null : undefined}>
       <div style={pagina}>
-        <TituloMaster sub="Texto gerado pela IA a partir do vídeo. Você revisa, aprova e gera o áudio com a sua voz.">Explicações</TituloMaster>
+        <TituloMaster sub="Texto escrito pela IA a partir do cadastro do exercício. Você revisa e aprova; o áudio com a sua voz entra quando a voz guia for ligada.">Explicações</TituloMaster>
         <div style={{ marginBottom: 14 }}>
           <Segmentado
-            opcoes={["pendente", "aprovado", "audio"] as StatusExp[]}
+            opcoes={["pendente", "aprovado", "com_audio"] as StatusExplicacao[]}
             valor={aba}
             onTroca={setAba}
             altura={44}
             render={(k) => (
               <span style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1 }}>
                 <span>{rotulos[k]}</span>
-                <span style={{ fontSize: 15, fontWeight: 900 }}>{contagem(k)}</span>
+                <span style={{ fontSize: 15, fontWeight: 900 }}>{fmtNum(D.contagem[k])}</span>
               </span>
             )}
           />
         </div>
-        {lista.map(({ e, i }) => {
-          const st = de(i);
+        {aba === "pendente" && (
+          <div style={{ ...cartao, padding: 14, marginBottom: 12, display: "flex", flexDirection: "column", gap: 10 }}>
+            <span style={{ fontSize: 14, lineHeight: 1.4 }}>
+              <b style={{ fontWeight: 800 }}>{fmtNum(D.semExplicacao)}</b> exercícios ainda sem texto. Os que já aparecem nos treinos gerados vêm primeiro.
+            </span>
+            <button type="button" className="botao botao--secundario" disabled={!!ocupado} onClick={() => rodar("gerar", () => gerarExplicacoesAction(8))}>
+              {ocupado === "gerar" ? "Escrevendo, leva até 1 minuto" : "Gerar mais 8"}
+            </button>
+          </div>
+        )}
+        {!lista.length && <p className="texto-apoio" style={{ padding: "8px 0 16px" }}>Nada aqui por enquanto.</p>}
+        {lista.map((e, idx) => {
+          const st = e.status;
+          const emEdicao = editando && editando.exercicioId === e.exercicioId && editando.nome === e.nome;
           return (
-            <div key={e.nome} style={{ background: "#fff", border: st === "pendente" ? "1px solid #111" : "1px solid var(--line)", padding: 12, marginBottom: 10 }}>
+            <div key={`${e.exercicioId}-${idx}`} style={{ background: "#fff", border: st === "pendente" ? "1px solid #111" : "1px solid var(--line)", padding: 12, marginBottom: 10 }}>
               <div style={{ display: "flex", gap: 12 }}>
-                <div style={{ width: 64, height: 84, flex: "none", background: "var(--bg-soft)", fontSize: 7, fontWeight: 700, color: "var(--ink-2)", display: "flex", alignItems: "flex-end", padding: 3 }}>VÍDEO</div>
+                {e.videoUrl ? (
+                  <video src={e.videoUrl} muted playsInline preload="metadata" controls style={{ width: 64, height: 84, flex: "none", objectFit: "cover", background: "var(--bg-soft)" }} />
+                ) : (
+                  <div style={{ width: 64, height: 84, flex: "none", background: "var(--bg-soft)", fontSize: 7, fontWeight: 700, color: "var(--ink-2)", display: "flex", alignItems: "flex-end", padding: 3 }}>VÍDEO</div>
+                )}
                 <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 6, minWidth: 0 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8 }}>
                     <span style={{ fontSize: 18, fontWeight: 850, fontStretch: "76%", textTransform: "uppercase", lineHeight: 1 }}>{e.nome}</span>
-                    <span style={{ flex: "none", fontSize: 9, fontWeight: 800, letterSpacing: ".08em", padding: "3px 5px", background: st === "audio" ? "#111" : "#fff", color: st === "audio" ? "var(--accent)" : "#111", border: "1px solid #111" }}>
+                    <span style={{ flex: "none", fontSize: 9, fontWeight: 800, letterSpacing: ".08em", padding: "3px 5px", background: st === "com_audio" ? "#111" : "#fff", color: st === "com_audio" ? "var(--accent)" : "#111", border: "1px solid #111" }}>
                       {st === "pendente" ? "REVISAR" : st === "aprovado" ? "APROVADO" : "COM ÁUDIO"}
                     </span>
                   </div>
-                  {(
-                    [
-                      ["Posição inicial", e.posicao],
-                      ["Movimento", e.movimento],
-                      ["Cuidado", e.cuidado],
-                    ] as [string, string][]
-                  ).map(([k, v]) => (
-                    <p key={k} style={{ fontSize: 13, lineHeight: 1.35 }}>
-                      <b style={{ fontWeight: 800 }}>{k}:</b> {v}
-                    </p>
-                  ))}
+                  {emEdicao ? (
+                    (
+                      [
+                        ["posicao", "Posição inicial"],
+                        ["movimento", "Movimento"],
+                        ["cuidado", "Cuidado"],
+                      ] as const
+                    ).map(([k, rotulo]) => (
+                      <label key={k} style={{ display: "flex", flexDirection: "column", gap: 3, fontSize: 12, fontWeight: 800 }}>
+                        {rotulo}
+                        <textarea
+                          value={editando[k]}
+                          onChange={(ev) => setEditando({ ...editando, [k]: ev.target.value })}
+                          rows={2}
+                          style={{ border: "1px solid #111", padding: 8, fontSize: 14, fontFamily: "inherit", fontWeight: 400, resize: "vertical" }}
+                        />
+                      </label>
+                    ))
+                  ) : (
+                    (
+                      [
+                        ["Posição inicial", e.posicao],
+                        ["Movimento", e.movimento],
+                        ["Cuidado", e.cuidado],
+                      ] as [string, string][]
+                    ).map(([k, v]) => (
+                      <p key={k} style={{ fontSize: 13, lineHeight: 1.35 }}>
+                        <b style={{ fontWeight: 800 }}>{k}:</b> {v}
+                      </p>
+                    ))
+                  )}
                 </div>
               </div>
-              {st === "pendente" && (
+              {emEdicao ? (
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 10 }}>
-                  <button type="button" className="botao botao--secundario" style={{ height: 44, fontSize: 12, letterSpacing: ".06em" }} onClick={() => aviso.mostrar("Abre os três campos para edição.")}>
-                    Editar
+                  <button type="button" className="botao botao--secundario" style={{ height: 44, fontSize: 12, letterSpacing: ".06em" }} onClick={() => setEditando(null)}>
+                    Cancelar
                   </button>
-                  <button type="button" className="botao botao--primario" style={{ height: 44, fontSize: 12, letterSpacing: ".06em" }} onClick={() => setStatus({ ...status, [i]: "aprovado" })}>
-                    Aprovar
+                  <button
+                    type="button"
+                    className="botao botao--primario"
+                    disabled={!!ocupado}
+                    style={{ height: 44, fontSize: 12, letterSpacing: ".06em" }}
+                    onClick={async () => {
+                      const ok = await rodar(`salvar-${e.exercicioId}`, () => salvarExplicacaoAction(editando));
+                      if (ok) setEditando(null);
+                    }}
+                  >
+                    Salvar e aprovar
                   </button>
                 </div>
-              )}
-              {st === "aprovado" && (
-                <button
-                  type="button"
-                  className="botao botao--secundario"
-                  style={{ height: 44, marginTop: 10, fontSize: 12, letterSpacing: ".06em" }}
-                  onClick={() => {
-                    setStatus({ ...status, [i]: "audio" });
-                    aviso.mostrar(`Áudio gerado com a sua voz: ${e.nome}. A geração real usa o ElevenLabs.`);
-                  }}
-                >
-                  Gerar áudio
-                </button>
+              ) : (
+                <div style={{ display: "grid", gridTemplateColumns: st === "pendente" ? "1fr 1fr" : "1fr", gap: 8, marginTop: 10 }}>
+                  <button type="button" className="botao botao--secundario" style={{ height: 44, fontSize: 12, letterSpacing: ".06em" }} onClick={() => setEditando(e)}>
+                    Editar
+                  </button>
+                  {st === "pendente" && (
+                    <button type="button" className="botao botao--primario" disabled={!!ocupado} style={{ height: 44, fontSize: 12, letterSpacing: ".06em" }} onClick={() => rodar(`aprovar-${e.exercicioId}`, () => aprovarExplicacoesAction([e.exercicioId]))}>
+                      Aprovar
+                    </button>
+                  )}
+                </div>
               )}
             </div>
           );
         })}
-        <button type="button" className="botao botao--primario" style={{ marginTop: 6 }} onClick={emLote}>
-          {aba === "pendente" ? "Aprovar todos desta página" : aba === "aprovado" ? "Gerar áudio de todos" : "Voltar para revisar"}
-        </button>
+        {aba === "pendente" && lista.length > 1 && (
+          <button type="button" className="botao botao--primario" disabled={!!ocupado} style={{ marginTop: 6 }} onClick={() => rodar("lote", () => aprovarExplicacoesAction(lista.map((e) => e.exercicioId)))}>
+            Aprovar todos desta página
+          </button>
+        )}
       </div>
       {aviso.elemento}
     </LayoutMaster>
   );
 }
 
-export function VitrineMaster() {
+const ESTILO_ROTULO: Record<Fileira["estilo"], string> = { automatica: "Automática", cards: "Cards de treino", tiles: "Atalhos" };
+
+export function VitrineMaster({ salva }: { salva?: Fileira[] | null }) {
+  const router = useRouter();
   const aviso = useAvisoRapido();
-  const [fileiras, setFileiras] = useState(FILEIRAS_VITRINE.map((f, i) => ({ id: i, visivel: i !== 5 })));
+  const [fileiras, setFileiras] = useState<Fileira[]>(() => vitrineFinal(salva));
+  const [ocupado, setOcupado] = useState(false);
   const mover = (i: number, d: -1 | 1) => {
     const j = i + d;
     if (j < 0 || j >= fileiras.length) return;
@@ -745,47 +850,51 @@ export function VitrineMaster() {
     </svg>
   );
   const btn: React.CSSProperties = { width: 40, height: 40, background: "#fff", border: "1px solid #111", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: 0 };
+  const publicar = async () => {
+    setOcupado(true);
+    const r = await publicarVitrineAction(fileiras);
+    setOcupado(false);
+    aviso.mostrar(r.ok ? r.msg : r.error);
+    if (r.ok) router.refresh();
+  };
   return (
-    <LayoutMaster>
+    <LayoutMaster aviso={salva === undefined ? undefined : null}>
       <div style={pagina}>
         <TituloMaster sub={`Ordem das fileiras na tela Início. "Seu treino de hoje" fica sempre no topo.`}>Vitrine</TituloMaster>
         <div style={{ background: "#111", color: "#fff", padding: "12px 14px", display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
           <span style={{ fontSize: 15, fontWeight: 800 }}>Seu treino de hoje</span>
           <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: ".08em", color: "var(--accent)" }}>FIXO</span>
         </div>
-        {fileiras.map((f, i) => {
-          const [nome, meta] = FILEIRAS_VITRINE[f.id];
-          return (
-            <div key={f.id} style={{ background: "#fff", border: "1px solid #111", display: "flex", alignItems: "center", gap: 10, padding: "8px 8px 8px 12px", marginBottom: 6, opacity: f.visivel ? 1 : 0.55 }}>
-              <span className="numero-grande" style={{ fontSize: 24, width: 26 }}>
-                {doisDigitos(i + 1)}
-              </span>
-              <span style={{ flex: 1, display: "flex", flexDirection: "column", gap: 2, minWidth: 0 }}>
-                <span style={{ fontSize: 15, fontWeight: 800 }}>{nome}</span>
-                <span style={{ fontSize: 12, color: "var(--ink-2)" }}>{f.visivel ? meta : "Oculta"}</span>
-              </span>
-              <button type="button" aria-label={`Subir ${nome}`} style={btn} onClick={() => mover(i, -1)}>
-                {seta("M2 9L7 4L12 9")}
-              </button>
-              <button type="button" aria-label={`Descer ${nome}`} style={btn} onClick={() => mover(i, 1)}>
-                {seta("M2 5L7 10L12 5")}
-              </button>
-              <button
-                type="button"
-                aria-pressed={f.visivel}
-                onClick={() => setFileiras(fileiras.map((x, j) => (j === i ? { ...x, visivel: !x.visivel } : x)))}
-                style={{ width: 66, flex: "none", height: 40, background: f.visivel ? "#111" : "#fff", color: f.visivel ? "#fff" : "#111", border: "1px solid #111", fontWeight: 800, fontSize: 10, letterSpacing: ".06em", cursor: "pointer" }}
-              >
-                {f.visivel ? "VISÍVEL" : "OCULTA"}
-              </button>
-            </div>
-          );
-        })}
-        <button type="button" className="botao botao--secundario" style={{ marginTop: 10 }} onClick={() => aviso.mostrar("Abre a escolha de treinos para a nova coleção.")}>
-          Nova coleção
-        </button>
-        <button type="button" className="botao botao--primario" style={{ marginTop: 8 }} onClick={() => aviso.mostrar("Vitrine publicada. Os alunos veem a nova ordem ao abrir o app.")}>
-          Publicar vitrine
+        {fileiras.map((f, i) => (
+          <div key={f.titulo} style={{ background: "#fff", border: "1px solid #111", display: "flex", alignItems: "center", gap: 10, padding: "8px 8px 8px 12px", marginBottom: 6, opacity: f.visivel ? 1 : 0.55 }}>
+            <span className="numero-grande" style={{ fontSize: 24, width: 26 }}>
+              {doisDigitos(i + 1)}
+            </span>
+            <span style={{ flex: 1, display: "flex", flexDirection: "column", gap: 2, minWidth: 0 }}>
+              <span style={{ fontSize: 15, fontWeight: 800 }}>{f.titulo}</span>
+              <span style={{ fontSize: 12, color: "var(--ink-2)" }}>{f.visivel ? ESTILO_ROTULO[f.estilo] : "Oculta"}</span>
+            </span>
+            <button type="button" aria-label={`Subir ${f.titulo}`} style={btn} onClick={() => mover(i, -1)}>
+              {seta("M2 9L7 4L12 9")}
+            </button>
+            <button type="button" aria-label={`Descer ${f.titulo}`} style={btn} onClick={() => mover(i, 1)}>
+              {seta("M2 5L7 10L12 5")}
+            </button>
+            <button
+              type="button"
+              aria-pressed={f.visivel}
+              onClick={() => setFileiras(fileiras.map((x, j) => (j === i ? { ...x, visivel: !x.visivel } : x)))}
+              style={{ width: 66, flex: "none", height: 40, background: f.visivel ? "#111" : "#fff", color: f.visivel ? "#fff" : "#111", border: "1px solid #111", fontWeight: 800, fontSize: 10, letterSpacing: ".06em", cursor: "pointer" }}
+            >
+              {f.visivel ? "VISÍVEL" : "OCULTA"}
+            </button>
+          </div>
+        ))}
+        <p className="texto-apoio" style={{ marginTop: 10 }}>
+          Novas coleções entram quando os treinos prontos da vitrine forem cadastrados.
+        </p>
+        <button type="button" className="botao botao--primario" disabled={ocupado} style={{ marginTop: 10 }} onClick={publicar}>
+          {ocupado ? "Publicando" : "Publicar vitrine"}
         </button>
       </div>
       {aviso.elemento}

@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { medidas as armMedidas } from "@/lib/armazenamento";
 import { ALUNO_EXEMPLO } from "@/lib/dados-exemplo";
+import type { EvolucaoReal } from "@/lib/dados/evolucao";
+import { bonecoDe } from "@/lib/midia";
 import { useDemo } from "@/lib/demo";
 import { dataCurta, listarFotos } from "@/lib/fotos-corpo";
 import { DIAS_CURTOS } from "../acesso/PrimeiroAcesso";
@@ -55,11 +57,20 @@ function Alternador<T extends string>({ opcoes, valor, onTroca }: { opcoes: [T, 
   );
 }
 
-export function Evolucao() {
+/** real: histórico do aluno logado. Sem ele (Master e demonstração), mostra o exemplo. */
+export function Evolucao({ real }: { real?: EvolucaoReal }) {
   const demo = useDemo();
   const pausada = demo.estado === "pausada";
   const [modoMapa, setModoMapa] = useState<"semana" | "dia">("semana");
-  const [exercicio, setExercicio] = useState("Elevação pélvica");
+  const cargasReais = real ? Object.fromEntries(real.cargas.map((c) => [c.nome, c.pontos])) : null;
+  const CARGAS_TELA = cargasReais ?? CARGAS;
+  const [exercicio, setExercicio] = useState(Object.keys(CARGAS_TELA)[0] ?? "");
+  const sequencia = real ? real.sequencia : ALUNO_EXEMPLO.sequenciaDias;
+  const recordeSeq = real ? real.recordeSequencia : ALUNO_EXEMPLO.sequenciaDias;
+  const meses = real ? real.meses : MESES;
+  const maxMes = Math.max(1, ...meses.map(([, v]) => v));
+  const diasSemana = real ? real.semana.flatMap((t, i) => (t ? [i] : [])) : DIAS_TREINADOS;
+  const listaMedalhas = real ? real.medalhas : MEDALHAS;
   const [ultimaFoto, setUltimaFoto] = useState<string | null>(null);
   const [{ registros }] = armMedidas.usar();
 
@@ -67,12 +78,22 @@ export function Evolucao() {
     listarFotos().then((f) => setUltimaFoto(f.length ? f[f.length - 1].data : null));
   }, []);
 
-  const musculos = MUSCULOS[modoMapa];
-  const L = CARGAS[exercicio];
+  const musculos = real ? (modoMapa === "semana" ? real.musculosSemana : real.musculosDia) : MUSCULOS[modoMapa];
+  const maxMusc = Math.max(1, ...musculos.map(([, v]) => v));
+  const L = CARGAS_TELA[exercicio] ?? [];
   const mn = Math.min(...L) - 4;
   const mx = Math.max(...L) + 2;
-  const pts = L.map((v, i) => [Math.round((i * 346) / 5) + 2, Math.round(146 - ((v - mn) / (mx - mn)) * 136)]);
-  const mapa = `/assets/bonecos/${demo.sexo}/boneco-${modoMapa === "semana" ? "gluteos-completo" : "posteriores-gluteos"}.svg`;
+  const passo = L.length > 1 ? 346 / (L.length - 1) : 0;
+  const pts = L.map((v, i) => [Math.round(i * passo) + 2, Math.round(146 - ((v - mn) / (mx - mn || 1)) * 136)]);
+  const nomesMusc = musculos.map(([m]) => m);
+  const mapa = real
+    ? bonecoDe(nomesMusc.join(" "), demo.sexo)
+    : `/assets/bonecos/${demo.sexo}/boneco-${modoMapa === "semana" ? "gluteos-completo" : "posteriores-gluteos"}.svg`;
+  const legendaMapa = real
+    ? `${modoMapa === "semana" ? "ÚLTIMOS 7 DIAS" : real.rotuloDia}${nomesMusc.length ? " · " + nomesMusc.slice(0, 3).join(", ").toUpperCase() : ""}`
+    : modoMapa === "semana"
+      ? "SEMANA · GLÚTEO, POSTERIOR E CORE"
+      : "HOJE · GLÚTEO E POSTERIOR";
 
   const ultimaMedida = registros.length ? registros[registros.length - 1].data : null;
   const proximaMedidaDias = ultimaMedida
@@ -103,7 +124,7 @@ export function Evolucao() {
           <Logo />
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <span className="numero-grande" style={{ fontSize: 34 }}>
-              {ALUNO_EXEMPLO.sequenciaDias}
+              {sequencia}
             </span>
             <span className="rotulo" style={{ fontSize: 10, lineHeight: 1.15 }}>
               DIAS
@@ -135,15 +156,16 @@ export function Evolucao() {
         <div style={{ border: "1px solid #111" }}>
           <img src={mapa} alt="Mapa muscular, frente e costas" style={{ display: "block", width: "100%", height: 250, objectFit: "contain", background: "#fff" }} />
           <div className="rotulo" style={{ borderTop: "1px solid var(--line)", padding: "8px 10px", fontSize: 10, letterSpacing: ".08em", whiteSpace: "normal" }}>
-            {modoMapa === "semana" ? "SEMANA · GLÚTEO, POSTERIOR E CORE" : "HOJE · GLÚTEO E POSTERIOR"}
+            {legendaMapa}
           </div>
         </div>
         <div style={{ marginTop: 6 }}>
+          {real && !musculos.length && <p className="texto-apoio" style={{ padding: "12px 0", borderBottom: "var(--border-strong)" }}>Os músculos trabalhados aparecem aqui depois do primeiro treino.</p>}
           {musculos.map(([nome, v], i) => (
             <div key={nome} style={{ display: "grid", gridTemplateColumns: "110px minmax(0, 1fr) 40px", gap: 10, alignItems: "center", height: 44, borderBottom: i === musculos.length - 1 ? "var(--border-strong)" : "1px solid var(--line)" }}>
               <span style={{ fontSize: 14, color: "var(--ink-2)" }}>{nome}</span>
               <div className="trilho">
-                <span style={{ width: `${Math.round((v / 3) * 100)}%`, transition: "none" }} />
+                <span style={{ width: `${Math.round((v / maxMusc) * 100)}%`, transition: "none" }} />
               </div>
               <span style={{ fontSize: 17, fontWeight: 850, fontStretch: "76%", textAlign: "right" }}>{v}×</span>
             </div>
@@ -152,22 +174,22 @@ export function Evolucao() {
 
         <div style={{ ...tituloSecao, display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
           <h2 className="titulo-secao">Treinos por mês</h2>
-          <span className="rotulo">2026</span>
+          <span className="rotulo">ÚLTIMOS 6 MESES</span>
         </div>
         <div style={{ display: "flex", alignItems: "flex-end", gap: 8, height: 150, marginTop: 14, borderBottom: "var(--border-strong)" }}>
-          {MESES.map(([m, v], i) => {
-            const atual = i === MESES.length - 1;
+          {meses.map(([m, v], i) => {
+            const atual = i === meses.length - 1;
             return (
-              <div key={m} style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "flex-end", height: "100%", gap: 4 }}>
+              <div key={`${m}-${i}`} style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "flex-end", height: "100%", gap: 4 }}>
                 <span style={{ fontSize: 15, fontWeight: 850, fontStretch: "76%", textAlign: "center" }}>{v}</span>
-                <div style={{ height: Math.round((v / 14) * 110), background: atual ? "var(--accent)" : "#111", border: atual ? "2px solid #111" : "none" }} />
+                <div style={{ height: Math.round((v / maxMes) * 110), background: atual ? "var(--accent)" : "#111", border: atual ? "2px solid #111" : "none" }} />
               </div>
             );
           })}
         </div>
         <div style={{ display: "flex", gap: 8, marginTop: 6 }}>
-          {MESES.map(([m]) => (
-            <span key={m} style={{ flex: 1, textAlign: "center", fontSize: 11, fontWeight: 700, letterSpacing: ".08em", color: "var(--ink-2)" }}>
+          {meses.map(([m], i) => (
+            <span key={`${m}-${i}`} style={{ flex: 1, textAlign: "center", fontSize: 11, fontWeight: 700, letterSpacing: ".08em", color: "var(--ink-2)" }}>
               {m}
             </span>
           ))}
@@ -176,8 +198,14 @@ export function Evolucao() {
         <h2 className="titulo-secao" style={tituloSecao}>
           Carga por exercício
         </h2>
+        {L.length === 0 ? (
+          <p className="texto-apoio" style={{ marginTop: 10, paddingBottom: 12, borderBottom: "var(--border-strong)" }}>
+            Anote a carga das séries durante o treino. A evolução de cada exercício aparece aqui.
+          </p>
+        ) : (
+          <>
         <div className="fileira-trilho" style={{ gap: 6, margin: "12px -20px 0" }}>
-          {Object.keys(CARGAS).map((n) => (
+          {Object.keys(CARGAS_TELA).map((n) => (
             <button
               type="button"
               key={n}
@@ -191,15 +219,17 @@ export function Evolucao() {
         </div>
         <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginTop: 16 }}>
           <span className="numero-grande" style={{ fontSize: 56, lineHeight: 0.85 }}>
-            {L[5]}
+            {String(L[L.length - 1]).replace(".", ",")}
           </span>
           <span style={{ fontSize: 15, fontWeight: 700 }}>kg</span>
           <span className="texto-apoio" style={{ marginLeft: "auto" }}>
-            +{L[5] - L[0]} kg desde o treino 01
+            {L.length < 2
+              ? "primeiro registro"
+              : `${L[L.length - 1] - L[0] >= 0 ? "+" : ""}${String(Math.round((L[L.length - 1] - L[0]) * 10) / 10).replace(".", ",")} kg em ${L.length} treinos`}
           </span>
         </div>
         <div style={{ position: "relative", height: 150, marginTop: 12, borderBottom: "var(--border-strong)" }}>
-          <svg width="100%" height="150" viewBox="0 0 350 150" preserveAspectRatio="none" style={{ position: "absolute", inset: 0, overflow: "visible" }} aria-label={`Carga de ${exercicio} nos últimos 6 treinos`}>
+          <svg width="100%" height="150" viewBox="0 0 350 150" preserveAspectRatio="none" style={{ position: "absolute", inset: 0, overflow: "visible" }} aria-label={`Carga de ${exercicio} nos últimos ${L.length} treinos`}>
             <polyline points={pts.map((p) => p.join(",")).join(" ")} fill="none" stroke="#111" strokeWidth="2" vectorEffect="non-scaling-stroke" />
           </svg>
           {pts.map(([x, y], i) => {
@@ -214,25 +244,27 @@ export function Evolucao() {
           })}
         </div>
         <div className="rotulo" style={{ display: "flex", justifyContent: "space-between", marginTop: 6, fontSize: 11, letterSpacing: ".08em" }}>
-          <span>TREINO 01</span>
-          <span>TREINO 06</span>
+          <span>{real ? "PRIMEIRO" : "TREINO 01"}</span>
+          <span>{real ? "ÚLTIMO" : "TREINO 06"}</span>
         </div>
+          </>
+        )}
 
         <h2 className="titulo-secao" style={tituloSecao}>
           Sequência e medalhas
         </h2>
         <div style={{ display: "flex", alignItems: "center", gap: 14, marginTop: 12 }}>
           <span className="numero-grande" style={{ fontSize: 64, lineHeight: 0.85 }}>
-            {ALUNO_EXEMPLO.sequenciaDias}
+            {sequencia}
           </span>
           <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 6 }}>
-            <span className="rotulo">DIAS SEGUIDOS · RECORDE {ALUNO_EXEMPLO.sequenciaDias}</span>
+            <span className="rotulo">DIAS SEGUIDOS · RECORDE {recordeSeq}</span>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 4 }}>
               {DIAS_CURTOS.map((l, i) => {
-                const treinou = DIAS_TREINADOS.includes(i);
+                const treinou = diasSemana.includes(i);
                 return (
                   <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
-                    <div style={{ width: "100%", height: 18, background: treinou ? "#111" : "#fff", border: treinou ? "none" : i === 6 ? "2px solid #111" : "1px solid var(--line)" }} />
+                    <div style={{ width: "100%", height: 18, background: treinou ? "#111" : "#fff", border: treinou ? "none" : i === (real ? new Date().getDay() : 6) ? "2px solid #111" : "1px solid var(--line)" }} />
                     <span style={{ fontSize: 10, fontWeight: 700, color: "var(--ink-2)" }}>{l}</span>
                   </div>
                 );
@@ -242,7 +274,7 @@ export function Evolucao() {
         </div>
         <p style={{ fontSize: 12, color: "var(--ink-2)", marginTop: 8, lineHeight: 1.4 }}>Dia de descanso do plano não quebra a sequência.</p>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: "16px 8px", marginTop: 20 }}>
-          {MEDALHAS.map(([nome, ganhou]) => (
+          {listaMedalhas.map(([nome, ganhou]) => (
             <div key={nome} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, paddingTop: 8 }} aria-label={`${nome}${ganhou ? ", conquistada" : ""}`}>
               <div style={{ width: 36, height: 36, transform: "rotate(45deg)", background: ganhou ? "#111" : "#fff", border: ganhou ? "3px solid #111" : "2px solid var(--line)" }} />
               <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: ".04em", textAlign: "center", lineHeight: 1.2, color: ganhou ? "#111" : "var(--ink-2)" }}>{nome}</span>

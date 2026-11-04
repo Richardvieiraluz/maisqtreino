@@ -88,7 +88,9 @@ usar `?estado=`. `useAlunoExibido()` dá nome, e-mail e iniciais.
 Master real: `lib/dados/master.ts` lê o banco (de 1000 em 1000), `lib/master-calculos.ts` faz as contas
 (funções puras), as rotas `app/master/*` passam os dados e os componentes de `TelasMaster` usam os exemplos
 quando não recebem nada. Ações (convidar aluno, liberar acesso, reenviar login) em `lib/acoes/master.ts`,
-cada uma confere o papel master de novo. Protocolos, Explicações e Vitrine seguem de exemplo até o catálogo.
+cada uma confere o papel master de novo. Protocolos (avaliações, mais trocados, auditoria), Explicações
+(texto pela IA em lote de 8, revisão e aprovação) e Vitrine (ordem e visibilidade das fileiras da Início,
+`lib/vitrine.ts`) leem e gravam no banco por `lib/dados/master-conteudo.ts`. Áudio das explicações entra com a voz guia.
 
 ## Eduzz
 
@@ -107,6 +109,17 @@ gerador em segundo plano `lib/geracao.tsx`. Chave `ANTHROPIC_API_KEY` e modelo `
 Testes sem banco: `npm run simular`, `npm run teste:fila`. O cliente do banco só troca por um falso
 com `MAISQ_TESTE=1`.
 
+## Treino do aluno (dados reais)
+
+Meu plano, Detalhe, execução, Evolução e sequência leem o banco quando há aluno logado; Master e demonstração
+continuam com o exemplo. Execução: carga anotada por série (`comCarga` em exercícios com halter, barra,
+máquina...), última e melhor carga lidas de `sessoes.series` (`cargasDoAluno`), troca de exercício com os
+substitutos da v2 (`lib/ia-treino/trocas-aluno.ts`) gravada em `trocas_exercicio`, explicação aprovada
+mostrada em texto. Evolução: contas puras em `lib/evolucao-calculos.ts` (sequência não quebra dentro do
+descanso do plano: 7 / dias por semana). LGPD em `lib/acoes/lgpd.ts`: baixar dados, revogar dados de saúde
+(pausa a geração) e excluir conta (apaga o usuário; o resto cai em cascata). Testes sem banco:
+`npx tsx scripts/teste-para-sessao.mts`, `scripts/teste-evolucao.mts`, `scripts/teste-explicacoes.mts`.
+
 ## Estados do aluno
 
 `assinante` (tudo liberado), `programa` (programa comprado + 1ª semana do protocolo; resto com cadeado),
@@ -114,4 +127,5 @@ com `MAISQ_TESTE=1`.
 
 ## Próximas etapas
 
-Meu plano e Detalhe com os treinos reais, carga e trocar exercício na execução, Meu plano, Evolução, Perfil, Oferta, Master, stories, voz guia (ElevenLabs).
+Links de checkout na Oferta, SMTP próprio, produtos da Eduzz, vídeos no R2, voz guia e áudio das
+explicações (ElevenLabs), treinos prontos da vitrine (programas, rápidos, lesões).

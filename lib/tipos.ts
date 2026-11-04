@@ -5,6 +5,12 @@ export type EstadoAcesso = "assinante" | "programa" | "pausada";
 
 export type Nivel = "Iniciante" | "Intermediário" | "Avançado" | "Todos";
 
+export interface OpcaoTroca {
+  id: string;
+  nome: string;
+  videoUrl?: string;
+}
+
 export interface ExercicioSessao {
   id: string;
   nome: string;
@@ -36,6 +42,12 @@ export interface ExercicioSessao {
   rodada?: string;
   /** Id do exercício no catálogo (o mesmo do +Q Pilates). */
   exercicioId?: string;
+  /** Treino gerado: exercício com carga (halter, barra, máquina...), mesmo sem histórico. */
+  comCarga?: boolean;
+  /** Explicação aprovada pelo Master (Master > Explicações). */
+  explicacao?: { posicao: string; movimento: string; cuidado: string };
+  /** Treino gerado: substitutos do catálogo (mesmos músculos, com o equipamento do aluno). */
+  opcoes?: OpcaoTroca[];
 }
 
 export interface TreinoSessao {

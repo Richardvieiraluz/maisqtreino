@@ -1,10 +1,13 @@
 import { Suspense } from "react";
 import { ProtocolosMaster } from "@/components/master/TelasMaster";
+import { protocolosMaster } from "@/lib/dados/master-conteudo";
+import { supabaseConfigurado } from "@/lib/supabase/env";
 
-export default function Page() {
+export default async function Page() {
+  const dados = supabaseConfigurado() ? await protocolosMaster() : undefined;
   return (
     <Suspense>
-      <ProtocolosMaster />
+      <ProtocolosMaster dados={dados} />
     </Suspense>
   );
 }

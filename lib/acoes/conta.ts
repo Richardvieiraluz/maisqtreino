@@ -46,7 +46,38 @@ export async function salvarQuizAction(bruto: RespostasQuiz): Promise<{ ok: true
 }
 
 /** Treino concluído: grava a sessão (só de treino pronto do protocolo ativo do próprio aluno). */
-export async function registrarSessaoAction(d: { protocoloTreinoId: string; duracaoSeg: number; avaliacao: string | null; teveDor: boolean }): Promise<{ ok: true } | { ok: false; error: string }> {
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const numero = (v: unknown, max: number) => (typeof v === "number" && Number.isFinite(v) && v >= 0 && v <= max ? Math.round(v * 10) / 10 : undefined);
+
+/** Séries vindas do navegador: só os campos conhecidos, com limites. */
+function limparSeries(bruto: unknown) {
+  if (!Array.isArray(bruto)) return [];
+  return bruto.slice(0, 300).flatMap((x) => {
+    if (!x || typeof x !== "object") return [];
+    const b = x as Record<string, unknown>;
+    if (typeof b.exercicioId !== "string" || !UUID.test(b.exercicioId)) return [];
+    const reps = numero(b.reps, 500), segundos = numero(b.segundos, 3600), carga = numero(b.carga, 500), serie = numero(b.serie, 50);
+    return [{ exercicioId: b.exercicioId, nome: String(b.nome ?? "").slice(0, 120), serie: serie ?? 1, ...(reps !== undefined && { reps }), ...(segundos !== undefined && { segundos }), ...(carga ? { carga } : {}) }];
+  });
+}
+
+function limparTrocas(bruto: unknown) {
+  if (!Array.isArray(bruto)) return [];
+  return bruto.slice(0, 40).flatMap((x) => {
+    const b = (x ?? {}) as Record<string, unknown>;
+    if (typeof b.de !== "string" || typeof b.para !== "string" || !UUID.test(b.de) || !UUID.test(b.para) || b.de === b.para) return [];
+    return [{ de: b.de, para: b.para, motivo: b.motivo === "dor" ? "dor" : "dificil" }];
+  });
+}
+
+export async function registrarSessaoAction(d: {
+  protocoloTreinoId: string;
+  duracaoSeg: number;
+  avaliacao: string | null;
+  teveDor: boolean;
+  series?: unknown;
+  trocas?: unknown;
+}): Promise<{ ok: true } | { ok: false; error: string }> {
   const sessao = await getSessao();
   if (!sessao) return { ok: false, error: "sem sessão" };
   const db = createAdminClient();
@@ -61,7 +92,7 @@ export async function registrarSessaoAction(d: { protocoloTreinoId: string; dura
   const duracao = Math.max(0, Math.min(6 * 3600, Math.round(Number(d.duracaoSeg) || 0)));
   const avaliacao = ["facil", "ideal", "dificil"].includes(String(d.avaliacao)) ? d.avaliacao : null;
   const agora = new Date();
-  const { error } = await db.from("sessoes").insert({
+  const { data: nova, error } = await db.from("sessoes").insert({
     aluno_id: sessao.id,
     protocolo_treino_id: id,
     iniciada_em: new Date(agora.getTime() - duracao * 1000).toISOString(),
@@ -69,10 +100,17 @@ export async function registrarSessaoAction(d: { protocoloTreinoId: string; dura
     duracao_seg: duracao,
     avaliacao,
     teve_dor: !!d.teveDor,
-  });
+    series: limparSeries(d.series),
+  }).select("id").single();
   if (error) {
     console.error("[sessao] gravação falhou", { code: error.code });
     return { ok: false, error: "falha ao gravar" };
+  }
+  // Trocas: alimentam "Mais trocados" do Master. Falha aqui não desfaz o treino.
+  const trocas = limparTrocas(d.trocas);
+  if (trocas.length) {
+    const { error: e2 } = await db.from("trocas_exercicio").insert(trocas.map((t) => ({ aluno_id: sessao.id, sessao_id: nova.id, exercicio_de: t.de, exercicio_para: t.para, motivo: t.motivo })));
+    if (e2) console.error("[troca] gravação falhou", { code: e2.code });
   }
   return { ok: true };
 }

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { Fragment, useEffect } from "react";
 import { ALUNO_EXEMPLO, FILEIRAS_CARDS, FILEIRAS_TILES, RAPIDOS_MIN, TREINO_HOJE } from "@/lib/dados-exemplo";
 import { useDemo } from "@/lib/demo";
 import { useRespostasSalvas } from "@/lib/quiz";
@@ -14,11 +14,12 @@ import { CardTreino } from "./CardTreino";
 import { useAlunoExibido } from "@/lib/conta";
 import type { Proximo } from "@/lib/dados/treinos";
 import { useGeracao } from "@/lib/geracao";
+import { vitrineFinal, type Fileira } from "@/lib/vitrine";
 
 const LOCAL_ROTULO: Record<string, string> = { casa: "Em casa", condominio: "Condomínio", academia: "Academia" };
 
 /** proximo: treino real do protocolo (logado). Sem ele, a Início mostra o treino de exemplo. */
-export function Inicio({ proximo }: { proximo?: Proximo }) {
+export function Inicio({ proximo, sequencia, vitrine }: { proximo?: Proximo; sequencia?: number; vitrine?: Fileira[] | null }) {
   const geracao = useGeracao();
   const aluno = useAlunoExibido();
   const demo = useDemo();
@@ -53,6 +54,87 @@ export function Inicio({ proximo }: { proximo?: Proximo }) {
     router.push(`/treino/${t.id}${demo.qs}`);
   };
 
+  const fileiraCards = (f: (typeof FILEIRAS_CARDS)[number]) => (
+          <section className="fileira" key={f.titulo}>
+            <div className="fileira-cabeca">
+              <h2 className="titulo-secao">{f.titulo}</h2>
+              <button type="button" className="ver-tudo rotulo" onClick={() => router.push(`/ver-tudo${demo.qs}${sep}fileira=${encodeURIComponent(f.titulo)}`)}>
+                VER TUDO
+              </button>
+            </div>
+            <div className="fileira-trilho">
+              {f.itens.map((c) => {
+                const bloqueado = pausada || (demo.estado === "programa" && !c.doPrograma);
+                return (
+                  <CardTreino
+                    key={c.id}
+                    card={c}
+                    sexo={demo.sexo}
+                    bloqueado={bloqueado}
+                    onToque={bloqueado ? abrirOferta : () => abrirDetalhe(c.id === "programa-gluteo" ? "programa-gluteo" : `protocolo-${doisDigitos(t.posicaoProtocolo)}`)}
+                  />
+                );
+              })}
+            </div>
+          </section>
+  );
+  const fileiraTiles = (f: (typeof FILEIRAS_TILES)[number]) => (
+          <section className="fileira" key={f.titulo}>
+            <h2 className="titulo-secao" style={{ padding: "0 20px", marginBottom: 12 }}>
+              {f.titulo}
+            </h2>
+            <div className="fileira-trilho fileira-trilho--tiles">
+              {f.itens.map((n) => (
+                <button type="button" className="tile" key={n} onClick={() => router.push(`/busca${demo.qs}${sep}q=${encodeURIComponent(n)}`)}>
+                  {n}
+                </button>
+              ))}
+            </div>
+          </section>
+  );
+  const lesoes = (
+<button
+          type="button"
+          onClick={() => router.push(`/lesoes${demo.qs}`)}
+          style={{ margin: "32px 20px 0", width: "calc(100% - 40px)", background: "#111", color: "#fff", padding: 16, display: "flex", alignItems: "center", gap: 14, border: "none", cursor: "pointer", textAlign: "left" }}
+        >
+          <span style={{ flex: 1, display: "flex", flexDirection: "column", gap: 6 }}>
+            <span className="rotulo" style={{ color: "var(--ink-on-dark-2)" }}>
+              LESÕES · 4 TRILHAS
+            </span>
+            <span style={{ fontSize: 26, fontWeight: 850, fontStretch: "70%", letterSpacing: "-0.015em", textTransform: "uppercase", lineHeight: 0.95 }}>
+              Treinar com dor, do jeito certo
+            </span>
+            <span style={{ fontSize: 13, color: "var(--ink-on-dark-2)" }}>Lombar, joelho, ombro e quadril</span>
+          </span>
+          <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden>
+            <path d="M6 3L12 9L6 15" fill="none" stroke="#fff" strokeWidth="2" />
+          </svg>
+        </button>
+  );
+  const rapidos = (
+<section style={{ margin: "32px 0" }}>
+          <h2 className="titulo-secao" style={{ padding: "0 20px", marginBottom: 12 }}>
+            Rápidos
+          </h2>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 8, padding: "0 20px" }}>
+            {RAPIDOS_MIN.map((m) => (
+              <button
+                type="button"
+                key={m}
+                onClick={() => router.push(`/ver-tudo${demo.qs}${sep}fileira=R%C3%A1pidos`)}
+                style={{ border: "1px solid #111", padding: "12px 10px", display: "flex", flexDirection: "column", gap: 2, background: "#fff", cursor: "pointer", textAlign: "left" }}
+              >
+                <span className="numero-grande" style={{ fontSize: 48, lineHeight: 0.9 }}>
+                  {m}
+                </span>
+                <span className="rotulo">MINUTOS</span>
+              </button>
+            ))}
+          </div>
+        </section>
+  );
+
   return (
     <main className="app">
       <div className="topo-seguro" />
@@ -63,7 +145,7 @@ export function Inicio({ proximo }: { proximo?: Proximo }) {
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
               <span className="numero-grande" style={{ fontSize: 34 }}>
-                {ALUNO_EXEMPLO.sequenciaDias}
+                {sequencia ?? ALUNO_EXEMPLO.sequenciaDias}
               </span>
               <span className="rotulo" style={{ fontSize: 10, lineHeight: 1.15 }}>
                 DIAS
@@ -232,89 +314,18 @@ export function Inicio({ proximo }: { proximo?: Proximo }) {
           </section>
         )}
 
-        {/* Fileiras de cards */}
-        {FILEIRAS_CARDS.map((f) => (
-          <section className="fileira" key={f.titulo}>
-            <div className="fileira-cabeca">
-              <h2 className="titulo-secao">{f.titulo}</h2>
-              <button type="button" className="ver-tudo rotulo" onClick={() => router.push(`/ver-tudo${demo.qs}${sep}fileira=${encodeURIComponent(f.titulo)}`)}>
-                VER TUDO
-              </button>
-            </div>
-            <div className="fileira-trilho">
-              {f.itens.map((c) => {
-                const bloqueado = pausada || (demo.estado === "programa" && !c.doPrograma);
-                return (
-                  <CardTreino
-                    key={c.id}
-                    card={c}
-                    sexo={demo.sexo}
-                    bloqueado={bloqueado}
-                    onToque={bloqueado ? abrirOferta : () => abrirDetalhe(c.id === "programa-gluteo" ? "programa-gluteo" : `protocolo-${doisDigitos(t.posicaoProtocolo)}`)}
-                  />
-                );
-              })}
-            </div>
-          </section>
-        ))}
-
-        {/* Fileiras de atalhos */}
-        {FILEIRAS_TILES.map((f) => (
-          <section className="fileira" key={f.titulo}>
-            <h2 className="titulo-secao" style={{ padding: "0 20px", marginBottom: 12 }}>
-              {f.titulo}
-            </h2>
-            <div className="fileira-trilho fileira-trilho--tiles">
-              {f.itens.map((n) => (
-                <button type="button" className="tile" key={n} onClick={() => router.push(`/busca${demo.qs}${sep}q=${encodeURIComponent(n)}`)}>
-                  {n}
-                </button>
-              ))}
-            </div>
-          </section>
-        ))}
-
-        {/* Trilha de lesões */}
-        <button
-          type="button"
-          onClick={() => router.push(`/lesoes${demo.qs}`)}
-          style={{ margin: "32px 20px 0", width: "calc(100% - 40px)", background: "#111", color: "#fff", padding: 16, display: "flex", alignItems: "center", gap: 14, border: "none", cursor: "pointer", textAlign: "left" }}
-        >
-          <span style={{ flex: 1, display: "flex", flexDirection: "column", gap: 6 }}>
-            <span className="rotulo" style={{ color: "var(--ink-on-dark-2)" }}>
-              LESÕES · 4 TRILHAS
-            </span>
-            <span style={{ fontSize: 26, fontWeight: 850, fontStretch: "70%", letterSpacing: "-0.015em", textTransform: "uppercase", lineHeight: 0.95 }}>
-              Treinar com dor, do jeito certo
-            </span>
-            <span style={{ fontSize: 13, color: "var(--ink-on-dark-2)" }}>Lombar, joelho, ombro e quadril</span>
-          </span>
-          <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden>
-            <path d="M6 3L12 9L6 15" fill="none" stroke="#fff" strokeWidth="2" />
-          </svg>
-        </button>
-
-        {/* Rápidos */}
-        <section style={{ margin: "32px 0" }}>
-          <h2 className="titulo-secao" style={{ padding: "0 20px", marginBottom: 12 }}>
-            Rápidos
-          </h2>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 8, padding: "0 20px" }}>
-            {RAPIDOS_MIN.map((m) => (
-              <button
-                type="button"
-                key={m}
-                onClick={() => router.push(`/ver-tudo${demo.qs}${sep}fileira=R%C3%A1pidos`)}
-                style={{ border: "1px solid #111", padding: "12px 10px", display: "flex", flexDirection: "column", gap: 2, background: "#fff", cursor: "pointer", textAlign: "left" }}
-              >
-                <span className="numero-grande" style={{ fontSize: 48, lineHeight: 0.9 }}>
-                  {m}
-                </span>
-                <span className="rotulo">MINUTOS</span>
-              </button>
-            ))}
-          </div>
-        </section>
+        {/* Fileiras na ordem da vitrine (Master > Vitrine) */}
+        {vitrineFinal(vitrine)
+          .filter((v) => v.visivel)
+          .map((v) => {
+            const fc = FILEIRAS_CARDS.find((x) => x.titulo === v.titulo);
+            if (fc) return fileiraCards(fc);
+            const ft = FILEIRAS_TILES.find((x) => x.titulo === v.titulo);
+            if (ft) return fileiraTiles(ft);
+            if (v.titulo === "Lesões") return <Fragment key="lesoes">{lesoes}</Fragment>;
+            if (v.titulo === "Rápidos") return <Fragment key="rapidos">{rapidos}</Fragment>;
+            return null;
+          })}
       </div>
       <RodapeAbas />
       {aviso.elemento}

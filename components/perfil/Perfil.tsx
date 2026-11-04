@@ -6,6 +6,7 @@ import { sairAction } from "@/app/entrar/actions";
 import { lembretes as armLembretes } from "@/lib/armazenamento";
 import { useDemo } from "@/lib/demo";
 import { apagarFotos } from "@/lib/fotos-corpo";
+import { excluirContaAction } from "@/lib/acoes/lgpd";
 import { RESPOSTAS_PADRAO, useRespostasSalvas } from "@/lib/quiz";
 import { fmtHora, PassosInstalar } from "../acesso/PrimeiroAcesso";
 import { useAvisoRapido } from "../AvisoRapido";
@@ -26,6 +27,7 @@ export function Perfil() {
   const [respostas] = useRespostasSalvas();
   const [lemb] = armLembretes.usar();
   const [folha, setFolha] = useState<Folha>(null);
+  const [excluindo, setExcluindo] = useState(false);
   const [so, setSo] = useState<"ios" | "android">("ios");
   const pausada = demo.estado === "pausada";
   const programa = demo.estado === "programa";
@@ -149,24 +151,32 @@ export function Perfil() {
                 <div style={{ fontSize: 26, fontWeight: 850, fontStretch: "72%", letterSpacing: "-0.02em", textTransform: "uppercase", lineHeight: 0.95 }}>Excluir conta</div>
                 <div className="aviso" style={{ flexDirection: "row", gap: 12, padding: 14 }}>
                   <span className="aviso__icone">!</span>
-                  <p style={{ fontSize: 15, lineHeight: 1.45 }}>Apaga seu histórico, cargas, fotos do corpo e medidas. Não dá para desfazer. A assinatura é cancelada junto.</p>
+                  <p style={{ fontSize: 15, lineHeight: 1.45 }}>
+                    Apaga sua conta, histórico, cargas, fotos do corpo e medidas. Não dá para desfazer. Se você tem assinatura, cancele a cobrança na Eduzz pelo e-mail da compra.
+                  </p>
                 </div>
                 <button
                   type="button"
                   className="botao botao--primario"
+                  disabled={excluindo}
                   onClick={async () => {
-                    // Hoje apaga o que está neste aparelho. Com o backend, apaga também do servidor
-                    // e cancela a assinatura na Eduzz (LGPD: em até 15 dias).
+                    // Apaga do servidor (conta e tudo que depende dela) e depois o que está no aparelho.
+                    setExcluindo(true);
+                    const r = await excluirContaAction("EXCLUIR");
+                    if (!r.ok) {
+                      setExcluindo(false);
+                      return aviso.mostrar(r.error);
+                    }
                     try {
                       Object.keys(localStorage)
                         .filter((k) => k.startsWith("maisqtreino:"))
                         .forEach((k) => localStorage.removeItem(k));
                     } catch {}
                     await apagarFotos().catch(() => undefined);
-                    router.push("/entrar");
+                    window.location.replace("/entrar");
                   }}
                 >
-                  Excluir minha conta
+                  {excluindo ? "Excluindo" : "Excluir minha conta"}
                 </button>
                 <button type="button" className="botao botao--secundario" onClick={() => setFolha(null)}>
                   Voltar

@@ -3,7 +3,8 @@ import { perfilDoQuiz, type PerfilAluno } from "../ia-treino/aluno";
 import { itemDoCatalogo, type LinhaExercicio } from "../ia-treino/catalogo";
 import { esqueletoDoAluno, gerarTreinoDoAluno, historicoDe, type ChamarModelo, type ItemCatalogoAluno, type TreinoGerado } from "../ia-treino/gerar-aluno";
 import { chamarModeloReal } from "../ia-treino/modelo";
-import { exerciciosDistintos, paraTreinoSessao, type InfoExercicio } from "../ia-treino/para-sessao";
+import { exerciciosDistintos, paraTreinoSessao, type CargaHistorico, type InfoExercicio } from "../ia-treino/para-sessao";
+import { opcoesDeTroca } from "../ia-treino/trocas-aluno";
 import type { RespostasQuiz } from "../quiz";
 import type { TreinoSessao } from "../tipos";
 import { createAdminClient } from "../supabase/admin";
@@ -116,7 +117,7 @@ export async function garantirFila(p: ProtocoloAtivo, feitos: number): Promise<v
 
 // ── geração ────────────────────────────────────────────────────────────────
 
-type Conteudo = TreinoGerado["rascunho"];
+export type Conteudo = TreinoGerado["rascunho"];
 const idsDoConteudo = (c: Conteudo) => c.blocks.flatMap((b) => b.exercises.map((x) => x.exerciseId));
 
 export type ResultadoFila =
@@ -171,6 +172,40 @@ export async function gerarProximo(protocoloId: string, opcoes: { chamarModelo?:
 }
 
 /** Treino pronto do protocolo ativo, já no formato da tela de execução. */
+/** Última e melhor carga (kg) de cada exercício, lidas das séries das sessões do aluno. */
+export async function cargasDoAluno(alunoId: string): Promise<Map<string, CargaHistorico>> {
+  const { data } = await createAdminClient().from("sessoes").select("series").eq("aluno_id", alunoId).not("concluida_em", "is", null).order("concluida_em", { ascending: false }).limit(120);
+  const mapa = new Map<string, CargaHistorico>();
+  const vistosNaSessao = new Set<string>();
+  for (const linha of data ?? []) {
+    const series = Array.isArray(linha.series) ? (linha.series as SerieFeita[]) : [];
+    vistosNaSessao.clear();
+    for (const s of series) {
+      if (!s?.exercicioId || !(typeof s.carga === "number" && s.carga > 0)) continue;
+      const atual = mapa.get(s.exercicioId);
+      if (!atual) {
+        mapa.set(s.exercicioId, { ultima: s.carga, melhor: s.carga });
+        vistosNaSessao.add(s.exercicioId);
+      } else {
+        // A mais recente é a maior carga daquela sessão; a melhor é de todas.
+        if (vistosNaSessao.has(s.exercicioId)) atual.ultima = Math.max(atual.ultima, s.carga);
+        atual.melhor = Math.max(atual.melhor, s.carga);
+      }
+    }
+  }
+  return mapa;
+}
+
+/** Uma série feita, como fica em sessoes.series. */
+export interface SerieFeita {
+  exercicioId: string;
+  nome: string;
+  serie: number;
+  reps?: number;
+  segundos?: number;
+  carga?: number;
+}
+
 export async function treinoParaSessao(alunoId: string, posicao: number): Promise<{ treino: TreinoSessao; protocoloTreinoId: string } | null> {
   const db = createAdminClient();
   const { data: p } = await db.from("protocolos").select("id, total_treinos, perfil, local").eq("aluno_id", alunoId).eq("ativo", true).maybeSingle();
@@ -179,7 +214,22 @@ export async function treinoParaSessao(alunoId: string, posicao: number): Promis
   if (!t || t.status !== "pronto" || !t.conteudo) return null;
   const catalogo = await carregarCatalogoIA();
   const info = new Map<string, InfoExercicio>(catalogo.map((x) => [x.id, { musculos: x.musculos, grupoMuscular: x.muscularGroup, equipamentos: x.equipamentos }]));
+  let opcoes = new Map<string, { id: string; nome: string; videoUrl?: string }[]>();
+  try {
+    opcoes = opcoesDeTroca(t.conteudo as Conteudo, p.perfil as PerfilAluno, posicao, catalogo);
+  } catch (e) {
+    console.error("[troca] substitutos falharam", e instanceof Error ? e.message : "erro");
+  }
+  const ids = idsDoConteudo(t.conteudo as Conteudo);
+  const [cargas, { data: exp }] = await Promise.all([
+    cargasDoAluno(alunoId),
+    db.from("explicacoes").select("exercicio_id, posicao_inicial, movimento, cuidado").in("exercicio_id", ids).in("status", ["aprovado", "com_audio"]),
+  ]);
+  const explicacoes = new Map((exp ?? []).map((x) => [x.exercicio_id as string, { posicao: x.posicao_inicial as string, movimento: x.movimento as string, cuidado: x.cuidado as string }]));
   const treino = paraTreinoSessao(t.conteudo as Conteudo, {
+    cargas,
+    explicacoes,
+    opcoes,
     id: `protocolo-${String(posicao).padStart(2, "0")}`,
     titulo: t.titulo ?? "Treino",
     posicao,
@@ -228,7 +278,7 @@ export async function proximoTreino(alunoId: string): Promise<Proximo> {
 // ── telas: Meu plano e Detalhe ─────────────────────────────────────────────
 
 const NIVEL_ROTULO: Record<string, string> = { N0: "Iniciante", N1: "Iniciante", N2: "Intermediário", N3: "Avançado" };
-const nivelRotulo = (p: PerfilAluno) => (p.familia === "reabilitacao" ? "Reabilitação" : (NIVEL_ROTULO[p.nivel ?? ""] ?? "Iniciante"));
+export const nivelRotulo = (p: PerfilAluno) => (p.familia === "reabilitacao" ? "Reabilitação" : (NIVEL_ROTULO[p.nivel ?? ""] ?? "Iniciante"));
 
 export type SituacaoReal = "feito" | "atual" | "pronto" | "montando" | "futuro" | "erro";
 export interface PlanoReal {
@@ -288,6 +338,21 @@ export interface DetalheReal {
 const LOCAL_ROTULO: Record<string, string> = { casa: "Em casa", condominio: "Condomínio", academia: "Academia" };
 const PALAVRA_BONECO: Record<string, string> = { deltoide: "ombro", dorsal: "costas", peitoral: "peito", "bíceps": "braço", "tríceps": "braço", "posterior de coxa": "posterior", "abdômen": "abdômen" };
 
+/** Lista "nome · séries" do treino gerado (Detalhe e auditoria do Master). */
+export function exerciciosDoConteudo(c: Conteudo): [string, string][] {
+  const lista: [string, string][] = [];
+  for (const b of c.blocks) {
+    const alternado = (b.method === "Circuito" || b.method === "Bi-Set") && b.exercises.length > 1;
+    for (const x of b.exercises) {
+      const alvos = x.series.map((s) => (s.type === "time" ? `${s.target.replace(/\D+$/, "")} s` : s.target));
+      const iguais = alvos.every((a) => a === alvos[0]);
+      const medida = `${x.series.length} × ${iguais ? alvos[0] : alvos.join("-")}`;
+      lista.push([x.exerciseName, alternado ? `${b.method === "Bi-Set" ? "Bi-set" : "Circuito"} · ${medida}` : medida]);
+    }
+  }
+  return lista;
+}
+
 export async function detalheDoTreino(alunoId: string, posicao: number): Promise<DetalheReal | null> {
   const p = await protocoloAtivo(alunoId);
   if (!p || posicao < 1 || posicao > p.totalTreinos) return null;
@@ -314,19 +379,13 @@ export async function detalheDoTreino(alunoId: string, posicao: number): Promise
   const porId = new Map(catalogo.map((x) => [x.id, x]));
   const equip = new Set<string>();
   const musc = new Map<string, number>();
-  const exercicios: [string, string][] = [];
-  for (const b of c.blocks) {
-    const alternado = (b.method === "Circuito" || b.method === "Bi-Set") && b.exercises.length > 1;
+  for (const b of c.blocks)
     for (const x of b.exercises) {
       const item = porId.get(x.exerciseId);
       (item?.equipamentos ?? []).filter((e) => e !== "peso do corpo").forEach((e) => equip.add(e));
       (item?.musculos ?? []).forEach((m) => musc.set(m, (musc.get(m) ?? 0) + 1));
-      const alvos = x.series.map((s) => (s.type === "time" ? `${s.target.replace(/\D+$/, "")} s` : s.target));
-      const iguais = alvos.every((a) => a === alvos[0]);
-      const medida = `${x.series.length} × ${iguais ? alvos[0] : alvos.join("-")}`;
-      exercicios.push([x.exerciseName, alternado ? `${b.method === "Bi-Set" ? "Bi-set" : "Circuito"} · ${medida}` : medida]);
     }
-  }
+  const exercicios = exerciciosDoConteudo(c);
   const primeiro = c.blocks[1]?.exercises[0] ?? c.blocks[0]?.exercises[0];
   const lista = [...equip];
   return {

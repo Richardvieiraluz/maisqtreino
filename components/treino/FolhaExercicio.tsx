@@ -21,6 +21,10 @@ export function FolhaExercicio({
 }) {
   const fechar = () => despachar({ t: "folha", folha: null });
   const forte = folha === "dorForte";
+  // Treino gerado: substitutos do catálogo (com id e vídeo). Exemplo: lista de nomes.
+  const gerado = exercicio.opcoes !== undefined;
+  const opcoes = gerado ? (exercicio.opcoes ?? []) : exercicio.alternativas.map((a) => ({ id: "", nome: a, videoUrl: undefined as string | undefined }));
+  const tituloTroca = gerado ? "Trocar exercício" : "Trocar por um mais fácil";
 
   return (
     <>
@@ -30,7 +34,7 @@ export function FolhaExercicio({
           <>
             <div className="rotulo">{nome}</div>
             <button type="button" className="botao botao--opcao" onClick={() => despachar({ t: "folha", folha: "trocar" })}>
-              Trocar por um mais fácil
+              {tituloTroca}
             </button>
             <button type="button" className="botao botao--opcao" onClick={() => despachar({ t: "folha", folha: "dor" })}>
               Senti dor
@@ -44,18 +48,29 @@ export function FolhaExercicio({
         {folha === "trocar" && (
           <>
             <div style={{ fontSize: 24, fontWeight: 850, fontStretch: "72%", letterSpacing: "-0.02em", textTransform: "uppercase", lineHeight: 0.95 }}>
-              Trocar por um mais fácil
+              {tituloTroca}
             </div>
-            <p style={{ fontSize: 14, color: "var(--ink-2)", lineHeight: 1.4 }}>Mesmo músculo, menos exigência. O resto do treino continua igual.</p>
-            {exercicio.alternativas.slice(0, 5).map((a) => (
+            <p style={{ fontSize: 14, color: "var(--ink-2)", lineHeight: 1.4 }}>
+              {gerado ? "Mesmos músculos, com o equipamento que você tem. O resto do treino continua igual." : "Mesmo músculo, menos exigência. O resto do treino continua igual."}
+            </p>
+            {gerado && opcoes.length === 0 && (
+              <div className="aviso">
+                <p style={{ fontSize: 15, lineHeight: 1.45 }}>Não há outro exercício parecido com o seu equipamento. Se estiver difícil, diminua a carga ou as repetições.</p>
+              </div>
+            )}
+            {opcoes.slice(0, 5).map((a) => (
               <button
                 type="button"
-                key={a}
-                onClick={() => despachar({ t: "trocar", nome: a })}
+                key={a.id || a.nome}
+                onClick={() => despachar({ t: "trocar", opcao: a })}
                 style={{ display: "flex", alignItems: "center", gap: 12, textAlign: "left", padding: 8, background: "#fff", border: "1px solid #111", cursor: "pointer" }}
               >
-                <img src={fotoDe(a)} alt="" style={{ width: 52, height: 64, flex: "none", objectFit: "cover", objectPosition: "center bottom", background: "#fff", border: "1px solid var(--line)" }} />
-                <span style={{ fontSize: 17, fontWeight: 850, fontStretch: "76%", textTransform: "uppercase", lineHeight: 1 }}>{a}</span>
+                {a.videoUrl ? (
+                  <video src={a.videoUrl} muted playsInline preload="metadata" style={{ width: 52, height: 64, flex: "none", objectFit: "cover", background: "#fff", border: "1px solid var(--line)" }} />
+                ) : (
+                  <img src={fotoDe(a.nome)} alt="" style={{ width: 52, height: 64, flex: "none", objectFit: "cover", objectPosition: "center bottom", background: "#fff", border: "1px solid var(--line)" }} />
+                )}
+                <span style={{ fontSize: 17, fontWeight: 850, fontStretch: "76%", textTransform: "uppercase", lineHeight: 1 }}>{a.nome}</span>
               </button>
             ))}
           </>

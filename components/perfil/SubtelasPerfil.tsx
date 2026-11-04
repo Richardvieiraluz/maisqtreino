@@ -11,6 +11,7 @@ import { useAvisoRapido } from "../AvisoRapido";
 import { Check, Selo } from "../marca";
 import { BotaoVoltar } from "../quiz/pecas";
 import { useAlunoExibido } from "@/lib/conta";
+import { baixarMeusDadosAction, revogarDadosSaudeAction } from "@/lib/acoes/lgpd";
 
 export type Subtela = "dados" | "equipamentos" | "lembretes" | "faq" | "termos";
 export const SUBTELAS: Record<Subtela, string> = {
@@ -257,7 +258,9 @@ export function SubtelaPerfil({ tela }: { tela: Subtela }) {
             className="botao botao--secundario"
             style={{ fontSize: 13, letterSpacing: ".06em" }}
             onClick={async () => {
-              // Baixa o que está guardado neste aparelho. Com o backend, inclui os dados do servidor.
+              // Dados do servidor (conta, quiz, treinos feitos) + o que fica só neste aparelho.
+              const r = await baixarMeusDadosAction();
+              if (!r.ok) return aviso.mostrar(r.error);
               const local: Record<string, unknown> = {};
               try {
                 Object.keys(localStorage)
@@ -266,7 +269,7 @@ export function SubtelaPerfil({ tela }: { tela: Subtela }) {
               } catch {}
               const fotos = await listarFotos();
               local.fotosDoCorpo = fotos.map((f) => ({ data: f.data, angulo: f.angulo }));
-              const blob = new Blob([JSON.stringify(local, null, 2)], { type: "application/json" });
+              const blob = new Blob([JSON.stringify({ servidor: r.dados ?? {}, somenteNesteAparelho: local }, null, 2)], { type: "application/json" });
               const a = document.createElement("a");
               a.href = URL.createObjectURL(blob);
               a.download = "maisqtreino-meus-dados.json";
@@ -290,7 +293,9 @@ export function SubtelaPerfil({ tela }: { tela: Subtela }) {
               type="button"
               className="botao botao--primario"
               style={{ height: 48, fontSize: 13, letterSpacing: ".06em" }}
-              onClick={() => {
+              onClick={async () => {
+                const r = await revogarDadosSaudeAction();
+                if (!r.ok) return aviso.mostrar(r.error);
                 setConsent({ dadosSaudeRevogado: true });
                 setRevogar(false);
                 aviso.mostrar("Uso dos dados de saúde revogado. O plano fica pausado.");

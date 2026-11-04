@@ -8,10 +8,18 @@
 // - concluir a última série do último exercício abre a avaliação.
 
 import { useCallback, useEffect, useReducer } from "react";
-import type { ExercicioSessao, TreinoSessao } from "./tipos";
+import type { ExercicioSessao, OpcaoTroca, TreinoSessao } from "./tipos";
 
 export type Folha = null | "menu" | "trocar" | "dor" | "dorLeve" | "dorForte";
 export type Avaliacao = "facil" | "ideal" | "dificil";
+
+/** Exercício trocado na execução. motivo vai para trocas_exercicio (lista "Mais trocados" do Master). */
+export interface Troca {
+  nome: string;
+  id?: string;
+  videoUrl?: string;
+  motivo: "dor" | "dificil";
+}
 
 export interface Descanso {
   restante: number;
@@ -32,7 +40,8 @@ export interface EstadoSessao {
   voz: boolean;
   explicacao: number;
   avaliacao: Avaliacao | null;
-  trocas: Record<number, string>;
+  trocas: Record<number, Troca>;
+  teveDor: boolean;
   inicio: number;
   fim: number | null;
 }
@@ -61,7 +70,7 @@ export type Acao =
   | { t: "pularDescanso" }
   | { t: "alternarTimer" }
   | { t: "folha"; folha: Folha }
-  | { t: "trocar"; nome: string }
+  | { t: "trocar"; opcao: OpcaoTroca }
   | { t: "voz" }
   | { t: "explicacao" }
   | { t: "avaliar"; valor: Avaliacao }
@@ -137,9 +146,17 @@ function reduzir(treino: TreinoSessao) {
       case "alternarTimer":
         return s.timer ? { ...s, timer: { ...s.timer, rodando: !s.timer.rodando } } : s;
       case "folha":
-        return { ...s, folha: a.folha };
-      case "trocar":
-        return { ...s, trocas: { ...s.trocas, [s.ex]: a.nome }, folha: null };
+        return { ...s, folha: a.folha, teveDor: s.teveDor || a.folha === "dorLeve" || a.folha === "dorForte" };
+      case "trocar": {
+        // No circuito o mesmo exercício aparece em cada rodada: troca em todas as que faltam.
+        const atual = treino.exercicios[s.ex];
+        const troca: Troca = { nome: a.opcao.nome, id: a.opcao.id || undefined, videoUrl: a.opcao.videoUrl, motivo: s.folha === "trocar" && s.teveDor ? "dor" : "dificil" };
+        const trocas = { ...s.trocas };
+        treino.exercicios.forEach((x, i) => {
+          if (i === s.ex || (i > s.ex && atual.exercicioId && x.exercicioId === atual.exercicioId)) trocas[i] = troca;
+        });
+        return { ...s, trocas, folha: null };
+      }
       case "voz":
         return { ...s, voz: !s.voz };
       case "explicacao":
@@ -175,6 +192,7 @@ export function useSessao(treino: TreinoSessao) {
     explicacao: 0,
     avaliacao: null,
     trocas: {},
+    teveDor: false,
     inicio: Date.now(),
     fim: null,
   }));
@@ -187,10 +205,10 @@ export function useSessao(treino: TreinoSessao) {
   const volume = useCallback(() => {
     let v = 0;
     treino.exercicios.forEach((e, i) => {
-      if (e.modo !== "reps" || e.cargaAnterior == null) return;
+      if (e.modo !== "reps" || (e.cargaAnterior == null && !e.comCarga)) return;
       e.reps?.forEach((r, j) => {
         if (!s.feitos[chave(i, j)]) return;
-        const c = parseFloat(String(s.cargas[chave(i, j)] || e.cargaAnterior).replace(",", ".")) || 0;
+        const c = parseFloat(String(s.cargas[chave(i, j)] || e.cargaAnterior || 0).replace(",", ".")) || 0;
         v += r * c * (e.cargaDupla ? 2 : 1);
       });
     });
@@ -210,4 +228,39 @@ export function resumoSeries(e: ExercicioSessao) {
   const r = e.reps ?? [];
   const iguais = r.every((x) => x === r[0]);
   return `${r.length} × ${iguais ? r[0] : r.join("-")}`;
+}
+
+/** Séries feitas, no formato de sessoes.series (treino gerado: com o id do exercício). */
+export function seriesFeitas(treino: TreinoSessao, s: EstadoSessao) {
+  const lista: { exercicioId: string; nome: string; serie: number; reps?: number; segundos?: number; carga?: number }[] = [];
+  treino.exercicios.forEach((e, i) => {
+    const t = s.trocas[i];
+    const id = t ? t.id : e.exercicioId;
+    if (!id) return;
+    for (let j = 0; j < nSeries(e); j++) {
+      if (!s.feitos[chave(i, j)]) continue;
+      const c = parseFloat(String(s.cargas[chave(i, j)] ?? "").replace(",", "."));
+      lista.push({
+        exercicioId: id,
+        nome: t?.nome ?? e.nome,
+        serie: j + 1,
+        ...(e.modo === "reps" ? { reps: e.reps?.[j] } : { segundos: e.segundos }),
+        ...(c > 0 ? { carga: Math.round(c * 10) / 10 } : {}),
+      });
+    }
+  });
+  return lista;
+}
+
+/** Trocas feitas (uma por exercício trocado), para trocas_exercicio. */
+export function trocasFeitas(treino: TreinoSessao, s: EstadoSessao) {
+  const vistas = new Set<string>();
+  const lista: { de: string; para: string; motivo: Troca["motivo"] }[] = [];
+  for (const [k, t] of Object.entries(s.trocas)) {
+    const de = treino.exercicios[+k]?.exercicioId;
+    if (!de || !t.id || vistas.has(`${de}>${t.id}`)) continue;
+    vistas.add(`${de}>${t.id}`);
+    lista.push({ de, para: t.id, motivo: t.motivo });
+  }
+  return lista;
 }

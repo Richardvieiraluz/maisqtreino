@@ -1,6 +1,6 @@
 "use client";
 
-import type { Dispatch } from "react";
+import { useState, type Dispatch } from "react";
 import { bonecoDe, fotoDe, videoDe, type Sexo } from "@/lib/midia";
 import { fmtTempo, nSeries, primeiraPendente, resumoSeries, type Acao, type EstadoSessao } from "@/lib/sessao";
 import type { TreinoSessao } from "@/lib/tipos";
@@ -28,9 +28,15 @@ export function Execucao({
   const e = E[s.ex];
   const n = nSeries(e);
   const fu = primeiraPendente(treino, s.feitos, s.ex);
-  const nome = s.trocas[s.ex] ?? e.nome;
-  const trocado = s.trocas[s.ex] != null;
-  const video = !trocado ? (e.videoUrl ?? videoDe(e.video)) : undefined;
+  const troca = s.trocas[s.ex];
+  const nome = troca?.nome ?? e.nome;
+  const video = troca ? troca.videoUrl : (e.videoUrl ?? videoDe(e.video));
+  const comCarga = e.cargaAnterior != null || !!e.comCarga;
+  // Treino gerado: a explicação é texto aprovado no Master (o áudio entra com a voz guia).
+  const gerado = !!e.exercicioId;
+  const [textoAberto, setTextoAberto] = useState<number | null>(null);
+  const verTexto = gerado && textoAberto === s.ex;
+  const explicacao = troca ? undefined : e.explicacao;
   const descansoTela = !!s.descanso && !descansoEmFaixa;
   const descansoFaixa = !!s.descanso && descansoEmFaixa;
 
@@ -40,14 +46,14 @@ export function Execucao({
   if (s.descanso) {
     const prox = E[s.ex + 1];
     if (s.descanso.depois === "proximo" && prox) {
-      proximoNome = prox.nome;
+      proximoNome = s.trocas[s.ex + 1]?.nome ?? prox.nome;
       proximoRotulo = `Próximo exercício · ${resumoSeries(prox)}`;
     } else {
       const j = Math.min(fu, n - 1);
       proximoRotulo =
         `Série ${fu + 1} de ${n}` +
         (e.modo === "reps"
-          ? ` · ${e.reps?.[j]} reps` + (e.cargaAnterior != null ? ` · ${s.cargas[`${s.ex}-${fu}`] || e.cargaAnterior} kg` : "")
+          ? ` · ${e.reps?.[j]} reps` + (comCarga && (s.cargas[`${s.ex}-${fu}`] || e.cargaAnterior) ? ` · ${s.cargas[`${s.ex}-${fu}`] || e.cargaAnterior} kg` : "")
           : ` · ${e.segundos} s`);
     }
   }
@@ -184,12 +190,32 @@ export function Execucao({
             <button
               type="button"
               className="botao"
-              style={{ height: 44, fontSize: 11, border: "2px solid #111", background: s.explicacao > 0 ? "#111" : "#fff", color: s.explicacao > 0 ? "#fff" : "#111" }}
-              onClick={() => despachar({ t: "explicacao" })}
+              style={{ height: 44, fontSize: 11, border: "2px solid #111", background: s.explicacao > 0 || verTexto ? "#111" : "#fff", color: s.explicacao > 0 || verTexto ? "#fff" : "#111" }}
+              onClick={() => (gerado ? setTextoAberto(verTexto ? null : s.ex) : despachar({ t: "explicacao" }))}
+              aria-expanded={gerado ? verTexto : undefined}
             >
-              {s.explicacao > 0 ? `Tocando · 0:${doisDigitos(s.explicacao)}` : "Explicação"}
+              {verTexto ? "Fechar explicação" : s.explicacao > 0 ? `Tocando · 0:${doisDigitos(s.explicacao)}` : "Explicação"}
             </button>
           </div>
+          {verTexto && (
+            <div style={{ border: "1px solid #111", padding: 12, marginTop: 8, display: "flex", flexDirection: "column", gap: 6 }}>
+              {explicacao ? (
+                (
+                  [
+                    ["Posição inicial", explicacao.posicao],
+                    ["Movimento", explicacao.movimento],
+                    ["Cuidado", explicacao.cuidado],
+                  ] as const
+                ).map(([k, v]) => (
+                  <p key={k} style={{ fontSize: 15, lineHeight: 1.4 }}>
+                    <b style={{ fontWeight: 800 }}>{k}:</b> {v}
+                  </p>
+                ))
+              ) : (
+                <p style={{ fontSize: 15, lineHeight: 1.4 }}>A explicação escrita deste exercício ainda está em revisão. Siga o vídeo e o ajuste logo abaixo.</p>
+              )}
+            </div>
+          )}
 
           {e.modo === "reps" && (
             <>
@@ -216,7 +242,7 @@ export function Execucao({
                       {doisDigitos(j + 1)}
                     </span>
                     <span style={{ fontSize: 16, fontWeight: 700, color: corNum }}>{r} reps</span>
-                    {e.cargaAnterior != null ? (
+                    {comCarga ? (
                       <label style={{ height: 40, border: "1px solid #111", display: "flex", alignItems: "center", padding: "0 8px", gap: 4 }}>
                         <input
                           value={s.cargas[k] ?? ""}
@@ -252,9 +278,13 @@ export function Execucao({
                   </div>
                 );
               })}
-              <p className="texto-apoio" style={{ marginTop: 10 }}>
-                A carga da última vez já vem preenchida. Registrar ajuda a acompanhar sua evolução.
-              </p>
+              {comCarga && (
+                <p className="texto-apoio" style={{ marginTop: 10 }}>
+                  {e.cargaAnterior != null
+                    ? "A carga da última vez já vem preenchida. Registrar ajuda a acompanhar sua evolução."
+                    : "Anote a carga que usar em cada série. Na próxima vez ela já vem preenchida."}
+                </p>
+              )}
             </>
           )}
 
