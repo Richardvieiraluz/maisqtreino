@@ -1,6 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useEffect, useRef } from "react";
+import { registrarSessaoAction } from "@/lib/acoes/conta";
+import { avisarFila } from "@/lib/geracao";
 import { ALUNO_EXEMPLO } from "@/lib/dados-exemplo";
 import { useDemo } from "@/lib/demo";
 import { useSessao } from "@/lib/sessao";
@@ -10,12 +13,23 @@ import { Execucao } from "./Execucao";
 import { Avaliacao, Resumo } from "./FimDoTreino";
 
 /** Fluxo do treino em tela cheia: execução → avaliação → resumo. */
-export function SessaoTreino({ treino }: { treino: TreinoSessao }) {
+export function SessaoTreino({ treino, protocoloTreinoId }: { treino: TreinoSessao; protocoloTreinoId?: string }) {
   const demo = useDemo();
   const router = useRouter();
   const aviso = useAvisoRapido();
   const { s, despachar, volume, exerciciosFeitos, minutos } = useSessao(treino);
   const voltarAoInicio = () => router.push(`/${demo.qs}`);
+
+  // Treino do protocolo concluído (chegou ao resumo): grava a sessão uma vez e anda a fila.
+  const gravado = useRef(false);
+  useEffect(() => {
+    if (s.tela !== "resumo" || !protocoloTreinoId || gravado.current) return;
+    gravado.current = true;
+    void registrarSessaoAction({ protocoloTreinoId, duracaoSeg: Math.round(((s.fim ?? Date.now()) - s.inicio) / 1000), avaliacao: s.avaliacao, teveDor: false }).then((r) => {
+      if (r.ok) avisarFila();
+      else aviso.mostrar("Não deu para salvar este treino. Confira sua conexão.");
+    });
+  }, [s.tela, s.fim, s.inicio, s.avaliacao, protocoloTreinoId, aviso]);
 
   let tela;
   if (s.tela === "execucao") {

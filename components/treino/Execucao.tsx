@@ -30,7 +30,7 @@ export function Execucao({
   const fu = primeiraPendente(treino, s.feitos, s.ex);
   const nome = s.trocas[s.ex] ?? e.nome;
   const trocado = s.trocas[s.ex] != null;
-  const video = !trocado ? videoDe(e.video) : undefined;
+  const video = !trocado ? (e.videoUrl ?? videoDe(e.video)) : undefined;
   const descansoTela = !!s.descanso && !descansoEmFaixa;
   const descansoFaixa = !!s.descanso && descansoEmFaixa;
 
@@ -122,7 +122,7 @@ export function Execucao({
         <div className="rolagem" style={{ padding: `8px 20px ${descansoFaixa ? 190 : 24}px` }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
             <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 8 }}>
-              <span className="rotulo">{e.grupo}</span>
+              <span className="rotulo">{e.rodada ? `${e.grupo} · ${e.rodada}` : e.grupo}</span>
               <h1 style={{ fontSize: 30, fontWeight: 850, fontStretch: "72%", letterSpacing: "-0.02em", lineHeight: 0.95, textTransform: "uppercase", textWrap: "pretty" }}>
                 {nome}
               </h1>

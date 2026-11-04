@@ -27,6 +27,15 @@ export interface ExercicioSessao {
   video?: string;
   ajuste: string;
   alternativas: string[];
+  /** Vídeo do catálogo (endereço completo). Tem prioridade sobre `video`. */
+  videoUrl?: string;
+  /** Descanso depois de cada série deste passo, em segundos (treino gerado). Sem ele: 60 s por
+   *  repetição e 30 s por tempo. */
+  descansoSeg?: number;
+  /** Circuito e bi-set: "Rodada 2 de 3". */
+  rodada?: string;
+  /** Id do exercício no catálogo (o mesmo do +Q Pilates). */
+  exercicioId?: string;
 }
 
 export interface TreinoSessao {

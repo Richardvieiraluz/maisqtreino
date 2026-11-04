@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
 import { salvarQuizAction } from "./acoes/conta";
+import { avisarFila, ProvedorGeracao } from "./geracao";
 import type { EstadoAluno } from "./acesso";
 import type { RespostasQuiz } from "./quiz";
 
@@ -28,10 +29,15 @@ export function ProvedorConta({ conta, children }: { conta: DadosConta | null; c
     setQuiz(r);
     void salvarQuizAction(r).then((res) => {
       if (!res.ok) console.error("[quiz] não salvou na conta:", res.error);
+      else avisarFila();
     });
   }, []);
   const valor = useMemo(() => (conta ? { ...conta, quiz, salvarQuiz } : null), [conta, quiz, salvarQuiz]);
-  return <Contexto.Provider value={valor}>{children}</Contexto.Provider>;
+  return (
+    <Contexto.Provider value={valor}>
+      <ProvedorGeracao ativo={conta?.papel === "aluno"}>{children}</ProvedorGeracao>
+    </Contexto.Provider>
+  );
 }
 
 /** Conta logada, ou null no modo demonstração. */

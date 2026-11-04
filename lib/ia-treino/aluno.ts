@@ -27,6 +27,8 @@ export interface PerfilAluno {
   /** null = academia completa (tudo). */
   equipamentos: string[] | null;
   minutos: 20 | 40 | 60;
+  /** Dias por semana (2 a 7): quantos treinos ficam prontos à frente. */
+  diasSemana: number;
   foco: string;
   /** Explicação curta de cada escolha (vai para o diagnóstico e o Master). */
   motivos: string[];
@@ -151,6 +153,7 @@ export function perfilDoQuiz(r: RespostasQuiz): PerfilAluno {
     dores,
     equipamentos,
     minutos,
+    diasSemana: Math.min(7, Math.max(2, parseInt(r.dias ?? "3", 10) || 3)),
     foco,
     motivos,
   };

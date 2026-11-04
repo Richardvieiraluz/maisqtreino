@@ -87,7 +87,9 @@ function concluir(treino: TreinoSessao, s: EstadoSessao, i: number, j: number): 
   if (terminou && i === treino.exercicios.length - 1) {
     return { ...s, feitos, recordes, exRecorde, timer: null, descanso: null, tela: "avaliacao", fim: Date.now() };
   }
-  const total = e.modo === "tempo" ? DESCANSO_TEMPO : DESCANSO_REPS;
+  const total = e.descansoSeg ?? (e.modo === "tempo" ? DESCANSO_TEMPO : DESCANSO_REPS);
+  // Treino gerado pode ter descanso 0 entre os exercícios do circuito: passa direto.
+  if (total <= 0 && terminou) return irPara(treino, { ...s, feitos, recordes, exRecorde }, i + 1);
   return {
     ...s,
     feitos,

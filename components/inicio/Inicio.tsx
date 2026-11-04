@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { ALUNO_EXEMPLO, FILEIRAS_CARDS, FILEIRAS_TILES, RAPIDOS_MIN, TREINO_HOJE } from "@/lib/dados-exemplo";
 import { useDemo } from "@/lib/demo";
 import { useRespostasSalvas } from "@/lib/quiz";
@@ -11,8 +12,14 @@ import { Cadeado, doisDigitos, Logo, Selo, TituloDestaque } from "../marca";
 import { RodapeAbas } from "../RodapeAbas";
 import { CardTreino } from "./CardTreino";
 import { useAlunoExibido } from "@/lib/conta";
+import type { Proximo } from "@/lib/dados/treinos";
+import { useGeracao } from "@/lib/geracao";
 
-export function Inicio() {
+const LOCAL_ROTULO: Record<string, string> = { casa: "Em casa", condominio: "Condomínio", academia: "Academia" };
+
+/** proximo: treino real do protocolo (logado). Sem ele, a Início mostra o treino de exemplo. */
+export function Inicio({ proximo }: { proximo?: Proximo }) {
+  const geracao = useGeracao();
   const aluno = useAlunoExibido();
   const demo = useDemo();
   const router = useRouter();
@@ -20,8 +27,21 @@ export function Inicio() {
   const [respostas] = useRespostasSalvas();
   const local = respostas?.local ?? TREINO_HOJE.local;
   const pausada = demo.estado === "pausada";
-  const t = TREINO_HOJE;
+  const real = proximo?.situacao === "pronto" ? proximo : null;
+  const palavras = real?.titulo.split(" ") ?? [];
+  const t = real
+    ? { ...TREINO_HOJE, id: `protocolo-${doisDigitos(real.posicao)}`, nome: real.titulo, palavraDestaque: palavras[palavras.length - 1], duracaoMin: real.duracaoMin, posicaoProtocolo: real.posicao, totalProtocolo: real.total }
+    : TREINO_HOJE;
+  const nExercicios = real ? real.exercicios : TREINO_HOJE.exercicios.length;
+  const localHoje = real ? (LOCAL_ROTULO[real.local] ?? local) : local;
   const posicao = `PROTOCOLO ${doisDigitos(t.posicaoProtocolo)} / ${t.totalProtocolo}`;
+
+  // Treino novo ficou pronto enquanto a tela estava aberta: busca de novo.
+  const prontos = geracao?.prontos ?? 0;
+  const montando = proximo?.situacao === "montando";
+  useEffect(() => {
+    if (montando && prontos > 0) router.refresh();
+  }, [montando, prontos, router]);
 
   const abrirOferta = () => router.push(`${pausada ? "/reativar" : "/oferta"}${demo.qs}`);
 
@@ -121,6 +141,54 @@ export function Inicio() {
               Quer se mexer mesmo assim? Mobilidade e alongamento leves estão em Rápidos.
             </p>
           </section>
+        ) : proximo && proximo.situacao !== "pronto" ? (
+          <section style={{ padding: "0 20px" }}>
+            <span className="rotulo">SEU TREINO DE HOJE</span>
+            <div style={{ border: "var(--border-strong)", padding: 16, display: "flex", flexDirection: "column", gap: 12, marginTop: 10 }}>
+              {proximo.situacao === "sem_protocolo" ? (
+                <>
+                  <h1 className="titulo-tela">
+                    Falta o seu <span className="destaque">quiz</span>
+                  </h1>
+                  <p className="texto">São 10 perguntas. Com elas eu monto os seus treinos com o equipamento que você tem.</p>
+                  <button type="button" className="botao botao--primario" onClick={() => router.push("/quiz")}>
+                    Responder o quiz
+                  </button>
+                </>
+              ) : proximo.situacao === "concluido" ? (
+                <>
+                  <h1 className="titulo-tela">
+                    Protocolo <span className="destaque">completo</span>
+                  </h1>
+                  <p className="texto">Você fez os {proximo.total} treinos. Refaça o quiz para montar o próximo protocolo.</p>
+                  <button type="button" className="botao botao--primario" onClick={() => router.push("/quiz")}>
+                    Refazer o quiz
+                  </button>
+                </>
+              ) : (
+                <>
+                  <h1 className="titulo-tela">
+                    Montando o seu <span className="destaque">treino</span>
+                  </h1>
+                  <p className="texto">
+                    {geracao?.indisponivel
+                      ? "A montagem automática ainda não está ligada. Assim que estiver, seus treinos aparecem aqui."
+                      : geracao?.comErro
+                        ? "Um treino não saiu como deveria e foi para revisão. Assim que estiver pronto, aparece aqui."
+                        : "Cada treino é montado com o seu equipamento, o seu nível e o tempo que você tem. Leva uns minutos e você pode usar o app enquanto isso."}
+                  </p>
+                  {geracao && !geracao.indisponivel && (
+                    <span className="rotulo">
+                      {geracao.rodando ? "MONTANDO AGORA" : "NA FILA"} · {proximo.feitos} DE {proximo.total} FEITOS
+                    </span>
+                  )}
+                  <button type="button" className="botao botao--secundario" onClick={() => router.refresh()}>
+                    Atualizar
+                  </button>
+                </>
+              )}
+            </div>
+          </section>
         ) : (
           <section style={{ padding: "0 20px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", gap: 12, marginBottom: 10 }}>
@@ -129,18 +197,20 @@ export function Inicio() {
             </div>
             <div style={{ position: "relative", height: 260, background: "#fff", borderBottom: "var(--border-strong)", overflow: "hidden" }}>
               <video
-                src={videoDe("elevacao-pelvica-com-barra")}
+                src={real?.video ?? videoDe("elevacao-pelvica-com-barra")}
                 autoPlay
                 muted
                 loop
                 playsInline
                 style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 60%" }}
               />
-              <img
-                src={bonecoDe("posterior glúteo", demo.sexo)}
-                alt="Mapa muscular: glúteo e posterior"
-                style={{ position: "absolute", right: 12, top: 12, width: 110, height: 92, objectFit: "contain", background: "#fff", border: "1px solid #111" }}
-              />
+              {!real && (
+                <img
+                  src={bonecoDe("posterior glúteo", demo.sexo)}
+                  alt="Mapa muscular: glúteo e posterior"
+                  style={{ position: "absolute", right: 12, top: 12, width: 110, height: 92, objectFit: "contain", background: "#fff", border: "1px solid #111" }}
+                />
+              )}
               {pausada && (
                 <div style={{ position: "absolute", inset: 0, background: "rgba(226,225,220,.85)", display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <Cadeado tamanho="grande" />
@@ -152,7 +222,7 @@ export function Inicio() {
             </h1>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16, flexWrap: "wrap" }}>
               <span style={{ fontSize: 13, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase" }}>
-                {t.duracaoMin} min · {t.exercicios.length} exercícios · {local}
+                {t.duracaoMin} min · {nExercicios} exercícios · {localHoje}
               </span>
               <Selo>{t.nivel}</Selo>
             </div>

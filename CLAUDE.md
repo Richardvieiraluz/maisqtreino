@@ -98,6 +98,15 @@ gravação em `lib/dados/eduzz.ts` (idempotente por `eventos_eduzz.chave`; 500 s
 Produto da Eduzz liga ao app por `produtos.eduzz_produto_id`. O registro guarda só um resumo, sem CPF,
 endereço ou telefone. Passo a passo: `docs/configurar-eduzz.md`.
 
+## IA de montagem
+
+Ver `docs/ia-treino.md`. Motor da v2 do +Q Pilates copiado igual em `lib/ia-treino/v2` (não editar
+lá dentro: a lógica do +Q Treino fica em `lib/ia-treino/aluno.ts`, `gerar-aluno.ts`, `para-sessao.ts`).
+Fila e protocolo em `lib/dados/treinos.ts`, geração em `POST /api/ia/proximo` (um treino por chamada),
+gerador em segundo plano `lib/geracao.tsx`. Chave `ANTHROPIC_API_KEY` e modelo `ANTHROPIC_MODEL`.
+Testes sem banco: `npm run simular`, `npm run teste:fila`. O cliente do banco só troca por um falso
+com `MAISQ_TESTE=1`.
+
 ## Estados do aluno
 
 `assinante` (tudo liberado), `programa` (programa comprado + 1ª semana do protocolo; resto com cadeado),
@@ -105,5 +114,4 @@ endereço ou telefone. Passo a passo: `docs/configurar-eduzz.md`.
 
 ## Próximas etapas
 
-Importação do catálogo do +Q Pilates (só exercícios com
-`revisado = true`), quiz, Meu plano, Evolução, Perfil, Oferta, Master, stories, voz guia (ElevenLabs).
+Meu plano e Detalhe com os treinos reais, carga e trocar exercício na execução, Meu plano, Evolução, Perfil, Oferta, Master, stories, voz guia (ElevenLabs).

@@ -39,6 +39,17 @@ export async function GET() {
   const { error: erroTentativas } = r.chave_secreta === "ok" ? await createAdminClient().from("tentativas_login").select("id", { head: true, count: "exact" }) : { error: null };
   if (r.chave_secreta === "ok") r.sql_002 = erroTentativas ? "tabela tentativas_login não encontrada" : "ok";
 
+  // IA de montagem e catálogo.
+  r.ia_chave = cleanEnv(process.env.ANTHROPIC_API_KEY) ? "ok" : "falta ANTHROPIC_API_KEY";
+  r.ia_modelo = cleanEnv(process.env.ANTHROPIC_MODEL) ? "ok" : "sem ANTHROPIC_MODEL (usa o padrão do +Q Pilates)";
+  if (r.chave_secreta === "ok") {
+    const db = createAdminClient();
+    const { count } = await db.from("exercicios").select("id", { count: "exact", head: true }).eq("ativo", true);
+    r.catalogo = (count ?? 0) > 0 ? `ok (${count} exercícios)` : "catálogo vazio";
+    const { error } = await db.from("protocolo_treinos").select("status").limit(1);
+    r.sql_004 = error ? "migration 004 não aplicada" : "ok";
+  }
+
   // Eduzz: não entra no resumo enquanto não for configurada.
   r.eduzz_chave = cleanEnv(process.env.EDUZZ_WEBHOOK_SECRET) ? "ok" : "ainda não configurada";
   if (r.chave_secreta === "ok") {
@@ -47,7 +58,7 @@ export async function GET() {
     r.eduzz_produtos = faltam.length ? `falta o código da Eduzz em: ${faltam.join(", ")}` : "ok";
   }
 
-  const essenciais = Object.entries(r).filter(([k]) => !k.startsWith("eduzz"));
+  const essenciais = Object.entries(r).filter(([k]) => !k.startsWith("eduzz") && k !== "ia_modelo");
   r.resumo = essenciais.every(([, v]) => v.startsWith("ok")) ? "TUDO CERTO" : "tem item para corrigir";
   return NextResponse.json(r, { headers: { "cache-control": "no-store" } });
 }
