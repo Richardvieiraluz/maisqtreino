@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, type ReactNode } from "react";
+import { sairAction } from "@/app/entrar/actions";
 import { EXPLICACOES_OUTRAS, FILEIRAS_VITRINE } from "@/lib/master-exemplo";
 
 const ABAS = [
@@ -52,9 +53,18 @@ export function LayoutMaster({ children, voltar, aviso = "DADOS DE EXEMPLO · EN
             VOLTAR
           </button>
         ) : (
-          <span className="rotulo" suppressHydrationWarning>
-            {data}
-          </span>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <span className="rotulo" suppressHydrationWarning>
+              {data}
+            </span>
+            <button
+              type="button"
+              onClick={() => void sairAction()}
+              style={{ height: 36, padding: "0 12px", background: "#fff", border: "1px solid #111", fontWeight: 800, fontSize: 11, letterSpacing: ".08em", cursor: "pointer" }}
+            >
+              SAIR
+            </button>
+          </div>
         )}
       </div>
       {aviso && <div style={{ flex: "none", background: "var(--ink)", color: "#fff", fontSize: 11, fontWeight: 700, letterSpacing: ".06em", padding: "6px 20px" }}>{aviso}</div>}
