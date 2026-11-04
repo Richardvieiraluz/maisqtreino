@@ -118,6 +118,11 @@ export function PassosInstalar({ so, onSo }: { so: "ios" | "android"; onSo: (s: 
           <div style={{ height: 120, border: "1px solid #111", background: "var(--bg-soft)", display: "flex", alignItems: "flex-end", padding: 4, fontSize: 7, fontWeight: 700, letterSpacing: ".06em", color: "var(--ink-2)" }}>PRINT · {print}</div>
         </div>
       ))}
+      {so === "ios" && (
+        <div className="ajuste" style={{ marginTop: 14 }}>
+          <b>Depois de instalar:</b> abra sempre pelo ícone. No iPhone, o ícone pede o seu login uma vez, porque ele não usa o login do Safari.
+        </div>
+      )}
     </>
   );
 }
