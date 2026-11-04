@@ -1,0 +1,4250 @@
+{
+  "versao": "v1.3-2026-10-23",
+  "fonte": "Planilha 'Tabela_nova_de_prescricao_v2.xlsx' preenchida pelo Richard (22/10/2026) + decisões registradas em claude/prescricao-ia-1022.md",
+  "duracaoMin": {
+    "reformer": 50,
+    "pilates": 60,
+    "funcional": 60,
+    "obs": "Duração da aula como referência; não é usada para cortar exercícios."
+  },
+  "regrasGerais": {
+    "progressao": "Progressiva dentro das faixas: Treino 01 perto do mínimo, aumentando até o último treino do protocolo.",
+    "carga": "A IA deixa a carga em branco.",
+    "hipertrofia": {
+      "alternanciaAB": "Treino ímpar = inferior, par = superior.",
+      "metodoN0aN1_1": "Bi-Set sempre",
+      "metodoN2emDiante": [
+        "Bi-Set",
+        "Drop-Set",
+        "Pirâmide Crescente",
+        "Pirâmide Decrescente"
+      ],
+      "semTriSet": true,
+      "convencional": "Nunca é o padrão; só quando pedido explicitamente.",
+      "core": "Só no bloco de ativação (pouco).",
+      "ativacao": "Conta dentro dos 7 blocos; sempre 3 exercícios; mesmo membro do treino (A/B); materiais da ativação geral + barra e halter leves.",
+      "blocosTodosNiveis": "(substituído) Todos os níveis têm 7 blocos: 1 de ativação + 6 principais com 2 exercícios cada. O nível se diferencia por exercícios e volume (Richard, 23/10)."
+    },
+    "funcional": {
+      "blocoAtivacao": "1º bloco de ativação, SEMPRE 3 exercícios, 2–3 séries. Materiais: funcional (agilidade, corda, elástico extensor, jump, mini band, peso do corpo, trx) e abdominal (peso do corpo); na Hipertrofia também barra e halter leves. Conta DENTRO do número de blocos da linha (na Hipertrofia, a linha já tem 7 blocos com a ativação incluída).",
+      "condicionamento": "Sempre full body.",
+      "cardioHiit": "Sempre full body."
+    },
+    "pilates": {
+      "aparelhos": [
+        "cadillac",
+        "chair",
+        "barrel",
+        "reformer"
+      ],
+      "semPularAparelho": true,
+      "semMolas": true
+    },
+    "reformer": {
+      "blocos": 4,
+      "exerciciosPorBloco": 6,
+      "unilateralOcupa2Posicoes": true,
+      "soTempo": true
+    },
+    "tempoEstimado": "Não limita a montagem. Quem define o tamanho do treino é a estrutura da tabela (blocos × exercícios, séries). Estimativa de tempo, se existir, é só informativa (3 s/rep, unilateral em dobro, exercício por tempo usa o próprio tempo) — nunca corta exercício para caber em 50/60 min.",
+    "descansos": "Os descansos são referência para o treino ficar completo; os professores não seguem à risca no dia a dia (Richard, 23/10).",
+    "faixasIguaisEmTodosOsNiveis": "Quando uma faixa é igual em todos os níveis (ex.: Idoso, pranchas/abdominais 30–120 s), ela é a faixa TOTAL: a IA começa perto do mínimo nos níveis baixos e sobe com o nível (Richard, 23/10)."
+  },
+  "linhas": [
+    {
+      "metodo": "Bi-Set",
+      "series": [
+        3,
+        4
+      ],
+      "descansoEntreSeriesSeg": [
+        60,
+        90
+      ],
+      "descansoEntreBlocosSeg": [
+        60,
+        120
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        20
+      ],
+      "textoOriginal": {
+        "blocos": "5 blocos × 2 exercícios → corrigido pelo Richard em 23/10: 7 blocos em todos os níveis (1 ativação + 6 principais × 2 exercícios)",
+        "reps": "15 rep",
+        "obs": ""
+      },
+      "blocos": [
+        7,
+        7
+      ],
+      "exerciciosPorBloco": [
+        2,
+        2
+      ],
+      "reps": {
+        "geral": {
+          "reps": [
+            15,
+            15
+          ]
+        }
+      },
+      "familia": "hipertrofia",
+      "nivel": "N0"
+    },
+    {
+      "metodo": "Bi-Set",
+      "series": [
+        3,
+        4
+      ],
+      "descansoEntreSeriesSeg": [
+        60,
+        90
+      ],
+      "descansoEntreBlocosSeg": [
+        60,
+        120
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        20
+      ],
+      "textoOriginal": {
+        "blocos": "5 blocos × 2 exercícios → corrigido pelo Richard em 23/10: 7 blocos em todos os níveis (1 ativação + 6 principais × 2 exercícios)",
+        "reps": "12 a 15 rep",
+        "obs": ""
+      },
+      "blocos": [
+        7,
+        7
+      ],
+      "exerciciosPorBloco": [
+        2,
+        2
+      ],
+      "reps": {
+        "geral": {
+          "reps": [
+            12,
+            15
+          ]
+        }
+      },
+      "familia": "hipertrofia",
+      "nivel": "N1"
+    },
+    {
+      "metodo": "Bi-Set",
+      "series": [
+        3,
+        4
+      ],
+      "descansoEntreSeriesSeg": [
+        60,
+        90
+      ],
+      "descansoEntreBlocosSeg": [
+        60,
+        120
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        20
+      ],
+      "textoOriginal": {
+        "blocos": "5 blocos × 2 exercícios → corrigido pelo Richard em 23/10: 7 blocos em todos os níveis (1 ativação + 6 principais × 2 exercícios)",
+        "reps": "12 a 15 rep",
+        "obs": "Regra atual: N0/N1 sempre bi-set. Vale para o N1.1? - resposta: sim"
+      },
+      "blocos": [
+        7,
+        7
+      ],
+      "exerciciosPorBloco": [
+        2,
+        2
+      ],
+      "reps": {
+        "geral": {
+          "reps": [
+            12,
+            15
+          ]
+        }
+      },
+      "familia": "hipertrofia",
+      "nivel": "N1.1"
+    },
+    {
+      "metodo": "mescla",
+      "series": [
+        4,
+        4
+      ],
+      "descansoEntreSeriesSeg": [
+        45,
+        60
+      ],
+      "descansoEntreBlocosSeg": [
+        60,
+        90
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        20
+      ],
+      "textoOriginal": {
+        "blocos": "4 blocos × 2 → corrigido pelo Richard em 23/10: 7 blocos em todos os níveis (1 ativação + 6 principais × 2 exercícios)",
+        "reps": "10 a 12 rep",
+        "obs": ""
+      },
+      "blocos": [
+        7,
+        7
+      ],
+      "exerciciosPorBloco": [
+        2,
+        2
+      ],
+      "reps": {
+        "geral": {
+          "reps": [
+            10,
+            12
+          ]
+        }
+      },
+      "familia": "hipertrofia",
+      "nivel": "N2"
+    },
+    {
+      "metodo": "mescla",
+      "series": [
+        4,
+        4
+      ],
+      "descansoEntreSeriesSeg": [
+        45,
+        60
+      ],
+      "descansoEntreBlocosSeg": [
+        60,
+        90
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        20
+      ],
+      "textoOriginal": {
+        "blocos": "4 blocos × 2 → corrigido pelo Richard em 23/10: 7 blocos em todos os níveis (1 ativação + 6 principais × 2 exercícios)",
+        "reps": "10 a 12 rep",
+        "obs": ""
+      },
+      "blocos": [
+        7,
+        7
+      ],
+      "exerciciosPorBloco": [
+        2,
+        2
+      ],
+      "reps": {
+        "geral": {
+          "reps": [
+            10,
+            12
+          ]
+        }
+      },
+      "familia": "hipertrofia",
+      "nivel": "N2.1"
+    },
+    {
+      "metodo": "mescla",
+      "series": [
+        4,
+        5
+      ],
+      "descansoEntreSeriesSeg": [
+        45,
+        60
+      ],
+      "descansoEntreBlocosSeg": [
+        60,
+        90
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        20
+      ],
+      "textoOriginal": {
+        "blocos": "4 blocos × 2 → corrigido pelo Richard em 23/10: 7 blocos em todos os níveis (1 ativação + 6 principais × 2 exercícios)",
+        "reps": "8 a 12 rep",
+        "obs": ""
+      },
+      "blocos": [
+        7,
+        7
+      ],
+      "exerciciosPorBloco": [
+        2,
+        2
+      ],
+      "reps": {
+        "geral": {
+          "reps": [
+            8,
+            12
+          ]
+        }
+      },
+      "familia": "hipertrofia",
+      "nivel": "N3"
+    },
+    {
+      "metodo": "mescla",
+      "series": [
+        4,
+        5
+      ],
+      "descansoEntreSeriesSeg": [
+        45,
+        60
+      ],
+      "descansoEntreBlocosSeg": [
+        60,
+        90
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        20
+      ],
+      "textoOriginal": {
+        "blocos": "5 blocos × 2 → corrigido pelo Richard em 23/10: 7 blocos em todos os níveis (1 ativação + 6 principais × 2 exercícios)",
+        "reps": "8 a 12 rep",
+        "obs": ""
+      },
+      "blocos": [
+        7,
+        7
+      ],
+      "exerciciosPorBloco": [
+        2,
+        2
+      ],
+      "reps": {
+        "geral": {
+          "reps": [
+            8,
+            12
+          ]
+        }
+      },
+      "familia": "hipertrofia",
+      "nivel": "N3.1"
+    },
+    {
+      "metodo": "mescla",
+      "series": [
+        4,
+        5
+      ],
+      "descansoEntreSeriesSeg": [
+        60,
+        90
+      ],
+      "descansoEntreBlocosSeg": [
+        60,
+        90
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        20
+      ],
+      "textoOriginal": {
+        "blocos": "5 blocos × 2 → corrigido pelo Richard em 23/10: 7 blocos em todos os níveis (1 ativação + 6 principais × 2 exercícios)",
+        "reps": "8 a 12 rep",
+        "obs": ""
+      },
+      "blocos": [
+        7,
+        7
+      ],
+      "exerciciosPorBloco": [
+        2,
+        2
+      ],
+      "reps": {
+        "geral": {
+          "reps": [
+            8,
+            12
+          ]
+        }
+      },
+      "familia": "hipertrofia",
+      "nivel": "N4"
+    },
+    {
+      "metodo": "mescla",
+      "series": [
+        5,
+        6
+      ],
+      "descansoEntreSeriesSeg": [
+        60,
+        90
+      ],
+      "descansoEntreBlocosSeg": [
+        60,
+        90
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        20
+      ],
+      "textoOriginal": {
+        "blocos": "5 a 6 blocos × 2 → corrigido pelo Richard em 23/10: 7 blocos em todos os níveis (1 ativação + 6 principais × 2 exercícios)",
+        "reps": "6 a 10 rep",
+        "obs": ""
+      },
+      "blocos": [
+        7,
+        7
+      ],
+      "exerciciosPorBloco": [
+        2,
+        2
+      ],
+      "reps": {
+        "geral": {
+          "reps": [
+            6,
+            10
+          ]
+        }
+      },
+      "familia": "hipertrofia",
+      "nivel": "N4.1"
+    },
+    {
+      "metodo": "mescla",
+      "series": [
+        5,
+        6
+      ],
+      "descansoEntreSeriesSeg": [
+        60,
+        90
+      ],
+      "descansoEntreBlocosSeg": [
+        60,
+        90
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        20
+      ],
+      "textoOriginal": {
+        "blocos": "5 a 6 blocos × 2 → corrigido pelo Richard em 23/10: 7 blocos em todos os níveis (1 ativação + 6 principais × 2 exercícios)",
+        "reps": "6 a 10 rep",
+        "obs": ""
+      },
+      "blocos": [
+        7,
+        7
+      ],
+      "exerciciosPorBloco": [
+        2,
+        2
+      ],
+      "reps": {
+        "geral": {
+          "reps": [
+            6,
+            10
+          ]
+        }
+      },
+      "familia": "hipertrofia",
+      "nivel": "N5"
+    },
+    {
+      "metodo": "mescla",
+      "series": [
+        5,
+        6
+      ],
+      "descansoEntreSeriesSeg": [
+        60,
+        90
+      ],
+      "descansoEntreBlocosSeg": [
+        60,
+        90
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        20
+      ],
+      "textoOriginal": {
+        "blocos": "5 a 6 blocos × 2 → corrigido pelo Richard em 23/10: 7 blocos em todos os níveis (1 ativação + 6 principais × 2 exercícios)",
+        "reps": "6 a 10 rep",
+        "obs": ""
+      },
+      "blocos": [
+        7,
+        7
+      ],
+      "exerciciosPorBloco": [
+        2,
+        2
+      ],
+      "reps": {
+        "geral": {
+          "reps": [
+            6,
+            10
+          ]
+        }
+      },
+      "familia": "hipertrofia",
+      "nivel": "N5.1"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        3,
+        3
+      ],
+      "descansoEntreSeriesSeg": [
+        60,
+        120
+      ],
+      "descansoEntreBlocosSeg": [
+        60,
+        120
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        60
+      ],
+      "textoOriginal": {
+        "blocos": "3 blocos × 4 a 5 exercícios",
+        "reps": "Carga: 12 a 15 rep. Peso do corpo: 15 rep ou tempo de 15 a 30 seg",
+        "obs": "exercícios de pranchas e abdominais no tempo pode ser de 20 a 30 segundos"
+      },
+      "blocos": [
+        3,
+        3
+      ],
+      "exerciciosPorBloco": [
+        4,
+        5
+      ],
+      "reps": {
+        "carga": {
+          "reps": [
+            12,
+            15
+          ]
+        },
+        "pesoDoCorpo": {
+          "reps": [
+            15,
+            15
+          ],
+          "tempoSeg": [
+            15,
+            30
+          ]
+        }
+      },
+      "extras": {
+        "pranchasAbdominaisTempoSeg": [
+          20,
+          30
+        ]
+      },
+      "familia": "condicionamento",
+      "nivel": "N0"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        3,
+        3
+      ],
+      "descansoEntreSeriesSeg": [
+        60,
+        120
+      ],
+      "descansoEntreBlocosSeg": [
+        60,
+        120
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        60
+      ],
+      "textoOriginal": {
+        "blocos": "3 blocos × 4 a 5 exercícios",
+        "reps": "Carga: 12 a 15 rep. Peso do corpo: 15 a 20 rep ou tempo de 20 a 30 seg",
+        "obs": "exercícios de pranchas e abdominais no tempo pode ser de 20 a 30 segundos"
+      },
+      "blocos": [
+        3,
+        3
+      ],
+      "exerciciosPorBloco": [
+        4,
+        5
+      ],
+      "reps": {
+        "carga": {
+          "reps": [
+            12,
+            15
+          ]
+        },
+        "pesoDoCorpo": {
+          "reps": [
+            15,
+            20
+          ],
+          "tempoSeg": [
+            20,
+            30
+          ]
+        }
+      },
+      "extras": {
+        "pranchasAbdominaisTempoSeg": [
+          20,
+          30
+        ]
+      },
+      "familia": "condicionamento",
+      "nivel": "N1"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        3,
+        3
+      ],
+      "descansoEntreSeriesSeg": [
+        60,
+        120
+      ],
+      "descansoEntreBlocosSeg": [
+        60,
+        120
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        60
+      ],
+      "textoOriginal": {
+        "blocos": "3 blocos × 4 a 5 exercícios",
+        "reps": "Carga: 12 a 15 rep. Peso do corpo: 15 a 20 rep ou tempo de 25 a 35 seg",
+        "obs": "exercícios de pranchas e abdominais no tempo pode ser de 25 a 40 segundos"
+      },
+      "blocos": [
+        3,
+        3
+      ],
+      "exerciciosPorBloco": [
+        4,
+        5
+      ],
+      "reps": {
+        "carga": {
+          "reps": [
+            12,
+            15
+          ]
+        },
+        "pesoDoCorpo": {
+          "reps": [
+            15,
+            20
+          ],
+          "tempoSeg": [
+            25,
+            35
+          ]
+        }
+      },
+      "extras": {
+        "pranchasAbdominaisTempoSeg": [
+          25,
+          40
+        ]
+      },
+      "familia": "condicionamento",
+      "nivel": "N1.1"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        3,
+        3
+      ],
+      "descansoEntreSeriesSeg": [
+        60,
+        120
+      ],
+      "descansoEntreBlocosSeg": [
+        60,
+        120
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        60
+      ],
+      "textoOriginal": {
+        "blocos": "4 blocos × 4 a 5 exercícios",
+        "reps": "Carga: 10 a 12 rep. Peso do corpo: 10 a 15 rep ou tempo de 30 a 45 seg",
+        "obs": "exercícios de pranchas e abdominais no tempo pode ser de 30 a 40 segundos"
+      },
+      "blocos": [
+        4,
+        4
+      ],
+      "exerciciosPorBloco": [
+        4,
+        5
+      ],
+      "reps": {
+        "carga": {
+          "reps": [
+            10,
+            12
+          ]
+        },
+        "pesoDoCorpo": {
+          "reps": [
+            10,
+            15
+          ],
+          "tempoSeg": [
+            30,
+            45
+          ]
+        }
+      },
+      "extras": {
+        "pranchasAbdominaisTempoSeg": [
+          30,
+          40
+        ]
+      },
+      "familia": "condicionamento",
+      "nivel": "N2"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        3,
+        3
+      ],
+      "descansoEntreSeriesSeg": [
+        60,
+        120
+      ],
+      "descansoEntreBlocosSeg": [
+        60,
+        120
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        60
+      ],
+      "textoOriginal": {
+        "blocos": "4 blocos × 5 exercícios",
+        "reps": "Carga: 10 a 12 rep. Peso do corpo: 10 a 15 rep ou tempo de 30 a 45 seg",
+        "obs": "exercícios de pranchas e abdominais no tempo pode ser de 30 a 40 segundos"
+      },
+      "blocos": [
+        4,
+        4
+      ],
+      "exerciciosPorBloco": [
+        5,
+        5
+      ],
+      "reps": {
+        "carga": {
+          "reps": [
+            10,
+            12
+          ]
+        },
+        "pesoDoCorpo": {
+          "reps": [
+            10,
+            15
+          ],
+          "tempoSeg": [
+            30,
+            45
+          ]
+        }
+      },
+      "extras": {
+        "pranchasAbdominaisTempoSeg": [
+          30,
+          40
+        ]
+      },
+      "familia": "condicionamento",
+      "nivel": "N2.1"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        3,
+        3
+      ],
+      "descansoEntreSeriesSeg": [
+        60,
+        120
+      ],
+      "descansoEntreBlocosSeg": [
+        60,
+        120
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        60
+      ],
+      "textoOriginal": {
+        "blocos": "4 blocos × 5 exercícios",
+        "reps": "Carga: 8 a 12 rep. Peso do corpo: 10 a 20 rep ou tempo de 40 a 50 seg",
+        "obs": "exercícios de pranchas e abdominais no tempo pode ser de 45 a 60 segundos"
+      },
+      "blocos": [
+        4,
+        4
+      ],
+      "exerciciosPorBloco": [
+        5,
+        5
+      ],
+      "reps": {
+        "carga": {
+          "reps": [
+            8,
+            12
+          ]
+        },
+        "pesoDoCorpo": {
+          "reps": [
+            10,
+            20
+          ],
+          "tempoSeg": [
+            40,
+            50
+          ]
+        }
+      },
+      "extras": {
+        "pranchasAbdominaisTempoSeg": [
+          45,
+          60
+        ]
+      },
+      "familia": "condicionamento",
+      "nivel": "N3"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        3,
+        3
+      ],
+      "descansoEntreSeriesSeg": [
+        60,
+        120
+      ],
+      "descansoEntreBlocosSeg": [
+        60,
+        120
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        60
+      ],
+      "textoOriginal": {
+        "blocos": "4 blocos × 5 exercícios",
+        "reps": "Carga: 8 a 12 rep. Peso do corpo: 10 a 20 rep ou tempo de 40 a 50 seg",
+        "obs": "exercícios de pranchas e abdominais no tempo pode ser de 45 a 60 segundos"
+      },
+      "blocos": [
+        4,
+        4
+      ],
+      "exerciciosPorBloco": [
+        5,
+        5
+      ],
+      "reps": {
+        "carga": {
+          "reps": [
+            8,
+            12
+          ]
+        },
+        "pesoDoCorpo": {
+          "reps": [
+            10,
+            20
+          ],
+          "tempoSeg": [
+            40,
+            50
+          ]
+        }
+      },
+      "extras": {
+        "pranchasAbdominaisTempoSeg": [
+          45,
+          60
+        ]
+      },
+      "familia": "condicionamento",
+      "nivel": "N3.1"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        3,
+        3
+      ],
+      "descansoEntreSeriesSeg": [
+        60,
+        120
+      ],
+      "descansoEntreBlocosSeg": [
+        60,
+        120
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        60
+      ],
+      "textoOriginal": {
+        "blocos": "4 blocos × 5 a 6 exercícios",
+        "reps": "Carga: 8 a 10 rep. Peso do corpo: 15 a 25 rep ou tempo de 45 a 60 seg",
+        "obs": "exercícios de pranchas e abdominais no tempo pode ser de 60 a 75 segundos"
+      },
+      "blocos": [
+        4,
+        4
+      ],
+      "exerciciosPorBloco": [
+        5,
+        6
+      ],
+      "reps": {
+        "carga": {
+          "reps": [
+            8,
+            10
+          ]
+        },
+        "pesoDoCorpo": {
+          "reps": [
+            15,
+            25
+          ],
+          "tempoSeg": [
+            45,
+            60
+          ]
+        }
+      },
+      "extras": {
+        "pranchasAbdominaisTempoSeg": [
+          60,
+          75
+        ]
+      },
+      "familia": "condicionamento",
+      "nivel": "N4"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        3,
+        3
+      ],
+      "descansoEntreSeriesSeg": [
+        60,
+        120
+      ],
+      "descansoEntreBlocosSeg": [
+        60,
+        120
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        60
+      ],
+      "textoOriginal": {
+        "blocos": "4 blocos × 5 a 6 exercícios",
+        "reps": "Carga: 8 a 10 rep. Peso do corpo: 15 a 25 rep ou tempo de 45 a 60 seg",
+        "obs": "exercícios de pranchas e abdominais no tempo pode ser de 60 a 75 segundos"
+      },
+      "blocos": [
+        4,
+        4
+      ],
+      "exerciciosPorBloco": [
+        5,
+        6
+      ],
+      "reps": {
+        "carga": {
+          "reps": [
+            8,
+            10
+          ]
+        },
+        "pesoDoCorpo": {
+          "reps": [
+            15,
+            25
+          ],
+          "tempoSeg": [
+            45,
+            60
+          ]
+        }
+      },
+      "extras": {
+        "pranchasAbdominaisTempoSeg": [
+          60,
+          75
+        ]
+      },
+      "familia": "condicionamento",
+      "nivel": "N4.1"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        3,
+        3
+      ],
+      "descansoEntreSeriesSeg": [
+        60,
+        120
+      ],
+      "descansoEntreBlocosSeg": [
+        60,
+        120
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        60
+      ],
+      "textoOriginal": {
+        "blocos": "4 blocos × 5 a 6 exercícios",
+        "reps": "Carga: 6 a 10 rep. Peso do corpo: 20 a 25 rep ou tempo de 60 a 75 seg",
+        "obs": "exercícios de pranchas e abdominais no tempo pode ser de 75 a 90 segundos"
+      },
+      "blocos": [
+        4,
+        4
+      ],
+      "exerciciosPorBloco": [
+        5,
+        6
+      ],
+      "reps": {
+        "carga": {
+          "reps": [
+            6,
+            10
+          ]
+        },
+        "pesoDoCorpo": {
+          "reps": [
+            20,
+            25
+          ],
+          "tempoSeg": [
+            60,
+            75
+          ]
+        }
+      },
+      "extras": {
+        "pranchasAbdominaisTempoSeg": [
+          75,
+          90
+        ]
+      },
+      "familia": "condicionamento",
+      "nivel": "N5"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        3,
+        3
+      ],
+      "descansoEntreSeriesSeg": [
+        60,
+        120
+      ],
+      "descansoEntreBlocosSeg": [
+        60,
+        120
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        60
+      ],
+      "textoOriginal": {
+        "blocos": "4 blocos × 5 a 6 exercícios",
+        "reps": "Carga: 6 a 8 rep. Peso do corpo: 20 a 30 rep ou tempo de 60 a 90 seg",
+        "obs": "exercícios de pranchas e abdominais no tempo pode ser de 75 a 120 segundos"
+      },
+      "blocos": [
+        4,
+        4
+      ],
+      "exerciciosPorBloco": [
+        5,
+        6
+      ],
+      "reps": {
+        "carga": {
+          "reps": [
+            6,
+            8
+          ]
+        },
+        "pesoDoCorpo": {
+          "reps": [
+            20,
+            30
+          ],
+          "tempoSeg": [
+            60,
+            90
+          ]
+        }
+      },
+      "extras": {
+        "pranchasAbdominaisTempoSeg": [
+          75,
+          120
+        ]
+      },
+      "familia": "condicionamento",
+      "nivel": "N5.1"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        3,
+        3
+      ],
+      "descansoEntreSeriesSeg": [
+        60,
+        120
+      ],
+      "descansoEntreBlocosSeg": [
+        60,
+        120
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        60
+      ],
+      "textoOriginal": {
+        "blocos": "4 blocos × 2 a 3 exercícios",
+        "reps": "8 a 10 rep ou tempo de 15 a 30 segundos",
+        "obs": "aparelhos cardio(bike, esteira, remo, eliptico) podem ser de 60 a 180 segundos. Exercícios com pulo de corda, corda naval, pranchas, abdominais, step, jump, agilidade, pode usar de 30 a 120 segundos dependendo do nível"
+      },
+      "blocos": [
+        4,
+        4
+      ],
+      "exerciciosPorBloco": [
+        2,
+        3
+      ],
+      "reps": {
+        "geral": {
+          "reps": [
+            8,
+            10
+          ],
+          "tempoSeg": [
+            15,
+            30
+          ]
+        }
+      },
+      "extras": {
+        "aparelhoCardioTempoSeg": [
+          60,
+          180
+        ],
+        "cordaNavalStepJumpAgilidadePranchaAbdominalTempoSeg": [
+          30,
+          120
+        ]
+      },
+      "familia": "cardio_hiit",
+      "nivel": "N0"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        3,
+        3
+      ],
+      "descansoEntreSeriesSeg": [
+        60,
+        120
+      ],
+      "descansoEntreBlocosSeg": [
+        60,
+        120
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        60
+      ],
+      "textoOriginal": {
+        "blocos": "4 blocos × 2 a 3 exercícios",
+        "reps": "8 a 10 rep ou tempo de 15 a 30 segundos",
+        "obs": "aparelhos cardio(bike, esteira, remo, eliptico) podem ser de 60 a 180 segundos. Exercícios com pulo de corda, corda naval, pranchas, abdominais, step, jump, agilidade, pode usar de 30 a 120 segundos dependendo do nível"
+      },
+      "blocos": [
+        4,
+        4
+      ],
+      "exerciciosPorBloco": [
+        2,
+        3
+      ],
+      "reps": {
+        "geral": {
+          "reps": [
+            8,
+            10
+          ],
+          "tempoSeg": [
+            15,
+            30
+          ]
+        }
+      },
+      "extras": {
+        "aparelhoCardioTempoSeg": [
+          60,
+          180
+        ],
+        "cordaNavalStepJumpAgilidadePranchaAbdominalTempoSeg": [
+          30,
+          120
+        ]
+      },
+      "familia": "cardio_hiit",
+      "nivel": "N1"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        3,
+        3
+      ],
+      "descansoEntreSeriesSeg": [
+        60,
+        120
+      ],
+      "descansoEntreBlocosSeg": [
+        60,
+        120
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        60
+      ],
+      "textoOriginal": {
+        "blocos": "4 blocos × 3 a 4 exercícios",
+        "reps": "8 a 12 rep ou tempo de 20 a 35 segundos",
+        "obs": "aparelhos cardio(bike, esteira, remo, eliptico) podem ser de 60 a 180 segundos. Exercícios com pulo de corda, corda naval, pranchas, abdominais, step, jump, agilidade, pode usar de 30 a 120 segundos dependendo do nível"
+      },
+      "blocos": [
+        4,
+        4
+      ],
+      "exerciciosPorBloco": [
+        3,
+        4
+      ],
+      "reps": {
+        "geral": {
+          "reps": [
+            8,
+            12
+          ],
+          "tempoSeg": [
+            20,
+            35
+          ]
+        }
+      },
+      "extras": {
+        "aparelhoCardioTempoSeg": [
+          60,
+          180
+        ],
+        "cordaNavalStepJumpAgilidadePranchaAbdominalTempoSeg": [
+          30,
+          120
+        ]
+      },
+      "familia": "cardio_hiit",
+      "nivel": "N1.1"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        3,
+        3
+      ],
+      "descansoEntreSeriesSeg": [
+        60,
+        120
+      ],
+      "descansoEntreBlocosSeg": [
+        60,
+        120
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        60
+      ],
+      "textoOriginal": {
+        "blocos": "4 blocos × 3 a 4 exercícios",
+        "reps": "8 a 12 rep ou tempo de 20 a 35 segundos",
+        "obs": "aparelhos cardio(bike, esteira, remo, eliptico) podem ser de 60 a 180 segundos. Exercícios com pulo de corda, corda naval, pranchas, abdominais, step, jump, agilidade, pode usar de 30 a 120 segundos dependendo do nível"
+      },
+      "blocos": [
+        4,
+        4
+      ],
+      "exerciciosPorBloco": [
+        3,
+        4
+      ],
+      "reps": {
+        "geral": {
+          "reps": [
+            8,
+            12
+          ],
+          "tempoSeg": [
+            20,
+            35
+          ]
+        }
+      },
+      "extras": {
+        "aparelhoCardioTempoSeg": [
+          60,
+          180
+        ],
+        "cordaNavalStepJumpAgilidadePranchaAbdominalTempoSeg": [
+          30,
+          120
+        ]
+      },
+      "familia": "cardio_hiit",
+      "nivel": "N2"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        3,
+        3
+      ],
+      "descansoEntreSeriesSeg": [
+        60,
+        120
+      ],
+      "descansoEntreBlocosSeg": [
+        60,
+        120
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        60
+      ],
+      "textoOriginal": {
+        "blocos": "4 blocos × 3 a 4 exercícios",
+        "reps": "10 a 15 rep ou tempo de 25 a 40 segundos",
+        "obs": "aparelhos cardio(bike, esteira, remo, eliptico) podem ser de 60 a 180 segundos. Exercícios com pulo de corda, corda naval, pranchas, abdominais, step, jump, agilidade, pode usar de 30 a 120 segundos dependendo do nível"
+      },
+      "blocos": [
+        4,
+        4
+      ],
+      "exerciciosPorBloco": [
+        3,
+        4
+      ],
+      "reps": {
+        "geral": {
+          "reps": [
+            10,
+            15
+          ],
+          "tempoSeg": [
+            25,
+            40
+          ]
+        }
+      },
+      "extras": {
+        "aparelhoCardioTempoSeg": [
+          60,
+          180
+        ],
+        "cordaNavalStepJumpAgilidadePranchaAbdominalTempoSeg": [
+          30,
+          120
+        ]
+      },
+      "familia": "cardio_hiit",
+      "nivel": "N2.1"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        3,
+        3
+      ],
+      "descansoEntreSeriesSeg": [
+        60,
+        120
+      ],
+      "descansoEntreBlocosSeg": [
+        60,
+        120
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        60
+      ],
+      "textoOriginal": {
+        "blocos": "4 blocos × 4 a 5 exercícios",
+        "reps": "10 a 15 rep ou tempo de 25 a 40 segundos",
+        "obs": "aparelhos cardio(bike, esteira, remo, eliptico) podem ser de 60 a 180 segundos. Exercícios com pulo de corda, corda naval, pranchas, abdominais, step, jump, agilidade, pode usar de 30 a 120 segundos dependendo do nível"
+      },
+      "blocos": [
+        4,
+        4
+      ],
+      "exerciciosPorBloco": [
+        4,
+        5
+      ],
+      "reps": {
+        "geral": {
+          "reps": [
+            10,
+            15
+          ],
+          "tempoSeg": [
+            25,
+            40
+          ]
+        }
+      },
+      "extras": {
+        "aparelhoCardioTempoSeg": [
+          60,
+          180
+        ],
+        "cordaNavalStepJumpAgilidadePranchaAbdominalTempoSeg": [
+          30,
+          120
+        ]
+      },
+      "familia": "cardio_hiit",
+      "nivel": "N3"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        3,
+        3
+      ],
+      "descansoEntreSeriesSeg": [
+        60,
+        120
+      ],
+      "descansoEntreBlocosSeg": [
+        60,
+        120
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        60
+      ],
+      "textoOriginal": {
+        "blocos": "4 blocos × 4 a 5 exercícios",
+        "reps": "12 a 20 rep ou tempo de 30 a 40 segundos",
+        "obs": "aparelhos cardio(bike, esteira, remo, eliptico) podem ser de 60 a 180 segundos. Exercícios com pulo de corda, corda naval, pranchas, abdominais, step, jump, agilidade, pode usar de 30 a 120 segundos dependendo do nível"
+      },
+      "blocos": [
+        4,
+        4
+      ],
+      "exerciciosPorBloco": [
+        4,
+        5
+      ],
+      "reps": {
+        "geral": {
+          "reps": [
+            12,
+            20
+          ],
+          "tempoSeg": [
+            30,
+            40
+          ]
+        }
+      },
+      "extras": {
+        "aparelhoCardioTempoSeg": [
+          60,
+          180
+        ],
+        "cordaNavalStepJumpAgilidadePranchaAbdominalTempoSeg": [
+          30,
+          120
+        ]
+      },
+      "familia": "cardio_hiit",
+      "nivel": "N3.1"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        3,
+        3
+      ],
+      "descansoEntreSeriesSeg": [
+        60,
+        120
+      ],
+      "descansoEntreBlocosSeg": [
+        60,
+        120
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        60
+      ],
+      "textoOriginal": {
+        "blocos": "4 blocos × 5 a 6 exercícios",
+        "reps": "15 a 20 rep ou tempo de 30 a 45 segundos",
+        "obs": "aparelhos cardio(bike, esteira, remo, eliptico) podem ser de 60 a 180 segundos. Exercícios com pulo de corda, corda naval, pranchas, abdominais, step, jump, agilidade, pode usar de 30 a 120 segundos dependendo do nível"
+      },
+      "blocos": [
+        4,
+        4
+      ],
+      "exerciciosPorBloco": [
+        5,
+        6
+      ],
+      "reps": {
+        "geral": {
+          "reps": [
+            15,
+            20
+          ],
+          "tempoSeg": [
+            30,
+            45
+          ]
+        }
+      },
+      "extras": {
+        "aparelhoCardioTempoSeg": [
+          60,
+          180
+        ],
+        "cordaNavalStepJumpAgilidadePranchaAbdominalTempoSeg": [
+          30,
+          120
+        ]
+      },
+      "familia": "cardio_hiit",
+      "nivel": "N4"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        3,
+        3
+      ],
+      "descansoEntreSeriesSeg": [
+        60,
+        120
+      ],
+      "descansoEntreBlocosSeg": [
+        60,
+        120
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        60
+      ],
+      "textoOriginal": {
+        "blocos": "4 blocos × 5 a 6 exercícios",
+        "reps": "15 a 25 rep ou tempo de 35 a 50 segundos",
+        "obs": "aparelhos cardio(bike, esteira, remo, eliptico) podem ser de 60 a 180 segundos. Exercícios com pulo de corda, corda naval, pranchas, abdominais, step, jump, agilidade, pode usar de 30 a 120 segundos dependendo do nível"
+      },
+      "blocos": [
+        4,
+        4
+      ],
+      "exerciciosPorBloco": [
+        5,
+        6
+      ],
+      "reps": {
+        "geral": {
+          "reps": [
+            15,
+            25
+          ],
+          "tempoSeg": [
+            35,
+            50
+          ]
+        }
+      },
+      "extras": {
+        "aparelhoCardioTempoSeg": [
+          60,
+          180
+        ],
+        "cordaNavalStepJumpAgilidadePranchaAbdominalTempoSeg": [
+          30,
+          120
+        ]
+      },
+      "familia": "cardio_hiit",
+      "nivel": "N4.1"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        3,
+        3
+      ],
+      "descansoEntreSeriesSeg": [
+        60,
+        120
+      ],
+      "descansoEntreBlocosSeg": [
+        60,
+        120
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        60
+      ],
+      "textoOriginal": {
+        "blocos": "4 blocos × 5 a 7 exercícios",
+        "reps": "15 a 30 rep ou tempo de 40 a 60 segundos",
+        "obs": "aparelhos cardio(bike, esteira, remo, eliptico) podem ser de 60 a 180 segundos. Exercícios com pulo de corda, corda naval, pranchas, abdominais, step, jump, agilidade, pode usar de 30 a 120 segundos dependendo do nível"
+      },
+      "blocos": [
+        4,
+        4
+      ],
+      "exerciciosPorBloco": [
+        5,
+        7
+      ],
+      "reps": {
+        "geral": {
+          "reps": [
+            15,
+            30
+          ],
+          "tempoSeg": [
+            40,
+            60
+          ]
+        }
+      },
+      "extras": {
+        "aparelhoCardioTempoSeg": [
+          60,
+          180
+        ],
+        "cordaNavalStepJumpAgilidadePranchaAbdominalTempoSeg": [
+          30,
+          120
+        ]
+      },
+      "familia": "cardio_hiit",
+      "nivel": "N5"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        3,
+        3
+      ],
+      "descansoEntreSeriesSeg": [
+        60,
+        120
+      ],
+      "descansoEntreBlocosSeg": [
+        60,
+        120
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        60
+      ],
+      "textoOriginal": {
+        "blocos": "4 blocos × 5 a 7 exercícios",
+        "reps": "20 a 40 rep ou tempo de 45 a 75 segundos",
+        "obs": "aparelhos cardio(bike, esteira, remo, eliptico) podem ser de 60 a 180 segundos. Exercícios com pulo de corda, corda naval, pranchas, abdominais, step, jump, agilidade, pode usar de 30 a 120 segundos dependendo do nível"
+      },
+      "blocos": [
+        4,
+        4
+      ],
+      "exerciciosPorBloco": [
+        5,
+        7
+      ],
+      "reps": {
+        "geral": {
+          "reps": [
+            20,
+            40
+          ],
+          "tempoSeg": [
+            45,
+            75
+          ]
+        }
+      },
+      "extras": {
+        "aparelhoCardioTempoSeg": [
+          60,
+          180
+        ],
+        "cordaNavalStepJumpAgilidadePranchaAbdominalTempoSeg": [
+          30,
+          120
+        ]
+      },
+      "familia": "cardio_hiit",
+      "nivel": "N5.1"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        3,
+        4
+      ],
+      "descansoEntreSeriesSeg": [
+        30,
+        90
+      ],
+      "descansoEntreBlocosSeg": [
+        30,
+        90
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        60
+      ],
+      "textoOriginal": {
+        "blocos": "4 blocos × 4 a 5 exercícios",
+        "reps": "busque referencias de hyrox e crossfit",
+        "obs": "busque referencias de hyrox e crossfit"
+      },
+      "blocos": [
+        4,
+        4
+      ],
+      "exerciciosPorBloco": [
+        4,
+        5
+      ],
+      "reps": {
+        "carga": {
+          "reps": [
+            8,
+            10
+          ]
+        },
+        "pesoDoCorpo": {
+          "reps": [
+            8,
+            12
+          ],
+          "tempoSeg": [
+            20,
+            30
+          ]
+        },
+        "aparelhoCardio": {
+          "tempoSeg": [
+            60,
+            90
+          ]
+        }
+      },
+      "obs": "Referências HYROX e CrossFit (aprovado 22/10). A partir do N3, um bloco pode usar formato AMRAP/EMOM (8–12 min) ou estilo HYROX (aparelho cardio + estação), registrado na observação do bloco.",
+      "familia": "extreme",
+      "nivel": "N0"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        3,
+        4
+      ],
+      "descansoEntreSeriesSeg": [
+        30,
+        90
+      ],
+      "descansoEntreBlocosSeg": [
+        30,
+        90
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        60
+      ],
+      "textoOriginal": {
+        "blocos": "4 blocos × 4 a 5 exercícios",
+        "reps": "busque referencias de hyrox e crossfit",
+        "obs": "busque referencias de hyrox e crossfit"
+      },
+      "blocos": [
+        4,
+        4
+      ],
+      "exerciciosPorBloco": [
+        4,
+        5
+      ],
+      "reps": {
+        "carga": {
+          "reps": [
+            10,
+            12
+          ]
+        },
+        "pesoDoCorpo": {
+          "reps": [
+            10,
+            15
+          ],
+          "tempoSeg": [
+            25,
+            35
+          ]
+        },
+        "aparelhoCardio": {
+          "tempoSeg": [
+            60,
+            120
+          ]
+        }
+      },
+      "obs": "Referências HYROX e CrossFit (aprovado 22/10). A partir do N3, um bloco pode usar formato AMRAP/EMOM (8–12 min) ou estilo HYROX (aparelho cardio + estação), registrado na observação do bloco.",
+      "familia": "extreme",
+      "nivel": "N1"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        3,
+        4
+      ],
+      "descansoEntreSeriesSeg": [
+        30,
+        90
+      ],
+      "descansoEntreBlocosSeg": [
+        30,
+        90
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        60
+      ],
+      "textoOriginal": {
+        "blocos": "4 blocos × 4 a 5 exercícios",
+        "reps": "busque referencias de hyrox e crossfit",
+        "obs": "busque referencias de hyrox e crossfit"
+      },
+      "blocos": [
+        4,
+        4
+      ],
+      "exerciciosPorBloco": [
+        4,
+        5
+      ],
+      "reps": {
+        "carga": {
+          "reps": [
+            10,
+            12
+          ]
+        },
+        "pesoDoCorpo": {
+          "reps": [
+            12,
+            15
+          ],
+          "tempoSeg": [
+            30,
+            40
+          ]
+        },
+        "aparelhoCardio": {
+          "tempoSeg": [
+            90,
+            120
+          ]
+        }
+      },
+      "obs": "Referências HYROX e CrossFit (aprovado 22/10). A partir do N3, um bloco pode usar formato AMRAP/EMOM (8–12 min) ou estilo HYROX (aparelho cardio + estação), registrado na observação do bloco.",
+      "familia": "extreme",
+      "nivel": "N1.1"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        3,
+        4
+      ],
+      "descansoEntreSeriesSeg": [
+        30,
+        90
+      ],
+      "descansoEntreBlocosSeg": [
+        30,
+        90
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        60
+      ],
+      "textoOriginal": {
+        "blocos": "4 blocos × 4 a 5 exercícios",
+        "reps": "busque referencias de hyrox e crossfit",
+        "obs": "busque referencias de hyrox e crossfit"
+      },
+      "blocos": [
+        4,
+        4
+      ],
+      "exerciciosPorBloco": [
+        4,
+        5
+      ],
+      "reps": {
+        "carga": {
+          "reps": [
+            10,
+            15
+          ]
+        },
+        "pesoDoCorpo": {
+          "reps": [
+            12,
+            20
+          ],
+          "tempoSeg": [
+            30,
+            45
+          ]
+        },
+        "aparelhoCardio": {
+          "tempoSeg": [
+            90,
+            150
+          ]
+        }
+      },
+      "obs": "Referências HYROX e CrossFit (aprovado 22/10). A partir do N3, um bloco pode usar formato AMRAP/EMOM (8–12 min) ou estilo HYROX (aparelho cardio + estação), registrado na observação do bloco.",
+      "familia": "extreme",
+      "nivel": "N2"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        3,
+        4
+      ],
+      "descansoEntreSeriesSeg": [
+        30,
+        90
+      ],
+      "descansoEntreBlocosSeg": [
+        30,
+        90
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        60
+      ],
+      "textoOriginal": {
+        "blocos": "4 blocos × 4 a 5 exercícios",
+        "reps": "busque referencias de hyrox e crossfit",
+        "obs": "busque referencias de hyrox e crossfit"
+      },
+      "blocos": [
+        4,
+        4
+      ],
+      "exerciciosPorBloco": [
+        4,
+        5
+      ],
+      "reps": {
+        "carga": {
+          "reps": [
+            12,
+            15
+          ]
+        },
+        "pesoDoCorpo": {
+          "reps": [
+            15,
+            20
+          ],
+          "tempoSeg": [
+            35,
+            45
+          ]
+        },
+        "aparelhoCardio": {
+          "tempoSeg": [
+            120,
+            150
+          ]
+        }
+      },
+      "obs": "Referências HYROX e CrossFit (aprovado 22/10). A partir do N3, um bloco pode usar formato AMRAP/EMOM (8–12 min) ou estilo HYROX (aparelho cardio + estação), registrado na observação do bloco.",
+      "familia": "extreme",
+      "nivel": "N2.1"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        3,
+        4
+      ],
+      "descansoEntreSeriesSeg": [
+        30,
+        90
+      ],
+      "descansoEntreBlocosSeg": [
+        30,
+        90
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        60
+      ],
+      "textoOriginal": {
+        "blocos": "4 blocos × 4 a 5 exercícios",
+        "reps": "busque referencias de hyrox e crossfit",
+        "obs": "busque referencias de hyrox e crossfit"
+      },
+      "blocos": [
+        4,
+        4
+      ],
+      "exerciciosPorBloco": [
+        4,
+        5
+      ],
+      "reps": {
+        "carga": {
+          "reps": [
+            12,
+            15
+          ]
+        },
+        "pesoDoCorpo": {
+          "reps": [
+            15,
+            25
+          ],
+          "tempoSeg": [
+            40,
+            50
+          ]
+        },
+        "aparelhoCardio": {
+          "tempoSeg": [
+            120,
+            180
+          ]
+        }
+      },
+      "obs": "Referências HYROX e CrossFit (aprovado 22/10). A partir do N3, um bloco pode usar formato AMRAP/EMOM (8–12 min) ou estilo HYROX (aparelho cardio + estação), registrado na observação do bloco.",
+      "familia": "extreme",
+      "nivel": "N3"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        3,
+        4
+      ],
+      "descansoEntreSeriesSeg": [
+        30,
+        90
+      ],
+      "descansoEntreBlocosSeg": [
+        30,
+        90
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        60
+      ],
+      "textoOriginal": {
+        "blocos": "4 blocos × 4 a 5 exercícios",
+        "reps": "busque referencias de hyrox e crossfit",
+        "obs": "busque referencias de hyrox e crossfit"
+      },
+      "blocos": [
+        4,
+        4
+      ],
+      "exerciciosPorBloco": [
+        4,
+        5
+      ],
+      "reps": {
+        "carga": {
+          "reps": [
+            12,
+            20
+          ]
+        },
+        "pesoDoCorpo": {
+          "reps": [
+            20,
+            25
+          ],
+          "tempoSeg": [
+            45,
+            60
+          ]
+        },
+        "aparelhoCardio": {
+          "tempoSeg": [
+            150,
+            180
+          ]
+        }
+      },
+      "obs": "Referências HYROX e CrossFit (aprovado 22/10). A partir do N3, um bloco pode usar formato AMRAP/EMOM (8–12 min) ou estilo HYROX (aparelho cardio + estação), registrado na observação do bloco.",
+      "familia": "extreme",
+      "nivel": "N3.1"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        3,
+        4
+      ],
+      "descansoEntreSeriesSeg": [
+        30,
+        90
+      ],
+      "descansoEntreBlocosSeg": [
+        30,
+        90
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        60
+      ],
+      "textoOriginal": {
+        "blocos": "4 blocos × 4 a 5 exercícios",
+        "reps": "busque referencias de hyrox e crossfit",
+        "obs": "busque referencias de hyrox e crossfit"
+      },
+      "blocos": [
+        4,
+        4
+      ],
+      "exerciciosPorBloco": [
+        4,
+        5
+      ],
+      "reps": {
+        "carga": {
+          "reps": [
+            15,
+            20
+          ]
+        },
+        "pesoDoCorpo": {
+          "reps": [
+            20,
+            30
+          ],
+          "tempoSeg": [
+            45,
+            60
+          ]
+        },
+        "aparelhoCardio": {
+          "tempoSeg": [
+            150,
+            210
+          ]
+        }
+      },
+      "obs": "Referências HYROX e CrossFit (aprovado 22/10). A partir do N3, um bloco pode usar formato AMRAP/EMOM (8–12 min) ou estilo HYROX (aparelho cardio + estação), registrado na observação do bloco.",
+      "familia": "extreme",
+      "nivel": "N4"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        3,
+        4
+      ],
+      "descansoEntreSeriesSeg": [
+        30,
+        90
+      ],
+      "descansoEntreBlocosSeg": [
+        30,
+        90
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        60
+      ],
+      "textoOriginal": {
+        "blocos": "4 blocos × 4 a 5 exercícios",
+        "reps": "busque referencias de hyrox e crossfit",
+        "obs": "busque referencias de hyrox e crossfit"
+      },
+      "blocos": [
+        4,
+        4
+      ],
+      "exerciciosPorBloco": [
+        4,
+        5
+      ],
+      "reps": {
+        "carga": {
+          "reps": [
+            15,
+            20
+          ]
+        },
+        "pesoDoCorpo": {
+          "reps": [
+            25,
+            30
+          ],
+          "tempoSeg": [
+            50,
+            75
+          ]
+        },
+        "aparelhoCardio": {
+          "tempoSeg": [
+            180,
+            240
+          ]
+        }
+      },
+      "obs": "Referências HYROX e CrossFit (aprovado 22/10). A partir do N3, um bloco pode usar formato AMRAP/EMOM (8–12 min) ou estilo HYROX (aparelho cardio + estação), registrado na observação do bloco.",
+      "familia": "extreme",
+      "nivel": "N4.1"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        3,
+        4
+      ],
+      "descansoEntreSeriesSeg": [
+        30,
+        90
+      ],
+      "descansoEntreBlocosSeg": [
+        30,
+        90
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        60
+      ],
+      "textoOriginal": {
+        "blocos": "4 blocos × 4 a 5 exercícios",
+        "reps": "busque referencias de hyrox e crossfit",
+        "obs": "busque referencias de hyrox e crossfit"
+      },
+      "blocos": [
+        4,
+        4
+      ],
+      "exerciciosPorBloco": [
+        4,
+        5
+      ],
+      "reps": {
+        "carga": {
+          "reps": [
+            15,
+            25
+          ]
+        },
+        "pesoDoCorpo": {
+          "reps": [
+            25,
+            40
+          ],
+          "tempoSeg": [
+            60,
+            75
+          ]
+        },
+        "aparelhoCardio": {
+          "tempoSeg": [
+            180,
+            240
+          ]
+        }
+      },
+      "obs": "Referências HYROX e CrossFit (aprovado 22/10). A partir do N3, um bloco pode usar formato AMRAP/EMOM (8–12 min) ou estilo HYROX (aparelho cardio + estação), registrado na observação do bloco.",
+      "familia": "extreme",
+      "nivel": "N5"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        3,
+        4
+      ],
+      "descansoEntreSeriesSeg": [
+        30,
+        90
+      ],
+      "descansoEntreBlocosSeg": [
+        30,
+        90
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        60
+      ],
+      "textoOriginal": {
+        "blocos": "4 blocos × 4 a 5 exercícios",
+        "reps": "busque referencias de hyrox e crossfit",
+        "obs": "busque referencias de hyrox e crossfit"
+      },
+      "blocos": [
+        4,
+        4
+      ],
+      "exerciciosPorBloco": [
+        4,
+        5
+      ],
+      "reps": {
+        "carga": {
+          "reps": [
+            20,
+            30
+          ]
+        },
+        "pesoDoCorpo": {
+          "reps": [
+            30,
+            50
+          ],
+          "tempoSeg": [
+            60,
+            90
+          ]
+        },
+        "aparelhoCardio": {
+          "tempoSeg": [
+            240,
+            300
+          ]
+        }
+      },
+      "obs": "Referências HYROX e CrossFit (aprovado 22/10). A partir do N3, um bloco pode usar formato AMRAP/EMOM (8–12 min) ou estilo HYROX (aparelho cardio + estação), registrado na observação do bloco.",
+      "familia": "extreme",
+      "nivel": "N5.1"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        2,
+        3
+      ],
+      "descansoEntreSeriesSeg": [
+        60,
+        120
+      ],
+      "descansoEntreBlocosSeg": [
+        60,
+        120
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        60
+      ],
+      "textoOriginal": {
+        "blocos": "4 blocos × 1 a 2 exercícios",
+        "reps": "Carga: 10 a 15 rep. Peso do corpo: 10 a 12  rep ou tempo de 20 a 30 seg",
+        "obs": "aparelhos cardio (bike, esteira, remo, elíptico) de 60 a 180 s; pranchas e abdominais de 30 a 120 s, dependendo do nível (sem corda, corda naval, step, jump e agilidade — Idoso não tem impacto/salto)"
+      },
+      "blocos": [
+        4,
+        4
+      ],
+      "exerciciosPorBloco": [
+        1,
+        2
+      ],
+      "reps": {
+        "carga": {
+          "reps": [
+            10,
+            15
+          ]
+        },
+        "pesoDoCorpo": {
+          "reps": [
+            10,
+            12
+          ],
+          "tempoSeg": [
+            20,
+            30
+          ]
+        }
+      },
+      "extras": {
+        "aparelhoCardioTempoSeg": [
+          60,
+          180
+        ],
+        "pranchasAbdominaisTempoSeg": [
+          30,
+          120
+        ]
+      },
+      "familia": "idoso",
+      "nivel": "N0"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        3,
+        3
+      ],
+      "descansoEntreSeriesSeg": [
+        60,
+        120
+      ],
+      "descansoEntreBlocosSeg": [
+        60,
+        120
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        60
+      ],
+      "textoOriginal": {
+        "blocos": "4 blocos × 1 a 2 exercícios",
+        "reps": "Carga: 10 a 15 rep. Peso do corpo: 10 a 12  rep ou tempo de 20 a 30 seg",
+        "obs": "aparelhos cardio (bike, esteira, remo, elíptico) de 60 a 180 s; pranchas e abdominais de 30 a 120 s, dependendo do nível (sem corda, corda naval, step, jump e agilidade — Idoso não tem impacto/salto)"
+      },
+      "blocos": [
+        4,
+        4
+      ],
+      "exerciciosPorBloco": [
+        1,
+        2
+      ],
+      "reps": {
+        "carga": {
+          "reps": [
+            10,
+            15
+          ]
+        },
+        "pesoDoCorpo": {
+          "reps": [
+            10,
+            12
+          ],
+          "tempoSeg": [
+            20,
+            30
+          ]
+        }
+      },
+      "extras": {
+        "aparelhoCardioTempoSeg": [
+          60,
+          180
+        ],
+        "pranchasAbdominaisTempoSeg": [
+          30,
+          120
+        ]
+      },
+      "familia": "idoso",
+      "nivel": "N1"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        3,
+        3
+      ],
+      "descansoEntreSeriesSeg": [
+        60,
+        120
+      ],
+      "descansoEntreBlocosSeg": [
+        60,
+        120
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        60
+      ],
+      "textoOriginal": {
+        "blocos": "4 blocos × 1 a 3 exercícios",
+        "reps": "Carga: 10 a 15 rep. Peso do corpo: 10 a 12  rep ou tempo de 20 a 30 seg",
+        "obs": "aparelhos cardio (bike, esteira, remo, elíptico) de 60 a 180 s; pranchas e abdominais de 30 a 120 s, dependendo do nível (sem corda, corda naval, step, jump e agilidade — Idoso não tem impacto/salto)"
+      },
+      "blocos": [
+        4,
+        4
+      ],
+      "exerciciosPorBloco": [
+        1,
+        3
+      ],
+      "reps": {
+        "carga": {
+          "reps": [
+            10,
+            15
+          ]
+        },
+        "pesoDoCorpo": {
+          "reps": [
+            10,
+            12
+          ],
+          "tempoSeg": [
+            20,
+            30
+          ]
+        }
+      },
+      "extras": {
+        "aparelhoCardioTempoSeg": [
+          60,
+          180
+        ],
+        "pranchasAbdominaisTempoSeg": [
+          30,
+          120
+        ]
+      },
+      "familia": "idoso",
+      "nivel": "N1.1"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        3,
+        3
+      ],
+      "descansoEntreSeriesSeg": [
+        60,
+        120
+      ],
+      "descansoEntreBlocosSeg": [
+        60,
+        120
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        60
+      ],
+      "textoOriginal": {
+        "blocos": "4 blocos × 2 a 3 exercícios",
+        "reps": "Carga: 10 a 12 rep. Peso do corpo: 10 a 15  rep ou tempo de 30 a 35 seg",
+        "obs": "aparelhos cardio (bike, esteira, remo, elíptico) de 60 a 180 s; pranchas e abdominais de 30 a 120 s, dependendo do nível (sem corda, corda naval, step, jump e agilidade — Idoso não tem impacto/salto)"
+      },
+      "blocos": [
+        4,
+        4
+      ],
+      "exerciciosPorBloco": [
+        2,
+        3
+      ],
+      "reps": {
+        "carga": {
+          "reps": [
+            10,
+            12
+          ]
+        },
+        "pesoDoCorpo": {
+          "reps": [
+            10,
+            15
+          ],
+          "tempoSeg": [
+            30,
+            35
+          ]
+        }
+      },
+      "extras": {
+        "aparelhoCardioTempoSeg": [
+          60,
+          180
+        ],
+        "pranchasAbdominaisTempoSeg": [
+          30,
+          120
+        ]
+      },
+      "familia": "idoso",
+      "nivel": "N2"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        3,
+        4
+      ],
+      "descansoEntreSeriesSeg": [
+        60,
+        120
+      ],
+      "descansoEntreBlocosSeg": [
+        60,
+        120
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        60
+      ],
+      "textoOriginal": {
+        "blocos": "4 blocos × 2 a 3 exercícios",
+        "reps": "Carga: 10 a 12 rep. Peso do corpo: 10 a 15  rep ou tempo de 30 a 35 seg",
+        "obs": "aparelhos cardio (bike, esteira, remo, elíptico) de 60 a 180 s; pranchas e abdominais de 30 a 120 s, dependendo do nível (sem corda, corda naval, step, jump e agilidade — Idoso não tem impacto/salto)"
+      },
+      "blocos": [
+        4,
+        4
+      ],
+      "exerciciosPorBloco": [
+        2,
+        3
+      ],
+      "reps": {
+        "carga": {
+          "reps": [
+            10,
+            12
+          ]
+        },
+        "pesoDoCorpo": {
+          "reps": [
+            10,
+            15
+          ],
+          "tempoSeg": [
+            30,
+            35
+          ]
+        }
+      },
+      "extras": {
+        "aparelhoCardioTempoSeg": [
+          60,
+          180
+        ],
+        "pranchasAbdominaisTempoSeg": [
+          30,
+          120
+        ]
+      },
+      "familia": "idoso",
+      "nivel": "N2.1"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        3,
+        4
+      ],
+      "descansoEntreSeriesSeg": [
+        60,
+        120
+      ],
+      "descansoEntreBlocosSeg": [
+        60,
+        120
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        60
+      ],
+      "textoOriginal": {
+        "blocos": "4 blocos × 2 a 3 exercícios",
+        "reps": "Carga: 8 a 12 rep. Peso do corpo: 12 a 20  rep ou tempo de 30 a 40 seg",
+        "obs": "aparelhos cardio (bike, esteira, remo, elíptico) de 60 a 180 s; pranchas e abdominais de 30 a 120 s, dependendo do nível (sem corda, corda naval, step, jump e agilidade — Idoso não tem impacto/salto)"
+      },
+      "blocos": [
+        4,
+        4
+      ],
+      "exerciciosPorBloco": [
+        2,
+        3
+      ],
+      "reps": {
+        "carga": {
+          "reps": [
+            8,
+            12
+          ]
+        },
+        "pesoDoCorpo": {
+          "reps": [
+            12,
+            20
+          ],
+          "tempoSeg": [
+            30,
+            40
+          ]
+        }
+      },
+      "extras": {
+        "aparelhoCardioTempoSeg": [
+          60,
+          180
+        ],
+        "pranchasAbdominaisTempoSeg": [
+          30,
+          120
+        ]
+      },
+      "familia": "idoso",
+      "nivel": "N3"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        3,
+        4
+      ],
+      "descansoEntreSeriesSeg": [
+        60,
+        120
+      ],
+      "descansoEntreBlocosSeg": [
+        60,
+        120
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        60
+      ],
+      "textoOriginal": {
+        "blocos": "4 blocos × 3 a 4 exercícios",
+        "reps": "Carga: 8 a 12 rep. Peso do corpo: 12 a 20  rep ou tempo de 30 a 40 seg",
+        "obs": "aparelhos cardio (bike, esteira, remo, elíptico) de 60 a 180 s; pranchas e abdominais de 30 a 120 s, dependendo do nível (sem corda, corda naval, step, jump e agilidade — Idoso não tem impacto/salto)"
+      },
+      "blocos": [
+        4,
+        4
+      ],
+      "exerciciosPorBloco": [
+        3,
+        4
+      ],
+      "reps": {
+        "carga": {
+          "reps": [
+            8,
+            12
+          ]
+        },
+        "pesoDoCorpo": {
+          "reps": [
+            12,
+            20
+          ],
+          "tempoSeg": [
+            30,
+            40
+          ]
+        }
+      },
+      "extras": {
+        "aparelhoCardioTempoSeg": [
+          60,
+          180
+        ],
+        "pranchasAbdominaisTempoSeg": [
+          30,
+          120
+        ]
+      },
+      "familia": "idoso",
+      "nivel": "N3.1"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        4,
+        4
+      ],
+      "descansoEntreSeriesSeg": [
+        60,
+        120
+      ],
+      "descansoEntreBlocosSeg": [
+        60,
+        120
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        60
+      ],
+      "textoOriginal": {
+        "blocos": "4 blocos × 3 a 4 exercícios",
+        "reps": "Carga: 8 a 12 rep. Peso do corpo: 15 a 20  rep ou tempo de 30 a 60 seg",
+        "obs": "aparelhos cardio (bike, esteira, remo, elíptico) de 60 a 180 s; pranchas e abdominais de 30 a 120 s, dependendo do nível (sem corda, corda naval, step, jump e agilidade — Idoso não tem impacto/salto)"
+      },
+      "blocos": [
+        4,
+        4
+      ],
+      "exerciciosPorBloco": [
+        3,
+        4
+      ],
+      "reps": {
+        "carga": {
+          "reps": [
+            8,
+            12
+          ]
+        },
+        "pesoDoCorpo": {
+          "reps": [
+            15,
+            20
+          ],
+          "tempoSeg": [
+            30,
+            60
+          ]
+        }
+      },
+      "extras": {
+        "aparelhoCardioTempoSeg": [
+          60,
+          180
+        ],
+        "pranchasAbdominaisTempoSeg": [
+          30,
+          120
+        ]
+      },
+      "familia": "idoso",
+      "nivel": "N4"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        4,
+        4
+      ],
+      "descansoEntreSeriesSeg": [
+        60,
+        120
+      ],
+      "descansoEntreBlocosSeg": [
+        60,
+        120
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        60
+      ],
+      "textoOriginal": {
+        "blocos": "4 blocos × 3 a 4 exercícios",
+        "reps": "Carga: 8 a 12 rep. Peso do corpo: 15 a 20  rep ou tempo de 30 a 60 seg",
+        "obs": "aparelhos cardio (bike, esteira, remo, elíptico) de 60 a 180 s; pranchas e abdominais de 30 a 120 s, dependendo do nível (sem corda, corda naval, step, jump e agilidade — Idoso não tem impacto/salto)"
+      },
+      "blocos": [
+        4,
+        4
+      ],
+      "exerciciosPorBloco": [
+        3,
+        4
+      ],
+      "reps": {
+        "carga": {
+          "reps": [
+            8,
+            12
+          ]
+        },
+        "pesoDoCorpo": {
+          "reps": [
+            15,
+            20
+          ],
+          "tempoSeg": [
+            30,
+            60
+          ]
+        }
+      },
+      "extras": {
+        "aparelhoCardioTempoSeg": [
+          60,
+          180
+        ],
+        "pranchasAbdominaisTempoSeg": [
+          30,
+          120
+        ]
+      },
+      "familia": "idoso",
+      "nivel": "N4.1"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        4,
+        4
+      ],
+      "descansoEntreSeriesSeg": [
+        60,
+        120
+      ],
+      "descansoEntreBlocosSeg": [
+        60,
+        120
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        60
+      ],
+      "textoOriginal": {
+        "blocos": "4 blocos × 3 a 4 exercícios",
+        "reps": "Carga: 8 a 12 rep. Peso do corpo: 15 a 20  rep ou tempo de 30 a 60 seg",
+        "obs": "aparelhos cardio (bike, esteira, remo, elíptico) de 60 a 180 s; pranchas e abdominais de 30 a 120 s, dependendo do nível (sem corda, corda naval, step, jump e agilidade — Idoso não tem impacto/salto)"
+      },
+      "blocos": [
+        4,
+        4
+      ],
+      "exerciciosPorBloco": [
+        3,
+        4
+      ],
+      "reps": {
+        "carga": {
+          "reps": [
+            8,
+            12
+          ]
+        },
+        "pesoDoCorpo": {
+          "reps": [
+            15,
+            20
+          ],
+          "tempoSeg": [
+            30,
+            60
+          ]
+        }
+      },
+      "extras": {
+        "aparelhoCardioTempoSeg": [
+          60,
+          180
+        ],
+        "pranchasAbdominaisTempoSeg": [
+          30,
+          120
+        ]
+      },
+      "familia": "idoso",
+      "nivel": "N5"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        4,
+        4
+      ],
+      "descansoEntreSeriesSeg": [
+        60,
+        120
+      ],
+      "descansoEntreBlocosSeg": [
+        60,
+        120
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        60
+      ],
+      "textoOriginal": {
+        "blocos": "4 blocos × 3 a 4 exercícios",
+        "reps": "Carga: 8 a 12 rep. Peso do corpo: 15 a 20  rep ou tempo de 30 a 60 seg",
+        "obs": "aparelhos cardio (bike, esteira, remo, elíptico) de 60 a 180 s; pranchas e abdominais de 30 a 120 s, dependendo do nível (sem corda, corda naval, step, jump e agilidade — Idoso não tem impacto/salto)"
+      },
+      "blocos": [
+        4,
+        4
+      ],
+      "exerciciosPorBloco": [
+        3,
+        4
+      ],
+      "reps": {
+        "carga": {
+          "reps": [
+            8,
+            12
+          ]
+        },
+        "pesoDoCorpo": {
+          "reps": [
+            15,
+            20
+          ],
+          "tempoSeg": [
+            30,
+            60
+          ]
+        }
+      },
+      "extras": {
+        "aparelhoCardioTempoSeg": [
+          60,
+          180
+        ],
+        "pranchasAbdominaisTempoSeg": [
+          30,
+          120
+        ]
+      },
+      "familia": "idoso",
+      "nivel": "N5.1"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        1,
+        1
+      ],
+      "descansoEntreSeriesSeg": [
+        15,
+        60
+      ],
+      "descansoEntreBlocosSeg": [
+        15,
+        60
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        60
+      ],
+      "textoOriginal": {
+        "blocos": "5 a 6 exercícios por aparelho",
+        "reps": "8 a 12 rep (corrigido pelo Richard em 23/10; a planilha dizia '12 a 30 rep ou 15 a 120 s' por erro de digitação)",
+        "obs": "exercícios unilaterais de 8 a 12"
+      },
+      "aparelhos": 4,
+      "exerciciosPorAparelho": [
+        5,
+        6
+      ],
+      "reps": {
+        "geral": {
+          "reps": [
+            8,
+            12
+          ]
+        }
+      },
+      "extras": {
+        "unilateralReps": [
+          8,
+          12
+        ]
+      },
+      "familia": "pilates",
+      "nivel": "N0"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        1,
+        1
+      ],
+      "descansoEntreSeriesSeg": [
+        15,
+        60
+      ],
+      "descansoEntreBlocosSeg": [
+        15,
+        60
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        60
+      ],
+      "textoOriginal": {
+        "blocos": "5 a 6 exercícios por aparelho",
+        "reps": "8 a 12 rep (corrigido pelo Richard em 23/10; a planilha dizia '12 a 30 rep ou 15 a 120 s' por erro de digitação)",
+        "obs": "exercícios unilaterais de 8 a 12"
+      },
+      "aparelhos": 4,
+      "exerciciosPorAparelho": [
+        5,
+        6
+      ],
+      "reps": {
+        "geral": {
+          "reps": [
+            8,
+            12
+          ]
+        }
+      },
+      "extras": {
+        "unilateralReps": [
+          8,
+          12
+        ]
+      },
+      "familia": "pilates",
+      "nivel": "N1"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        1,
+        1
+      ],
+      "descansoEntreSeriesSeg": [
+        15,
+        60
+      ],
+      "descansoEntreBlocosSeg": [
+        15,
+        60
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        60
+      ],
+      "textoOriginal": {
+        "blocos": "5 a 6 exercícios por aparelho",
+        "reps": "8 a 12 rep",
+        "obs": "exercícios unilaterais de 8 a 12"
+      },
+      "aparelhos": 4,
+      "exerciciosPorAparelho": [
+        5,
+        6
+      ],
+      "reps": {
+        "geral": {
+          "reps": [
+            8,
+            12
+          ]
+        }
+      },
+      "extras": {
+        "unilateralReps": [
+          8,
+          12
+        ]
+      },
+      "familia": "pilates",
+      "nivel": "N1.1"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        1,
+        1
+      ],
+      "descansoEntreSeriesSeg": [
+        15,
+        60
+      ],
+      "descansoEntreBlocosSeg": [
+        15,
+        60
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        60
+      ],
+      "textoOriginal": {
+        "blocos": "5 a 6 exercícios por aparelho",
+        "reps": "8 a 12 rep",
+        "obs": "exercícios unilaterais de 8 a 12"
+      },
+      "aparelhos": 4,
+      "exerciciosPorAparelho": [
+        5,
+        6
+      ],
+      "reps": {
+        "geral": {
+          "reps": [
+            8,
+            12
+          ]
+        }
+      },
+      "extras": {
+        "unilateralReps": [
+          8,
+          12
+        ]
+      },
+      "familia": "pilates",
+      "nivel": "N2"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        1,
+        1
+      ],
+      "descansoEntreSeriesSeg": [
+        15,
+        60
+      ],
+      "descansoEntreBlocosSeg": [
+        15,
+        60
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        60
+      ],
+      "textoOriginal": {
+        "blocos": "5 a 6 exercícios por aparelho",
+        "reps": "10 a 12 rep",
+        "obs": "exercícios unilaterais de 8 a 12"
+      },
+      "aparelhos": 4,
+      "exerciciosPorAparelho": [
+        5,
+        6
+      ],
+      "reps": {
+        "geral": {
+          "reps": [
+            10,
+            12
+          ]
+        }
+      },
+      "extras": {
+        "unilateralReps": [
+          8,
+          12
+        ]
+      },
+      "familia": "pilates",
+      "nivel": "N2.1"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        1,
+        1
+      ],
+      "descansoEntreSeriesSeg": [
+        15,
+        60
+      ],
+      "descansoEntreBlocosSeg": [
+        15,
+        60
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        60
+      ],
+      "textoOriginal": {
+        "blocos": "5 a 6 exercícios por aparelho",
+        "reps": "10 a 12 rep",
+        "obs": "exercícios unilaterais de 10 a 12"
+      },
+      "aparelhos": 4,
+      "exerciciosPorAparelho": [
+        5,
+        6
+      ],
+      "reps": {
+        "geral": {
+          "reps": [
+            10,
+            12
+          ]
+        }
+      },
+      "extras": {
+        "unilateralReps": [
+          10,
+          12
+        ]
+      },
+      "familia": "pilates",
+      "nivel": "N3"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        1,
+        1
+      ],
+      "descansoEntreSeriesSeg": [
+        15,
+        60
+      ],
+      "descansoEntreBlocosSeg": [
+        15,
+        60
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        60
+      ],
+      "textoOriginal": {
+        "blocos": "5 a 6 exercícios por aparelho",
+        "reps": "10 a 12 rep",
+        "obs": "exercícios unilaterais de 10 a 12"
+      },
+      "aparelhos": 4,
+      "exerciciosPorAparelho": [
+        5,
+        6
+      ],
+      "reps": {
+        "geral": {
+          "reps": [
+            10,
+            12
+          ]
+        }
+      },
+      "extras": {
+        "unilateralReps": [
+          10,
+          12
+        ]
+      },
+      "familia": "pilates",
+      "nivel": "N3.1"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        1,
+        1
+      ],
+      "descansoEntreSeriesSeg": [
+        15,
+        60
+      ],
+      "descansoEntreBlocosSeg": [
+        15,
+        60
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        60
+      ],
+      "textoOriginal": {
+        "blocos": "5 a 6 exercícios por aparelho",
+        "reps": "10 a 15 rep",
+        "obs": "exercícios unilaterais de 10 a 12"
+      },
+      "aparelhos": 4,
+      "exerciciosPorAparelho": [
+        5,
+        6
+      ],
+      "reps": {
+        "geral": {
+          "reps": [
+            10,
+            15
+          ]
+        }
+      },
+      "extras": {
+        "unilateralReps": [
+          10,
+          12
+        ]
+      },
+      "familia": "pilates",
+      "nivel": "N4"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        1,
+        1
+      ],
+      "descansoEntreSeriesSeg": [
+        15,
+        60
+      ],
+      "descansoEntreBlocosSeg": [
+        15,
+        60
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        60
+      ],
+      "textoOriginal": {
+        "blocos": "5 a 6 exercícios por aparelho",
+        "reps": "12 a 15 rep",
+        "obs": "exercícios unilaterais de 10 a 15"
+      },
+      "aparelhos": 4,
+      "exerciciosPorAparelho": [
+        5,
+        6
+      ],
+      "reps": {
+        "geral": {
+          "reps": [
+            12,
+            15
+          ]
+        }
+      },
+      "extras": {
+        "unilateralReps": [
+          10,
+          15
+        ]
+      },
+      "familia": "pilates",
+      "nivel": "N4.1"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        1,
+        1
+      ],
+      "descansoEntreSeriesSeg": [
+        15,
+        60
+      ],
+      "descansoEntreBlocosSeg": [
+        15,
+        60
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        60
+      ],
+      "textoOriginal": {
+        "blocos": "5 a 6 exercícios por aparelho",
+        "reps": "12 a 15 rep",
+        "obs": "exercícios unilaterais de 10 a 15"
+      },
+      "aparelhos": 4,
+      "exerciciosPorAparelho": [
+        5,
+        6
+      ],
+      "reps": {
+        "geral": {
+          "reps": [
+            12,
+            15
+          ]
+        }
+      },
+      "extras": {
+        "unilateralReps": [
+          10,
+          15
+        ]
+      },
+      "familia": "pilates",
+      "nivel": "N5"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        1,
+        1
+      ],
+      "descansoEntreSeriesSeg": [
+        15,
+        60
+      ],
+      "descansoEntreBlocosSeg": [
+        15,
+        60
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        60
+      ],
+      "textoOriginal": {
+        "blocos": "5 a 6 exercícios por aparelho",
+        "reps": "12 a 15 rep",
+        "obs": "exercícios unilaterais de 10 a 15"
+      },
+      "aparelhos": 4,
+      "exerciciosPorAparelho": [
+        5,
+        6
+      ],
+      "reps": {
+        "geral": {
+          "reps": [
+            12,
+            15
+          ]
+        }
+      },
+      "extras": {
+        "unilateralReps": [
+          10,
+          15
+        ]
+      },
+      "familia": "pilates",
+      "nivel": "N5.1"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        2,
+        2
+      ],
+      "descansoEntreSeriesSeg": [
+        60,
+        90
+      ],
+      "descansoEntreBlocosSeg": [
+        60,
+        90
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        15
+      ],
+      "textoOriginal": {
+        "blocos": "? blocos × 5 a 6 exercícios",
+        "reps": "Sempre por tempo: 30 a 45 s",
+        "obs": "resposta de blocos, quantidade de exercícios e tempo de cada está respondida na aba \"perguntas\""
+      },
+      "blocos": [
+        4,
+        4
+      ],
+      "exerciciosPorBloco": [
+        6,
+        6
+      ],
+      "obsEstrutura": "unilateral ocupa 2 posições (lado direito e esquerdo em sequência)",
+      "reps": {
+        "geral": {
+          "tempoSeg": [
+            30,
+            45
+          ]
+        },
+        "soTempo": true
+      },
+      "familia": "reformer",
+      "nivel": "N1"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        2,
+        2
+      ],
+      "descansoEntreSeriesSeg": [
+        60,
+        90
+      ],
+      "descansoEntreBlocosSeg": [
+        60,
+        90
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        15
+      ],
+      "textoOriginal": {
+        "blocos": "? blocos × 5 a 6 exercícios",
+        "reps": "Sempre por tempo: 30 a 45 s",
+        "obs": "resposta de blocos, quantidade de exercícios e tempo de cada está respondida na aba \"perguntas\""
+      },
+      "blocos": [
+        4,
+        4
+      ],
+      "exerciciosPorBloco": [
+        6,
+        6
+      ],
+      "obsEstrutura": "unilateral ocupa 2 posições (lado direito e esquerdo em sequência)",
+      "reps": {
+        "geral": {
+          "tempoSeg": [
+            30,
+            45
+          ]
+        },
+        "soTempo": true
+      },
+      "familia": "reformer",
+      "nivel": "N1.1"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        2,
+        2
+      ],
+      "descansoEntreSeriesSeg": [
+        60,
+        90
+      ],
+      "descansoEntreBlocosSeg": [
+        60,
+        90
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        15
+      ],
+      "textoOriginal": {
+        "blocos": "? blocos × 5 a 6 exercícios",
+        "reps": "Sempre por tempo: 30 a 45 s",
+        "obs": "resposta de blocos, quantidade de exercícios e tempo de cada está respondida na aba \"perguntas\""
+      },
+      "blocos": [
+        4,
+        4
+      ],
+      "exerciciosPorBloco": [
+        6,
+        6
+      ],
+      "obsEstrutura": "unilateral ocupa 2 posições (lado direito e esquerdo em sequência)",
+      "reps": {
+        "geral": {
+          "tempoSeg": [
+            30,
+            45
+          ]
+        },
+        "soTempo": true
+      },
+      "familia": "reformer",
+      "nivel": "N2"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        2,
+        2
+      ],
+      "descansoEntreSeriesSeg": [
+        60,
+        90
+      ],
+      "descansoEntreBlocosSeg": [
+        60,
+        90
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        15
+      ],
+      "textoOriginal": {
+        "blocos": "? blocos × 5 a 6 exercícios",
+        "reps": "Sempre por tempo: 30 a 45 s",
+        "obs": "resposta de blocos, quantidade de exercícios e tempo de cada está respondida na aba \"perguntas\""
+      },
+      "blocos": [
+        4,
+        4
+      ],
+      "exerciciosPorBloco": [
+        6,
+        6
+      ],
+      "obsEstrutura": "unilateral ocupa 2 posições (lado direito e esquerdo em sequência)",
+      "reps": {
+        "geral": {
+          "tempoSeg": [
+            30,
+            45
+          ]
+        },
+        "soTempo": true
+      },
+      "familia": "reformer",
+      "nivel": "N2.1"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        2,
+        2
+      ],
+      "descansoEntreSeriesSeg": [
+        60,
+        90
+      ],
+      "descansoEntreBlocosSeg": [
+        60,
+        90
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        15
+      ],
+      "textoOriginal": {
+        "blocos": "? blocos × 5 a 6 exercícios",
+        "reps": "Sempre por tempo: 30 a 45 s",
+        "obs": "resposta de blocos, quantidade de exercícios e tempo de cada está respondida na aba \"perguntas\""
+      },
+      "blocos": [
+        4,
+        4
+      ],
+      "exerciciosPorBloco": [
+        6,
+        6
+      ],
+      "obsEstrutura": "unilateral ocupa 2 posições (lado direito e esquerdo em sequência)",
+      "reps": {
+        "geral": {
+          "tempoSeg": [
+            30,
+            45
+          ]
+        },
+        "soTempo": true
+      },
+      "familia": "reformer",
+      "nivel": "N3"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        2,
+        2
+      ],
+      "descansoEntreSeriesSeg": [
+        60,
+        90
+      ],
+      "descansoEntreBlocosSeg": [
+        60,
+        90
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        15
+      ],
+      "textoOriginal": {
+        "blocos": "? blocos × 5 a 6 exercícios",
+        "reps": "Sempre por tempo: 30 a 45 s",
+        "obs": "resposta de blocos, quantidade de exercícios e tempo de cada está respondida na aba \"perguntas\""
+      },
+      "blocos": [
+        4,
+        4
+      ],
+      "exerciciosPorBloco": [
+        6,
+        6
+      ],
+      "obsEstrutura": "unilateral ocupa 2 posições (lado direito e esquerdo em sequência)",
+      "reps": {
+        "geral": {
+          "tempoSeg": [
+            30,
+            45
+          ]
+        },
+        "soTempo": true
+      },
+      "familia": "reformer",
+      "nivel": "N3.1"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        2,
+        2
+      ],
+      "descansoEntreSeriesSeg": [
+        60,
+        90
+      ],
+      "descansoEntreBlocosSeg": [
+        60,
+        90
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        15
+      ],
+      "textoOriginal": {
+        "blocos": "? blocos × 5 a 6 exercícios",
+        "reps": "Sempre por tempo: 30 a 45 s",
+        "obs": "resposta de blocos, quantidade de exercícios e tempo de cada está respondida na aba \"perguntas\""
+      },
+      "blocos": [
+        4,
+        4
+      ],
+      "exerciciosPorBloco": [
+        6,
+        6
+      ],
+      "obsEstrutura": "unilateral ocupa 2 posições (lado direito e esquerdo em sequência)",
+      "reps": {
+        "geral": {
+          "tempoSeg": [
+            30,
+            45
+          ]
+        },
+        "soTempo": true
+      },
+      "familia": "reformer",
+      "nivel": "N4"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        2,
+        2
+      ],
+      "descansoEntreSeriesSeg": [
+        60,
+        90
+      ],
+      "descansoEntreBlocosSeg": [
+        60,
+        90
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        15
+      ],
+      "textoOriginal": {
+        "blocos": "? blocos × 5 a 6 exercícios",
+        "reps": "Sempre por tempo: 30 a 45 s",
+        "obs": "resposta de blocos, quantidade de exercícios e tempo de cada está respondida na aba \"perguntas\""
+      },
+      "blocos": [
+        4,
+        4
+      ],
+      "exerciciosPorBloco": [
+        6,
+        6
+      ],
+      "obsEstrutura": "unilateral ocupa 2 posições (lado direito e esquerdo em sequência)",
+      "reps": {
+        "geral": {
+          "tempoSeg": [
+            30,
+            45
+          ]
+        },
+        "soTempo": true
+      },
+      "familia": "reformer",
+      "nivel": "N4.1"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        2,
+        2
+      ],
+      "descansoEntreSeriesSeg": [
+        60,
+        90
+      ],
+      "descansoEntreBlocosSeg": [
+        60,
+        90
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        15
+      ],
+      "textoOriginal": {
+        "blocos": "? blocos × 5 a 6 exercícios",
+        "reps": "Sempre por tempo: 30 a 45 s",
+        "obs": "resposta de blocos, quantidade de exercícios e tempo de cada está respondida na aba \"perguntas\""
+      },
+      "blocos": [
+        4,
+        4
+      ],
+      "exerciciosPorBloco": [
+        6,
+        6
+      ],
+      "obsEstrutura": "unilateral ocupa 2 posições (lado direito e esquerdo em sequência)",
+      "reps": {
+        "geral": {
+          "tempoSeg": [
+            30,
+            45
+          ]
+        },
+        "soTempo": true
+      },
+      "familia": "reformer",
+      "nivel": "N5"
+    },
+    {
+      "metodo": "Circuito",
+      "series": [
+        2,
+        2
+      ],
+      "descansoEntreSeriesSeg": [
+        60,
+        90
+      ],
+      "descansoEntreBlocosSeg": [
+        60,
+        90
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        15
+      ],
+      "textoOriginal": {
+        "blocos": "? blocos × 5 a 6 exercícios",
+        "reps": "Sempre por tempo: 30 a 45 s",
+        "obs": "resposta de blocos, quantidade de exercícios e tempo de cada está respondida na aba \"perguntas\""
+      },
+      "blocos": [
+        4,
+        4
+      ],
+      "exerciciosPorBloco": [
+        6,
+        6
+      ],
+      "obsEstrutura": "unilateral ocupa 2 posições (lado direito e esquerdo em sequência)",
+      "reps": {
+        "geral": {
+          "tempoSeg": [
+            30,
+            45
+          ]
+        },
+        "soTempo": true
+      },
+      "familia": "reformer",
+      "nivel": "N5.1"
+    }
+  ],
+  "ativacaoFuncional": {
+    "metodo": "Circuito",
+    "series": [
+      2,
+      3
+    ],
+    "descansoEntreSeriesSeg": [
+      60,
+      120
+    ],
+    "descansoEntreBlocosSeg": [
+      60,
+      120
+    ],
+    "descansoEntreExerciciosSeg": [
+      10,
+      60
+    ],
+    "textoOriginal": {
+      "blocos": "1 bloco × até 3 exercícios → Richard 23/10: sempre 3 exercícios",
+      "reps": "Peso do corpo: 8 a 15 rep ou tempo de 30 a 45 segundos",
+      "obs": "pode usar materiais como miniband, elásticos → Richard 23/10: só funcional (agilidade, corda, elástico extensor, jump, mini band, peso do corpo, trx) e abdominal (peso do corpo); hipertrofia também barra/halter leves"
+    },
+    "blocos": [
+      1,
+      1
+    ],
+    "exerciciosPorBloco": [
+      3,
+      3
+    ],
+    "reps": {
+      "pesoDoCorpo": {
+        "reps": [
+          8,
+          15
+        ],
+        "tempoSeg": [
+          30,
+          45
+        ]
+      }
+    },
+    "materiais": [
+      "funcional: agilidade",
+      "funcional: corda",
+      "funcional: elástico extensor",
+      "funcional: jump",
+      "funcional: mini band",
+      "funcional: peso do corpo",
+      "funcional: trx",
+      "abdominal: peso do corpo"
+    ]
+  },
+  "reabilitacao": {
+    "agudo": {
+      "metodo": "Circuito",
+      "series": [
+        2,
+        3
+      ],
+      "descansoEntreSeriesSeg": [
+        60,
+        120
+      ],
+      "descansoEntreBlocosSeg": [
+        60,
+        120
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        60
+      ],
+      "textoOriginal": {
+        "blocos": "3 blocos × 3 a 5 exercícios",
+        "reps": "Carga: 8 a 15 rep. Peso do corpo: 8 a 15 rep ou tempo de 15 a 120 segundos",
+        "obs": ""
+      },
+      "blocos": [
+        3,
+        3
+      ],
+      "exerciciosPorBloco": [
+        3,
+        5
+      ],
+      "reps": {
+        "carga": {
+          "reps": [
+            8,
+            15
+          ]
+        },
+        "pesoDoCorpo": {
+          "reps": [
+            8,
+            15
+          ],
+          "tempoSeg": [
+            15,
+            120
+          ]
+        }
+      }
+    },
+    "cronico": {
+      "metodo": "Circuito",
+      "series": [
+        3,
+        4
+      ],
+      "descansoEntreSeriesSeg": [
+        60,
+        120
+      ],
+      "descansoEntreBlocosSeg": [
+        60,
+        120
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        60
+      ],
+      "textoOriginal": {
+        "blocos": "3 blocos × 3 a 5 exercícios",
+        "reps": "Carga: 8 a 15 rep. Peso do corpo: 8 a 15 rep ou tempo de 15 a 120 segundos",
+        "obs": ""
+      },
+      "blocos": [
+        3,
+        3
+      ],
+      "exerciciosPorBloco": [
+        3,
+        5
+      ],
+      "reps": {
+        "carga": {
+          "reps": [
+            8,
+            15
+          ]
+        },
+        "pesoDoCorpo": {
+          "reps": [
+            8,
+            15
+          ],
+          "tempoSeg": [
+            15,
+            120
+          ]
+        }
+      }
+    },
+    "mob_sm": {
+      "metodo": "Circuito",
+      "series": [
+        3,
+        4
+      ],
+      "descansoEntreSeriesSeg": [
+        60,
+        120
+      ],
+      "descansoEntreBlocosSeg": [
+        60,
+        120
+      ],
+      "descansoEntreExerciciosSeg": [
+        10,
+        60
+      ],
+      "textoOriginal": {
+        "blocos": "3 blocos × 3 a 5 exercícios",
+        "reps": "Carga: 8 a 15 rep. Peso do corpo: 8 a 15 rep ou tempo de 15 a 120 segundos",
+        "obs": ""
+      },
+      "blocos": [
+        3,
+        3
+      ],
+      "exerciciosPorBloco": [
+        3,
+        5
+      ],
+      "reps": {
+        "carga": {
+          "reps": [
+            8,
+            15
+          ]
+        },
+        "pesoDoCorpo": {
+          "reps": [
+            8,
+            15
+          ],
+          "tempoSeg": [
+            15,
+            120
+          ]
+        }
+      }
+    }
+  },
+  "mapeamentoSemNivel": {
+    "reabilitacao": "Usa reabilitacao[fase]. Sem fase (as 4 reabilitações antigas): a IA NÃO gera — a master define a fase antes (Richard, 23/10: 'mantém como está').",
+    "protocolo_dor": "Usa a linha pilates N1 (estrutura de Pilates normal).",
+    "gestante": "Usa a linha pilates N1.",
+    "alongamento": "Usa a linha pilates N1; só exercícios com categorias apenas alongamento/mobilidade.",
+    "fora_da_ia": "Não gera."
+  }
+}
