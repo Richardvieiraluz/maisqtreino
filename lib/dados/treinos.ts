@@ -224,3 +224,119 @@ export async function proximoTreino(alunoId: string): Promise<Proximo> {
     video: (c?.conteudo as Conteudo | undefined)?.blocks?.[1]?.exercises?.[0]?.videoUrl ?? (c?.conteudo as Conteudo | undefined)?.blocks?.[0]?.exercises?.[0]?.videoUrl ?? null,
   };
 }
+
+// ── telas: Meu plano e Detalhe ─────────────────────────────────────────────
+
+const NIVEL_ROTULO: Record<string, string> = { N0: "Iniciante", N1: "Iniciante", N2: "Intermediário", N3: "Avançado" };
+const nivelRotulo = (p: PerfilAluno) => (p.familia === "reabilitacao" ? "Reabilitação" : (NIVEL_ROTULO[p.nivel ?? ""] ?? "Iniciante"));
+
+export type SituacaoReal = "feito" | "atual" | "pronto" | "montando" | "futuro" | "erro";
+export interface PlanoReal {
+  total: number;
+  feitos: number;
+  atual: number | null;
+  nivel: string;
+  diasSemana: number;
+  treinos: { posicao: number; situacao: SituacaoReal; titulo: string | null; duracaoMin: number | null }[];
+}
+
+async function feitosDo(p: ProtocoloAtivo): Promise<Set<string>> {
+  const ids = p.treinos.map((t) => t.id);
+  if (!ids.length) return new Set();
+  const { data } = await createAdminClient().from("sessoes").select("protocolo_treino_id").in("protocolo_treino_id", ids).not("concluida_em", "is", null);
+  return new Set((data ?? []).map((x) => x.protocolo_treino_id as string));
+}
+
+export async function planoDoAluno(alunoId: string): Promise<PlanoReal | null> {
+  const p = await protocoloAtivo(alunoId);
+  if (!p) return null;
+  const feitos = await feitosDo(p);
+  const porPosicao = new Map(p.treinos.map((t) => [t.posicao, t]));
+  let atual: number | null = null;
+  const treinos = Array.from({ length: p.totalTreinos }, (_, i) => {
+    const posicao = i + 1;
+    const t = porPosicao.get(posicao);
+    let situacao: SituacaoReal;
+    if (t && feitos.has(t.id)) situacao = "feito";
+    else if (!t) situacao = "futuro";
+    else if (t.status === "pronto") situacao = atual === null ? "atual" : "pronto";
+    else if (t.status === "erro") situacao = "erro";
+    else situacao = "montando";
+    if (situacao === "atual") atual = posicao;
+    if (atual === null && (situacao === "montando" || situacao === "erro")) atual = posicao;
+    return { posicao, situacao, titulo: t?.titulo ?? null, duracaoMin: t?.duracaoMin ?? null };
+  });
+  return { total: p.totalTreinos, feitos: feitos.size, atual, nivel: nivelRotulo(p.perfil), diasSemana: p.perfil.diasSemana ?? 3, treinos };
+}
+
+export interface DetalheReal {
+  posicao: number;
+  total: number;
+  /** Aluno com programa: treinos do protocolo liberados até aqui (1ª semana). */
+  diasSemana: number;
+  situacao: SituacaoReal;
+  titulo: string | null;
+  duracaoMin: number;
+  nivel: string;
+  local: string;
+  equipamentos: string;
+  musculos: string;
+  video: string | null;
+  exercicios: [string, string][];
+}
+
+const LOCAL_ROTULO: Record<string, string> = { casa: "Em casa", condominio: "Condomínio", academia: "Academia" };
+const PALAVRA_BONECO: Record<string, string> = { deltoide: "ombro", dorsal: "costas", peitoral: "peito", "bíceps": "braço", "tríceps": "braço", "posterior de coxa": "posterior", "abdômen": "abdômen" };
+
+export async function detalheDoTreino(alunoId: string, posicao: number): Promise<DetalheReal | null> {
+  const p = await protocoloAtivo(alunoId);
+  if (!p || posicao < 1 || posicao > p.totalTreinos) return null;
+  const db = createAdminClient();
+  const { data: pr } = await db.from("protocolos").select("local").eq("id", p.id).maybeSingle();
+  const plano = await planoDoAluno(alunoId);
+  const situacao = plano?.treinos[posicao - 1]?.situacao ?? "futuro";
+  const base = {
+    posicao,
+    total: p.totalTreinos,
+    situacao,
+    nivel: nivelRotulo(p.perfil),
+    local: LOCAL_ROTULO[pr?.local ?? ""] ?? "Em casa",
+    duracaoMin: p.perfil.minutos,
+    diasSemana: p.perfil.diasSemana ?? 3,
+  };
+  const t = p.treinos.find((x) => x.posicao === posicao);
+  if (!t || t.status !== "pronto") return { ...base, titulo: t?.titulo ?? null, equipamentos: "", musculos: "", video: null, exercicios: [] };
+
+  const { data } = await db.from("protocolo_treinos").select("conteudo, duracao_min").eq("id", t.id).maybeSingle();
+  const c = data?.conteudo as Conteudo | undefined;
+  if (!c) return { ...base, titulo: t.titulo, equipamentos: "", musculos: "", video: null, exercicios: [] };
+  const catalogo = await carregarCatalogoIA();
+  const porId = new Map(catalogo.map((x) => [x.id, x]));
+  const equip = new Set<string>();
+  const musc = new Map<string, number>();
+  const exercicios: [string, string][] = [];
+  for (const b of c.blocks) {
+    const alternado = (b.method === "Circuito" || b.method === "Bi-Set") && b.exercises.length > 1;
+    for (const x of b.exercises) {
+      const item = porId.get(x.exerciseId);
+      (item?.equipamentos ?? []).filter((e) => e !== "peso do corpo").forEach((e) => equip.add(e));
+      (item?.musculos ?? []).forEach((m) => musc.set(m, (musc.get(m) ?? 0) + 1));
+      const alvos = x.series.map((s) => (s.type === "time" ? `${s.target.replace(/\D+$/, "")} s` : s.target));
+      const iguais = alvos.every((a) => a === alvos[0]);
+      const medida = `${x.series.length} × ${iguais ? alvos[0] : alvos.join("-")}`;
+      exercicios.push([x.exerciseName, alternado ? `${b.method === "Bi-Set" ? "Bi-set" : "Circuito"} · ${medida}` : medida]);
+    }
+  }
+  const primeiro = c.blocks[1]?.exercises[0] ?? c.blocks[0]?.exercises[0];
+  const lista = [...equip];
+  return {
+    ...base,
+    titulo: t.titulo,
+    duracaoMin: data?.duracao_min ?? base.duracaoMin,
+    equipamentos: lista.length ? lista.map((e, i) => (i ? e : e[0].toUpperCase() + e.slice(1))).join(", ") : "Peso do corpo",
+    // Palavras que o boneco do mapa muscular reconhece (lib/midia.ts).
+    musculos: [...musc.entries()].sort((a, b) => b[1] - a[1]).slice(0, 4).map(([m]) => PALAVRA_BONECO[m] ?? m).join(" "),
+    video: primeiro?.videoUrl ?? null,
+    exercicios,
+  };
+}

@@ -10,8 +10,12 @@ import { useAvisoRapido } from "../AvisoRapido";
 import { Check, doisDigitos, Logo, Selo } from "../marca";
 import { RodapeAbas } from "../RodapeAbas";
 import { useAlunoExibido } from "@/lib/conta";
+import type { PlanoReal, SituacaoReal } from "@/lib/dados/treinos";
 
-const TOTAL = 24;
+/** Situação mostrada no tile: a do exemplo ou a do treino real, mais o cadeado do acesso. */
+type Situacao = SituacaoTreino | Exclude<SituacaoReal, "atual" | "feito">;
+const ROTULO: Partial<Record<Situacao, string>> = { atual: "HOJE", feito: "FEITO", montando: "MONTANDO", erro: "EM REVISÃO" };
+
 const LOCAIS = ["Em casa", "Academia", "Condomínio"];
 
 function CadeadoMini() {
@@ -23,7 +27,8 @@ function CadeadoMini() {
   );
 }
 
-export function MeuPlano() {
+/** plano: protocolo real do aluno (null = ainda sem quiz). Sem ele, mostra o exemplo. */
+export function MeuPlano({ plano }: { plano?: PlanoReal | null }) {
   const aluno = useAlunoExibido();
   const demo = useDemo();
   const router = useRouter();
@@ -35,20 +40,60 @@ export function MeuPlano() {
   const [novoLocal, setNovoLocal] = useState(localAtual);
   const pausada = demo.estado === "pausada";
   const programa = demo.estado === "programa";
-  const p = progressoProtocolo(demo.estado);
+  const TOTAL = plano ? plano.total : 24;
+  const p = plano ? { feitos: plano.feitos, atual: pausada ? 0 : (plano.atual ?? 0) } : progressoProtocolo(demo.estado);
+  const situacao = (n: number): Situacao => {
+    if (!plano) return situacaoDoTreino(n, demo.estado);
+    const st = plano.treinos[n - 1]?.situacao ?? "futuro";
+    if (st === "feito") return "feito";
+    if (pausada || (programa && n > plano.diasSemana)) return "bloqueado";
+    return st;
+  };
+  const tituloDe = (n: number) => {
+    if (!plano) return TREINOS_TIPO[tipoDoTreino(n)].titulo.join("");
+    return plano.treinos[n - 1]?.titulo ?? `Treino ${doisDigitos(n)}`;
+  };
+  const infoDe = (n: number) => {
+    if (!plano) return TREINOS_TIPO[tipoDoTreino(n)].duracao;
+    const t = plano.treinos[n - 1];
+    if (t?.titulo && t.duracaoMin) return `${t.duracaoMin} min`;
+    return t?.situacao === "montando" ? "sendo montado agora" : t?.situacao === "erro" ? "em revisão" : "montado quando chegar perto";
+  };
 
   const abrirOferta = () => router.push(`${pausada ? "/reativar" : "/oferta"}${demo.qs}`);
   const abrir = (n: number) => () => {
-    if (situacaoDoTreino(n, demo.estado) === "bloqueado") return abrirOferta();
+    if (situacao(n) === "bloqueado") return abrirOferta();
     const sep = demo.qs ? "&" : "?";
     router.push(`/detalhe/protocolo-${doisDigitos(n)}${demo.qs}${sep}de=plano`);
   };
 
-  const estiloTile = (st: SituacaoTreino) => ({
+  const estiloTile = (st: Situacao) => ({
     bg: st === "atual" ? "var(--accent)" : st === "bloqueado" ? "var(--track)" : "#fff",
     borda: st === "atual" ? "3px solid #111" : st === "bloqueado" ? "1px solid var(--track)" : st === "feito" ? "1px solid #111" : "1px solid var(--line)",
     cor: st === "bloqueado" ? "var(--ink-2)" : "#111",
   });
+
+  if (plano === null)
+    return (
+      <main className="app">
+        <div className="topo-seguro" />
+        <div className="rolagem">
+          <div style={{ padding: "20px 20px 16px" }}>
+            <Logo />
+          </div>
+          <div style={{ padding: "0 20px 24px", display: "flex", flexDirection: "column", gap: 14 }}>
+            <h1 className="titulo-tela">
+              Falta o seu <span className="destaque">quiz</span>
+            </h1>
+            <p className="texto">O seu plano é montado a partir das respostas: nível, equipamento, tempo e dias de treino.</p>
+            <button type="button" className="botao botao--primario" onClick={() => router.push("/quiz")}>
+              Responder o quiz
+            </button>
+          </div>
+        </div>
+        <RodapeAbas />
+      </main>
+    );
 
   return (
     <main className="app">
@@ -84,7 +129,7 @@ export function MeuPlano() {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 12 }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               <span className="rotulo">NÍVEL ATUAL</span>
-              <Selo>Intermediário</Selo>
+              <Selo>{plano ? plano.nivel : "Intermediário"}</Selo>
             </div>
             <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
               <span className="numero-grande" style={{ fontSize: 64, lineHeight: 0.8 }}>
@@ -102,7 +147,7 @@ export function MeuPlano() {
           </div>
           <div className="rotulo" style={{ display: "flex", justifyContent: "space-between", marginTop: 6 }}>
             <span>01</span>
-            <span>24</span>
+            <span>{doisDigitos(TOTAL)}</span>
           </div>
 
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 28, marginBottom: 12 }}>
@@ -137,13 +182,13 @@ export function MeuPlano() {
 
           {vista === "grade" ? (
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              {Array.from({ length: 6 }, (_, w) => (
+              {Array.from({ length: Math.ceil(TOTAL / 4) }, (_, w) => (
                 <div key={w} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                   <span className="rotulo">SEMANA {w + 1}</span>
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 6 }}>
-                    {[1, 2, 3, 4].map((k) => {
+                    {[1, 2, 3, 4].filter((k) => w * 4 + k <= TOTAL).map((k) => {
                       const n = w * 4 + k;
-                      const st = situacaoDoTreino(n, demo.estado);
+                      const st = situacao(n);
                       const e = estiloTile(st);
                       return (
                         <button
@@ -156,7 +201,7 @@ export function MeuPlano() {
                           <span className="numero-grande" style={{ fontSize: 32, lineHeight: 0.85, color: e.cor }}>
                             {doisDigitos(n)}
                           </span>
-                          <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: ".08em", color: e.cor }}>{st === "atual" ? "HOJE" : st === "feito" ? "FEITO" : ""}</span>
+                          <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: ".08em", color: e.cor }}>{ROTULO[st] ?? ""}</span>
                           {st === "feito" && (
                             <span style={{ position: "absolute", right: 6, top: 6 }}>
                               <Check tamanho={22} />
@@ -178,8 +223,7 @@ export function MeuPlano() {
             <div style={{ borderTop: "1px solid var(--line)" }}>
               {Array.from({ length: TOTAL }, (_, i) => {
                 const n = i + 1;
-                const st = situacaoDoTreino(n, demo.estado);
-                const tr = TREINOS_TIPO[tipoDoTreino(n)];
+                const st = situacao(n);
                 const cor = st === "bloqueado" ? "var(--ink-2)" : "#111";
                 return (
                   <button
@@ -205,9 +249,9 @@ export function MeuPlano() {
                       {doisDigitos(n)}
                     </span>
                     <span style={{ flex: 1, display: "flex", flexDirection: "column", gap: 2 }}>
-                      <span style={{ fontSize: 18, fontWeight: 850, fontStretch: "76%", textTransform: "uppercase", lineHeight: 1, color: cor }}>{tr.titulo.join("")}</span>
+                      <span style={{ fontSize: 18, fontWeight: 850, fontStretch: "76%", textTransform: "uppercase", lineHeight: 1, color: cor }}>{tituloDe(n)}</span>
                       <span style={{ fontSize: 12, color: "var(--ink-2)" }}>
-                        Semana {Math.ceil(n / 4)} · {tr.duracao}
+                        Semana {Math.ceil(n / 4)} · {infoDe(n)}
                       </span>
                     </span>
                     {st === "feito" && <Check tamanho={24} />}
@@ -219,6 +263,8 @@ export function MeuPlano() {
             </div>
           )}
 
+          {!plano && (
+            <>
           <h2 className="titulo-secao" style={{ marginTop: 32, marginBottom: 12 }}>
             {programa ? "Programa comprado" : "Seus programas"}
           </h2>
@@ -255,6 +301,8 @@ export function MeuPlano() {
               Ver programa
             </button>
           </div>
+            </>
+          )}
 
           <button
             type="button"

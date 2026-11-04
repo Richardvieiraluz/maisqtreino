@@ -10,9 +10,17 @@ import { useAvisoRapido } from "../AvisoRapido";
 import { Cadeado, Check, doisDigitos, Logo, Selo } from "../marca";
 import { BotaoVoltar } from "../quiz/pecas";
 import { RodapeAbas } from "../RodapeAbas";
+import type { DetalheReal } from "@/lib/dados/treinos";
 
-/** id: "protocolo-07" (treino 7 do protocolo) ou "programa-gluteo" (próximo treino do programa). */
-export function DetalheTreino({ id }: { id: string }) {
+const MSG_NAO_PRONTO: Record<string, string> = {
+  montando: "Este treino está sendo montado agora, com o seu equipamento e o seu nível. Leva uns minutos.",
+  futuro: "Este treino é montado quando você chegar perto dele, levando em conta os treinos que você já fez.",
+  erro: "Este treino não saiu como deveria e foi para revisão. Assim que estiver pronto, aparece aqui.",
+};
+
+/** id: "protocolo-07" (treino 7 do protocolo) ou "programa-gluteo" (próximo treino do programa).
+ *  real: treino do protocolo do aluno (logado). Sem ele, mostra o protocolo de exemplo. */
+export function DetalheTreino({ id, real }: { id: string; real?: DetalheReal | null }) {
   const demo = useDemo();
   const router = useRouter();
   const params = useSearchParams();
@@ -23,20 +31,25 @@ export function DetalheTreino({ id }: { id: string }) {
   const n = ehPrograma ? 0 : parseInt(id.replace("protocolo-", ""), 10);
   const tipo = tipoDoTreino(n || 1);
   const dados = ehPrograma ? PROGRAMA_GLUTEO.proximo : TREINOS_TIPO[tipo];
-  const bloqueado = pausada || (!ehPrograma && demo.estado === "programa" && n > 4);
+  const bloqueado = pausada || (!ehPrograma && demo.estado === "programa" && n > (real ? real.diasSemana : 4));
   const sobretitulo = ehPrograma
     ? `PROGRAMA GLÚTEO · TREINO ${doisDigitos(PROGRAMA_GLUTEO.feitos + 1)} DE ${PROGRAMA_GLUTEO.total}`
-    : `PROTOCOLO · TREINO ${doisDigitos(n)} DE 24`;
-  const local = respostas?.local ?? RESPOSTAS_PADRAO.local;
-  const tituloInteiro = dados.titulo.join("");
+    : `PROTOCOLO · TREINO ${doisDigitos(n)} DE ${real ? real.total : 24}`;
+  const local = real ? real.local : (respostas?.local ?? RESPOSTAS_PADRAO.local);
+  const pronto = !real || ["atual", "pronto", "feito"].includes(real.situacao);
+  const palavras = (real?.titulo ?? `Treino ${doisDigitos(n)}`).split(" ");
+  const titulo: [string, string] = real ? [palavras.slice(0, -1).join(" ") + (palavras.length > 1 ? " " : ""), palavras[palavras.length - 1]] : dados.titulo;
+  const tituloInteiro = titulo.join("");
+  const exercicios = real ? real.exercicios : dados.exercicios;
   const foto = fotoDe(ehPrograma ? "glúteo" : tituloInteiro);
-  const mapa = bonecoDe(`${tituloInteiro} ${dados.exercicios.map((e) => e[0]).join(" ")}`, demo.sexo);
+  const mapa = bonecoDe(`${tituloInteiro} ${real ? real.musculos : dados.exercicios.map((e) => e[0]).join(" ")}`, demo.sexo);
   const abaAtiva = params.get("de") === "inicio" ? "/" : "/plano";
 
   const abrirOferta = () => router.push(`${pausada ? "/reativar" : "/oferta"}${demo.qs}`);
 
   const comecar = () => {
     if (bloqueado) return abrirOferta();
+    if (real) return pronto ? router.push(`/treino/protocolo-${doisDigitos(n)}`) : aviso.mostrar(MSG_NAO_PRONTO[real.situacao] ?? "Este treino ainda não está pronto.");
     // Só o treino de exemplo tem execução montada. Os outros entram com o catálogo real.
     if (!ehPrograma && tipo === "A") return router.push(`/treino/${TREINO_HOJE.id}${demo.qs}`);
     aviso.mostrar("A execução deste treino entra quando o catálogo real for ligado.");
@@ -60,7 +73,8 @@ export function DetalheTreino({ id }: { id: string }) {
           <Logo />
         </div>
         <div style={{ padding: "0 20px" }}>
-          <div style={{ position: "relative", height: 240, background: `#fff url(${foto}) center bottom / contain no-repeat` }}>
+          <div style={{ position: "relative", height: 240, background: real?.video ? "#fff" : `#fff url(${foto}) center bottom / contain no-repeat`, overflow: "hidden" }}>
+            {real?.video && <video src={real.video} autoPlay muted loop playsInline style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain" }} />}
             {bloqueado && (
               <div style={{ position: "absolute", inset: 0, background: "var(--track)", display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <Cadeado tamanho="grande" />
@@ -71,16 +85,24 @@ export function DetalheTreino({ id }: { id: string }) {
             {sobretitulo}
           </div>
           <h1 className="titulo-tela" style={{ margin: "8px 0 16px" }}>
-            {dados.titulo[0]}
+            {titulo[0]}
             <span className={bloqueado ? undefined : "destaque"} style={bloqueado ? { padding: "0 4px" } : undefined}>
-              {dados.titulo[1]}
+              {titulo[1]}
             </span>
           </h1>
-          {linha("Duração", dados.duracao)}
-          {linha("Nível", <Selo>Intermediário</Selo>)}
-          {linha("Local", local)}
-          {linha("Equipamentos", dados.equipamentos, true)}
+          {linha("Duração", real ? `${real.duracaoMin} min` : dados.duracao)}
+          {linha("Nível", <Selo>{real ? real.nivel : "Intermediário"}</Selo>)}
+          {linha("Local", local, !pronto)}
+          {pronto && linha("Equipamentos", real ? real.equipamentos : dados.equipamentos, true)}
 
+          {!pronto && real && (
+            <div className="ajuste" style={{ marginTop: 20 }}>
+              <b>Ainda não está pronto.</b> {MSG_NAO_PRONTO[real.situacao]}
+            </div>
+          )}
+
+          {pronto && (
+            <>
           <div className="rotulo" style={{ marginTop: 28, marginBottom: 10 }}>
             MÚSCULOS DO TREINO
           </div>
@@ -88,10 +110,10 @@ export function DetalheTreino({ id }: { id: string }) {
 
           <div style={{ marginTop: 28, display: "flex", justifyContent: "space-between", alignItems: "baseline", paddingBottom: 4, borderBottom: "1px solid var(--line)" }}>
             <span className="titulo-secao">Exercícios</span>
-            <span className="rotulo">{doisDigitos(dados.exercicios.length)}</span>
+            <span className="rotulo">{doisDigitos(exercicios.length)}</span>
           </div>
-          {dados.exercicios.map(([nome, series], i) => (
-            <div key={nome} style={{ display: "flex", alignItems: "center", gap: 14, padding: "10px 0", borderBottom: i === dados.exercicios.length - 1 ? "var(--border-strong)" : "1px solid var(--line)" }}>
+          {exercicios.map(([nome, series], i) => (
+            <div key={`${nome}-${i}`} style={{ display: "flex", alignItems: "center", gap: 14, padding: "10px 0", borderBottom: i === exercicios.length - 1 ? "var(--border-strong)" : "1px solid var(--line)" }}>
               <span className="numero-grande" style={{ fontSize: 48, lineHeight: 0.9, width: 44, flex: "none" }}>
                 {doisDigitos(i + 1)}
               </span>
@@ -101,6 +123,8 @@ export function DetalheTreino({ id }: { id: string }) {
               </div>
             </div>
           ))}
+            </>
+          )}
 
           {ehPrograma && (
             <>
