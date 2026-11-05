@@ -16,7 +16,7 @@ const ABAS = [
 function abaDe(caminho: string) {
   if (caminho.startsWith("/master/funil")) return "funil";
   if (caminho.startsWith("/master/alunos")) return "alunos";
-  if (/\/master\/(protocolos|explicacoes|vitrine)/.test(caminho)) return "conteudo";
+  if (/\/master\/(protocolos|explicacoes|vitrine|treinos)/.test(caminho)) return "conteudo";
   return "painel";
 }
 
@@ -100,7 +100,8 @@ export function LayoutMaster({ children, voltar, aviso = "DADOS DE EXEMPLO · EN
           <div className="folha" style={{ bottom: "calc(64px + env(safe-area-inset-bottom, 0px))", padding: "16px 20px", gap: 8 }} role="menu">
             <div className="rotulo">CONTEÚDO</div>
             {[
-              ["Protocolos e treinos", "186", "/master/protocolos"],
+              ["Treinos prontos", "vitrine da Início", "/master/treinos"],
+              ["Protocolos", "gerados pela IA", "/master/protocolos"],
               ["Explicações em lote", `${EXPLICACOES_OUTRAS.pendente} a revisar`, "/master/explicacoes"],
               ["Vitrine", `${FILEIRAS_VITRINE.length} fileiras`, "/master/vitrine"],
             ].map(([rotulo, meta, href]) => (

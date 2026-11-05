@@ -13,7 +13,7 @@ import { Execucao } from "./Execucao";
 import { Avaliacao, Resumo } from "./FimDoTreino";
 
 /** Fluxo do treino em tela cheia: execução → avaliação → resumo. */
-export function SessaoTreino({ treino, protocoloTreinoId, sequencia: seqReal }: { treino: TreinoSessao; protocoloTreinoId?: string; sequencia?: number }) {
+export function SessaoTreino({ treino, protocoloTreinoId, treinoId, sequencia: seqReal }: { treino: TreinoSessao; protocoloTreinoId?: string; treinoId?: string; sequencia?: number }) {
   const seq = seqReal ?? ALUNO_EXEMPLO.sequenciaDias + 1;
   const demo = useDemo();
   const router = useRouter();
@@ -24,10 +24,11 @@ export function SessaoTreino({ treino, protocoloTreinoId, sequencia: seqReal }: 
   // Saiu no meio do treino depois de marcar dor: grava o treino como interrompido, para a dor
   // ajustar os próximos (o exercício sai). Sem dor, sair não grava nada.
   const sair = () => {
-    if (protocoloTreinoId && Object.keys(s.dores).length && !gravado.current) {
+    if ((protocoloTreinoId || treinoId) && Object.keys(s.dores).length && !gravado.current) {
       gravado.current = true;
       void registrarSessaoAction({
         protocoloTreinoId,
+        treinoId,
         duracaoSeg: Math.round((Date.now() - s.inicio) / 1000),
         avaliacao: null,
         teveDor: true,
@@ -41,10 +42,11 @@ export function SessaoTreino({ treino, protocoloTreinoId, sequencia: seqReal }: 
 
   // Treino do protocolo concluído (chegou ao resumo): grava a sessão uma vez e anda a fila.
   useEffect(() => {
-    if (s.tela !== "resumo" || !protocoloTreinoId || gravado.current) return;
+    if (s.tela !== "resumo" || !(protocoloTreinoId || treinoId) || gravado.current) return;
     gravado.current = true;
     void registrarSessaoAction({
       protocoloTreinoId,
+      treinoId,
       duracaoSeg: Math.round(((s.fim ?? Date.now()) - s.inicio) / 1000),
       avaliacao: s.avaliacao,
       teveDor: s.teveDor,
@@ -54,7 +56,7 @@ export function SessaoTreino({ treino, protocoloTreinoId, sequencia: seqReal }: 
       if (r.ok) avisarFila();
       else aviso.mostrar("Não deu para salvar este treino. Confira sua conexão.");
     });
-  }, [s.tela, protocoloTreinoId]);
+  }, [s.tela, protocoloTreinoId, treinoId]);
 
   let tela;
   if (s.tela === "execucao") {

@@ -19,9 +19,32 @@ export function opcoesDeTroca(r: RascunhoV2, perfil: PerfilAluno, posicao: numbe
     b.exercises.forEach((x, slot) => {
       const chave = `${bi}-${x.exerciseId}`;
       if (mapa.has(chave)) return;
-      const s = substitutosPara(e.esqueleto, cat, historico, { bloco: bi, exerciseId: x.exerciseId, slot, emTreino, noBloco });
-      mapa.set(chave, s.ok ? s.substitutos.map((o) => ({ id: o.exerciseId, nome: o.nome, videoUrl: o.videoUrl || undefined })) : []);
+      const s = r.blocks.length <= e.esqueleto.blocos.length ? substitutosPara(e.esqueleto, cat, historico, { bloco: bi, exerciseId: x.exerciseId, slot, emTreino, noBloco }) : null;
+      const lista = s?.ok ? s.substitutos.map((o) => ({ id: o.exerciseId, nome: o.nome, videoUrl: o.videoUrl || undefined })) : [];
+      // Treino montado à mão (blocos fora da estrutura do motor): parecidos por músculo e padrão.
+      mapa.set(chave, lista.length ? lista : parecidos(x.exerciseId, cat, catalogo, emTreino));
     });
   });
   return mapa;
+}
+
+const jaccard = (a: readonly string[], b: readonly string[]) => {
+  if (!a.length || !b.length) return 0;
+  const sb = new Set(b);
+  const inter = a.filter((x) => sb.has(x)).length;
+  return inter / (new Set([...a, ...b]).size || 1);
+};
+
+/** Até 5 exercícios com músculos em comum, que o aluno consegue fazer e que não estão no treino. */
+export function parecidos(id: string, permitidos: readonly ItemCatalogoAluno[], catalogo: readonly ItemCatalogoAluno[], emTreino: readonly string[]): OpcaoTroca[] {
+  const orig = catalogo.find((x) => x.id === id);
+  if (!orig?.musculos.length) return [];
+  const fora = new Set(emTreino);
+  return permitidos
+    .filter((x) => !fora.has(x.id) && x.id !== id && !x.arquivado)
+    .map((x) => ({ x, p: 3 * jaccard(x.musculos, orig.musculos) + 2 * jaccard(x.padroes, orig.padroes) + (x.material === orig.material ? 0.5 : 0) + ((x.unilateral === true) === (orig.unilateral === true) ? 0.5 : 0) }))
+    .filter((c) => c.p >= 1.5)
+    .sort((a, b) => b.p - a.p || a.x.nome.localeCompare(b.x.nome, "pt-BR"))
+    .slice(0, 5)
+    .map(({ x }) => ({ id: x.id, nome: x.nome, videoUrl: x.videoUrl || undefined }));
 }

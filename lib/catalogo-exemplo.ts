@@ -10,6 +10,17 @@ export interface TreinoVitrine {
   local: "Casa" | "Academia";
   /** Regiões, aparelhos e materiais do treino (é por aqui que a busca encontra). */
   etiquetas: string[];
+  // Só nos treinos prontos de verdade (lib/dados/treinos-prontos.ts):
+  id?: string;
+  fileira?: string;
+  /** Programa (produto) a que o treino pertence, e a ordem dentro dele. */
+  programa?: string;
+  programaNome?: string;
+  ordem?: number;
+  bloqueado?: boolean;
+  feito?: boolean;
+  /** Lesão: "Lombar · fase 1". */
+  sub?: string;
 }
 
 export const TREINOS_VITRINE: TreinoVitrine[] = [

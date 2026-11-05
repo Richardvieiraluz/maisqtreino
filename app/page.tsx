@@ -4,6 +4,7 @@ import { Inicio } from "@/components/inicio/Inicio";
 import { getSessao } from "@/lib/auth";
 import { evolucaoDoAluno } from "@/lib/dados/evolucao";
 import { lerVitrine } from "@/lib/dados/master-conteudo";
+import { vitrineDoAluno } from "@/lib/dados/treinos-prontos";
 import { supabaseConfigurado } from "@/lib/supabase/env";
 import { proximoTreino } from "@/lib/dados/treinos";
 
@@ -14,14 +15,16 @@ export default async function Page({ searchParams }: { searchParams: Promise<Rec
   // Aluno sem nenhuma compra vigente nem histórico de assinatura: vai para a oferta.
   if (sessao?.papel === "aluno" && sessao.estado === "sem_acesso") redirect("/oferta");
   const aluno = sessao?.papel === "aluno";
-  const [proximo, evolucao, vitrine] = await Promise.all([
+  const ligado = supabaseConfigurado();
+  const [proximo, evolucao, vitrine, prontos] = await Promise.all([
     aluno ? proximoTreino(sessao.id) : undefined,
     aluno ? evolucaoDoAluno(sessao.id) : undefined,
-    supabaseConfigurado() ? lerVitrine() : null,
+    ligado ? lerVitrine() : null,
+    ligado && sessao ? vitrineDoAluno(sessao) : undefined,
   ]);
   return (
     <Suspense>
-      <Inicio proximo={proximo} sequencia={evolucao?.sequencia} vitrine={vitrine} />
+      <Inicio proximo={proximo} sequencia={evolucao?.sequencia} vitrine={vitrine} prontos={prontos} />
     </Suspense>
   );
 }

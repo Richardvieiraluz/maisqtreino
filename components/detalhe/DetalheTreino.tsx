@@ -31,8 +31,10 @@ export function DetalheTreino({ id, real }: { id: string; real?: DetalheReal | n
   const n = ehPrograma ? 0 : parseInt(id.replace("protocolo-", ""), 10);
   const tipo = tipoDoTreino(n || 1);
   const dados = ehPrograma ? PROGRAMA_GLUTEO.proximo : TREINOS_TIPO[tipo];
-  const bloqueado = pausada || (!ehPrograma && demo.estado === "programa" && n > (real ? real.diasSemana : 4));
-  const sobretitulo = ehPrograma
+  const bloqueado = real?.bloqueado ?? (pausada || (!ehPrograma && demo.estado === "programa" && n > (real ? real.diasSemana : 4)));
+  const sobretitulo = real?.sobretitulo
+    ? real.sobretitulo
+    : ehPrograma
     ? `PROGRAMA GLÚTEO · TREINO ${doisDigitos(PROGRAMA_GLUTEO.feitos + 1)} DE ${PROGRAMA_GLUTEO.total}`
     : `PROTOCOLO · TREINO ${doisDigitos(n)} DE ${real ? real.total : 24}`;
   const local = real ? real.local : (respostas?.local ?? RESPOSTAS_PADRAO.local);
@@ -49,6 +51,7 @@ export function DetalheTreino({ id, real }: { id: string; real?: DetalheReal | n
 
   const comecar = () => {
     if (bloqueado) return abrirOferta();
+    if (real?.execucao) return router.push(real.execucao);
     if (real) return pronto ? router.push(`/treino/protocolo-${doisDigitos(n)}`) : aviso.mostrar(MSG_NAO_PRONTO[real.situacao] ?? "Este treino ainda não está pronto.");
     // Só o treino de exemplo tem execução montada. Os outros entram com o catálogo real.
     if (!ehPrograma && tipo === "A") return router.push(`/treino/${TREINO_HOJE.id}${demo.qs}`);

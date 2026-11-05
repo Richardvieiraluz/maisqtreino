@@ -121,6 +121,17 @@ descanso do plano: 7 / dias por semana). LGPD em `lib/acoes/lgpd.ts`: baixar dad
 (pausa a geração) e excluir conta (apaga o usuário; o resto cai em cascata). Testes sem banco:
 `npx tsx scripts/teste-para-sessao.mts`, `scripts/teste-evolucao.mts`, `scripts/teste-explicacoes.mts`.
 
+## Treinos prontos (vitrine)
+
+Tabela `treinos` (sem migration nova). Master > Conteúdo > Treinos prontos (`/master/treinos`, editor em
+`/master/treinos/[id]`, `components/master/TreinosProntos.tsx`): montar na mão (busca no catálogo) ou com
+rascunho da IA (mesmo motor, perfil vindo do formulário), trocar, ordenar, publicar. Ids `tp-...`
+(`lib/treinos-prontos.ts`: tipos, limpeza do conteúdo, cadeado, fileira). Conteúdo no formato do treino
+gerado + `base`. Leitura em `lib/dados/treinos-prontos.ts`; ações em `lib/acoes/treinos-prontos.ts`.
+Com o banco ligado, Início, Ver tudo e Busca mostram só treinos publicados (fileira vazia some); o exemplo
+fica para a demonstração. Detalhe e execução aceitam `tp-...`; a sessão grava `treino_id`.
+Teste: `npx tsx scripts/teste-treinos-prontos.mts`.
+
 ## Estados do aluno
 
 `assinante` (tudo liberado), `programa` (programa comprado + 1ª semana do protocolo; resto com cadeado),
@@ -129,4 +140,4 @@ descanso do plano: 7 / dias por semana). LGPD em `lib/acoes/lgpd.ts`: baixar dad
 ## Próximas etapas
 
 Links de checkout na Oferta, SMTP próprio, produtos da Eduzz, vídeos no R2, voz guia e áudio das
-explicações (ElevenLabs), treinos prontos da vitrine (programas, rápidos, lesões).
+explicações (ElevenLabs), conteúdo dos treinos prontos (montado pelo Richard no Master).

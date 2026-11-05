@@ -3,10 +3,22 @@ import { Suspense } from "react";
 import { DetalheTreino } from "@/components/detalhe/DetalheTreino";
 import { getSessao } from "@/lib/auth";
 import { detalheDoTreino } from "@/lib/dados/treinos";
+import { detalheDoPronto } from "@/lib/dados/treinos-prontos";
+import { ehIdPronto } from "@/lib/treinos-prontos";
 import { PROGRAMA_GLUTEO } from "@/lib/plano";
 
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  // Treino pronto da vitrine (tp-...).
+  if (ehIdPronto(id)) {
+    const pronto = await detalheDoPronto(await getSessao(), id);
+    if (!pronto) notFound();
+    return (
+      <Suspense>
+        <DetalheTreino id={id} real={pronto} />
+      </Suspense>
+    );
+  }
   const m = /^protocolo-(\d{2})$/.exec(id);
   const valido = id === PROGRAMA_GLUTEO.id || (m && +m[1] >= 1);
   if (!valido) notFound();

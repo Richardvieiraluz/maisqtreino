@@ -341,6 +341,11 @@ export interface DetalheReal {
   exercicios: [string, string][];
   /** Ajustes da adaptação (volume, exercícios trocados). */
   notas: string[];
+  // Treino pronto da vitrine (lib/dados/treinos-prontos.ts):
+  sobretitulo?: string;
+  /** Rota da execução. */
+  execucao?: string;
+  bloqueado?: boolean;
 }
 
 const LOCAL_ROTULO: Record<string, string> = { casa: "Em casa", condominio: "Condomínio", academia: "Academia" };

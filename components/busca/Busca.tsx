@@ -17,6 +17,8 @@ export function useAbrirTreinoVitrine() {
   const router = useRouter();
   const aviso = useAvisoRapido();
   const abrir = (t: TreinoVitrine) => {
+    // Treino pronto de verdade: cadeado vem do servidor; abre o detalhe dele.
+    if (t.id) return t.bloqueado ? router.push(`${demo.estado === "pausada" ? "/reativar" : "/oferta"}${demo.qs}`) : router.push(`/detalhe/${t.id}${demo.qs}${demo.qs ? "&" : "?"}de=inicio`);
     if (treinoBloqueado(t.nome, demo.estado)) return router.push(`${demo.estado === "pausada" ? "/reativar" : "/oferta"}${demo.qs}`);
     if (t.nome === "Glúteo e posterior") return router.push(`/detalhe/protocolo-07${demo.qs}${demo.qs ? "&" : "?"}de=inicio`);
     aviso.mostrar(`O detalhe de "${t.nome}" entra quando o catálogo real for ligado.`);
@@ -24,7 +26,10 @@ export function useAbrirTreinoVitrine() {
   return { abrir, aviso };
 }
 
-export function Busca() {
+const travado = (t: TreinoVitrine, estado: Parameters<typeof treinoBloqueado>[1]) => t.bloqueado ?? treinoBloqueado(t.nome, estado);
+
+/** real: treinos prontos publicados (banco ligado). Sem eles, o exemplo do protótipo. */
+export function Busca({ real }: { real?: TreinoVitrine[] }) {
   const demo = useDemo();
   const router = useRouter();
   const params = useSearchParams();
@@ -34,8 +39,8 @@ export function Busca() {
   const nq = normalizar(termo);
 
   const resultados = useMemo(
-    () => (termo ? TREINOS_VITRINE.filter((t) => normalizar([t.nome, ...t.etiquetas].join(", ")).includes(nq)) : []),
-    [termo, nq],
+    () => (termo ? (real ?? TREINOS_VITRINE).filter((t) => normalizar([t.nome, ...t.etiquetas].join(", ")).includes(nq)) : []),
+    [termo, nq, real],
   );
 
   return (
@@ -89,12 +94,12 @@ export function Busca() {
               {resultados.length} {resultados.length === 1 ? "TREINO" : "TREINOS"} COM “{termo.toUpperCase()}”
             </div>
             {resultados.map((t, i) => {
-              const bloqueado = treinoBloqueado(t.nome, demo.estado);
+              const bloqueado = travado(t, demo.estado);
               const motivo = t.etiquetas.find((x) => normalizar(x).includes(nq)) ?? t.etiquetas[0];
               return (
                 <button
                   type="button"
-                  key={t.nome}
+                  key={t.id ?? t.nome}
                   onClick={() => abrir(t)}
                   style={{ width: "100%", display: "flex", gap: 12, alignItems: "center", padding: "12px 0", background: "none", border: "none", borderBottom: i === resultados.length - 1 ? "var(--border-strong)" : "1px solid var(--line)", cursor: "pointer", textAlign: "left" }}
                 >
@@ -150,17 +155,23 @@ const OPCOES: Record<Filtro, [string, string[]]> = {
 const duracaoOk = (m: number, f: string) => f === "Todos" || (f === "Até 20 min" ? m <= 20 : f === "20 a 40" ? m > 20 && m <= 40 : m > 40);
 
 /** "Ver tudo" de uma fileira: grade de 2 colunas com filtros. */
-export function VerTudo() {
+export function VerTudo({ real }: { real?: TreinoVitrine[] }) {
   const demo = useDemo();
   const router = useRouter();
   const params = useSearchParams();
-  const fileira = params.get("fileira") ?? "Treino em casa";
+  const programa = params.get("programa");
+  const minutos = Number(params.get("min")) || null;
+  const fileira = params.get("fileira") ?? (programa ? "Programas" : "Treino em casa");
+  const titulo = params.get("titulo") ?? (minutos ? `${fileira} · ${minutos} min` : fileira);
   const { abrir, aviso } = useAbrirTreinoVitrine();
   const localFixo = fileira === "Treino em casa" ? "Casa" : fileira === "Treino na academia" ? "Academia" : null;
-  const [f, setF] = useState<Record<Filtro, string>>({ nivel: "Todos", duracao: fileira === "Rápidos" ? "Até 20 min" : "Todos", local: "Todos" });
+  const [f, setF] = useState<Record<Filtro, string>>({ nivel: "Todos", duracao: fileira === "Rápidos" && !real ? "Até 20 min" : "Todos", local: "Todos" });
   const filtros = (Object.keys(OPCOES) as Filtro[]).filter((k) => !(k === "local" && localFixo));
 
-  const grade = TREINOS_VITRINE.filter(
+  const base = real
+    ? real.filter((t) => (programa ? t.programa === programa : t.fileira === fileira) && (!minutos || t.minutos === minutos)).sort((a, b) => (a.ordem ?? 0) - (b.ordem ?? 0) || a.nome.localeCompare(b.nome, "pt-BR"))
+    : TREINOS_VITRINE;
+  const grade = base.filter(
     (t) => (!localFixo || t.local === localFixo) && (f.nivel === "Todos" || t.nivel === f.nivel) && duracaoOk(t.minutos, f.duracao) && (localFixo || f.local === "Todos" || t.local === f.local),
   );
 
@@ -172,7 +183,7 @@ export function VerTudo() {
         <span style={{ fontSize: 13, fontWeight: 700, letterSpacing: ".06em", color: "var(--ink-2)" }}>{grade.length} TREINOS</span>
       </div>
       <h1 className="titulo-tela" style={{ padding: "0 20px", margin: "0 0 14px" }}>
-        {fileira}
+        {titulo}
       </h1>
       <div style={{ flex: "none", display: "flex", flexDirection: "column", gap: 6, paddingBottom: 12, borderBottom: "1px solid #111" }}>
         {filtros.map((k) => (
@@ -195,10 +206,10 @@ export function VerTudo() {
       <div className="rolagem" style={{ padding: "16px 20px 24px" }}>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "20px 8px" }}>
           {grade.map((t) => {
-            const bloqueado = treinoBloqueado(t.nome, demo.estado);
+            const bloqueado = travado(t, demo.estado);
             const chave = `${t.nome} ${t.etiquetas.join(" ")}`;
             return (
-              <button type="button" key={t.nome} onClick={() => abrir(t)} style={{ display: "flex", flexDirection: "column", gap: 8, cursor: "pointer", background: "none", border: "none", padding: 0, textAlign: "left" }}>
+              <button type="button" key={t.id ?? t.nome} onClick={() => abrir(t)} style={{ display: "flex", flexDirection: "column", gap: 8, cursor: "pointer", background: "none", border: "none", padding: 0, textAlign: "left" }}>
                 <span className={bloqueado ? "card-treino__capa card-treino__capa--bloqueado" : "card-treino__capa"} style={{ height: 200, display: "block", width: "100%" }}>
                   {bloqueado ? (
                     <span style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -213,9 +224,10 @@ export function VerTudo() {
                   {t.nome}
                 </span>
                 <span className="card-treino__meta">
-                  <span>{t.minutos} min</span>
+                  <span>{t.sub ? `${t.sub} · ` : ""}{t.minutos} min</span>
                   <Selo pequeno>{t.nivel}</Selo>
                 </span>
+                {t.feito && !bloqueado && <span className="rotulo">FEITO</span>}
               </button>
             );
           })}

@@ -4,6 +4,7 @@ import { getSessao } from "../auth";
 import type { RespostasQuiz } from "../quiz";
 import { prepararProtocolo } from "../dados/treinos";
 import { createAdminClient } from "../supabase/admin";
+import { prontoBloqueado } from "../treinos-prontos";
 
 // Ações do aluno logado. O id vem sempre da sessão, nunca do navegador.
 
@@ -72,7 +73,10 @@ function limparTrocas(bruto: unknown) {
 }
 
 export async function registrarSessaoAction(d: {
-  protocoloTreinoId: string;
+  /** Treino do protocolo do aluno, ou... */
+  protocoloTreinoId?: string;
+  /** ...treino pronto da vitrine (publicado e liberado para o aluno). */
+  treinoId?: string;
   duracaoSeg: number;
   avaliacao: string | null;
   teveDor: boolean;
@@ -84,21 +88,29 @@ export async function registrarSessaoAction(d: {
   const sessao = await getSessao();
   if (!sessao) return { ok: false, error: "sem sessão" };
   const db = createAdminClient();
-  const id = String(d.protocoloTreinoId ?? "").slice(0, 64);
-  const { data: t } = await db.from("protocolo_treinos").select("id, status, protocolos!inner(aluno_id, ativo)").eq("id", id).maybeSingle();
-  const dono = t?.protocolos as unknown as { aluno_id: string; ativo: boolean } | undefined;
-  if (!t || t.status !== "pronto" || dono?.aluno_id !== sessao.id) return { ok: false, error: "treino não encontrado" };
+  const pronto = d.treinoId ? String(d.treinoId).slice(0, 40) : null;
+  const id = pronto ? "" : String(d.protocoloTreinoId ?? "").slice(0, 64);
+  const coluna = pronto ? "treino_id" : "protocolo_treino_id";
+  if (pronto) {
+    const { data: tp } = await db.from("treinos").select("id, tipo, produto_id, publicado").eq("id", pronto).maybeSingle();
+    if (!tp || (!tp.publicado && sessao.papel !== "master") || (sessao.papel !== "master" && prontoBloqueado({ tipo: tp.tipo, produtoId: tp.produto_id }, sessao.estado, sessao.programas))) return { ok: false, error: "treino não encontrado" };
+  } else {
+    const { data: t } = await db.from("protocolo_treinos").select("id, status, protocolos!inner(aluno_id, ativo)").eq("id", id).maybeSingle();
+    const dono = t?.protocolos as unknown as { aluno_id: string; ativo: boolean } | undefined;
+    if (!t || t.status !== "pronto" || dono?.aluno_id !== sessao.id) return { ok: false, error: "treino não encontrado" };
+  }
   // Mesmo treino concluído duas vezes (voltou e terminou de novo) conta uma vez só no dia.
   const hoje = new Date(Date.now() - 3 * 3600_000).toISOString().slice(0, 10);
   const interrompida = d.interrompida === true;
-  const { data: ja } = interrompida ? { data: null } : await db.from("sessoes").select("id").eq("aluno_id", sessao.id).eq("protocolo_treino_id", id).gte("concluida_em", `${hoje}T03:00:00Z`).limit(1);
+  const { data: ja } = interrompida ? { data: null } : await db.from("sessoes").select("id").eq("aluno_id", sessao.id).eq(coluna, pronto ?? id).gte("concluida_em", `${hoje}T03:00:00Z`).limit(1);
   if (ja?.length) return { ok: true };
   const duracao = Math.max(0, Math.min(6 * 3600, Math.round(Number(d.duracaoSeg) || 0)));
   const avaliacao = ["facil", "ideal", "dificil"].includes(String(d.avaliacao)) ? d.avaliacao : null;
   const agora = new Date();
   const { data: nova, error } = await db.from("sessoes").insert({
     aluno_id: sessao.id,
-    protocolo_treino_id: id,
+    protocolo_treino_id: pronto ? null : id,
+    treino_id: pronto,
     iniciada_em: new Date(agora.getTime() - duracao * 1000).toISOString(),
     concluida_em: interrompida ? null : agora.toISOString(),
     duracao_seg: duracao,
