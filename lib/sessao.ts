@@ -42,6 +42,8 @@ export interface EstadoSessao {
   avaliacao: Avaliacao | null;
   trocas: Record<number, Troca>;
   teveDor: boolean;
+  /** Dor relatada por passo (vale para o exercício: sai dos próximos treinos). */
+  dores: Record<number, "leve" | "forte">;
   inicio: number;
   fim: number | null;
 }
@@ -146,7 +148,11 @@ function reduzir(treino: TreinoSessao) {
       case "alternarTimer":
         return s.timer ? { ...s, timer: { ...s.timer, rodando: !s.timer.rodando } } : s;
       case "folha":
-        return { ...s, folha: a.folha, teveDor: s.teveDor || a.folha === "dorLeve" || a.folha === "dorForte" };
+        if (a.folha === "dorLeve" || a.folha === "dorForte") {
+          const nivel = a.folha === "dorForte" ? "forte" : "leve";
+          return { ...s, folha: a.folha, teveDor: true, dores: { ...s.dores, [s.ex]: s.dores[s.ex] === "forte" ? "forte" : nivel } };
+        }
+        return { ...s, folha: a.folha };
       case "trocar": {
         // No circuito o mesmo exercício aparece em cada rodada: troca em todas as que faltam.
         const atual = treino.exercicios[s.ex];
@@ -193,6 +199,7 @@ export function useSessao(treino: TreinoSessao) {
     avaliacao: null,
     trocas: {},
     teveDor: false,
+    dores: {},
     inicio: Date.now(),
     fim: null,
   }));
@@ -232,7 +239,7 @@ export function resumoSeries(e: ExercicioSessao) {
 
 /** Séries feitas, no formato de sessoes.series (treino gerado: com o id do exercício). */
 export function seriesFeitas(treino: TreinoSessao, s: EstadoSessao) {
-  const lista: { exercicioId: string; nome: string; serie: number; reps?: number; segundos?: number; carga?: number }[] = [];
+  const lista: { exercicioId: string; nome: string; serie: number; reps?: number; segundos?: number; carga?: number; dor?: "leve" | "forte" }[] = [];
   treino.exercicios.forEach((e, i) => {
     const t = s.trocas[i];
     const id = t ? t.id : e.exercicioId;
@@ -249,6 +256,16 @@ export function seriesFeitas(treino: TreinoSessao, s: EstadoSessao) {
       });
     }
   });
+  // Dor: um registro por exercício (serie 0), no exercício que estava na tela.
+  const comDor = new Set<string>();
+  for (const [k, nivel] of Object.entries(s.dores)) {
+    const e = treino.exercicios[+k];
+    const t = s.trocas[+k];
+    const id = t?.id ?? e?.exercicioId;
+    if (!e || !id || comDor.has(id)) continue;
+    comDor.add(id);
+    lista.push({ exercicioId: id, nome: t?.nome ?? e.nome, serie: 0, dor: nivel });
+  }
   return lista;
 }
 

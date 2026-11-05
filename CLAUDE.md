@@ -115,7 +115,8 @@ Meu plano, Detalhe, execução, Evolução e sequência leem o banco quando há 
 continuam com o exemplo. Execução: carga anotada por série (`comCarga` em exercícios com halter, barra,
 máquina...), última e melhor carga lidas de `sessoes.series` (`cargasDoAluno`), troca de exercício com os
 substitutos da v2 (`lib/ia-treino/trocas-aluno.ts`) gravada em `trocas_exercicio`, explicação aprovada
-mostrada em texto. Evolução: contas puras em `lib/evolucao-calculos.ts` (sequência não quebra dentro do
+mostrada em texto. Adaptação (`lib/ia-treino/adaptacao.ts`, regras em `docs/ia-treino.md`): avaliação,
+dor por exercício (registro `serie: 0, dor` em `sessoes.series`), trocas e carga ajustam os próximos treinos. Evolução: contas puras em `lib/evolucao-calculos.ts` (sequência não quebra dentro do
 descanso do plano: 7 / dias por semana). LGPD em `lib/acoes/lgpd.ts`: baixar dados, revogar dados de saúde
 (pausa a geração) e excluir conta (apaga o usuário; o resto cai em cascata). Testes sem banco:
 `npx tsx scripts/teste-para-sessao.mts`, `scripts/teste-evolucao.mts`, `scripts/teste-explicacoes.mts`.

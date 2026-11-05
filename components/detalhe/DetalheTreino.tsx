@@ -95,6 +95,15 @@ export function DetalheTreino({ id, real }: { id: string; real?: DetalheReal | n
           {linha("Local", local, !pronto)}
           {pronto && linha("Equipamentos", real ? real.equipamentos : dados.equipamentos, true)}
 
+          {pronto && !!real?.notas.length && (
+            <div className="ajuste" style={{ marginTop: 20, display: "flex", flexDirection: "column", gap: 6 }}>
+              <b>Ajustado para você.</b>
+              {real.notas.map((n) => (
+                <span key={n}>{n}</span>
+              ))}
+            </div>
+          )}
+
           {!pronto && real && (
             <div className="ajuste" style={{ marginTop: 20 }}>
               <b>Ainda não está pronto.</b> {MSG_NAO_PRONTO[real.situacao]}

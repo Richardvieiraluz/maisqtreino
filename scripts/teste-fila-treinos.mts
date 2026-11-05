@@ -56,3 +56,16 @@ ok((await gerarProximo(p1.id, { chamarModelo: modeloFalso })).situacao === "nada
 // mudou equipamento: protocolo novo
 const p2 = await prepararProtocolo(aluno, "q3", { ...quiz, equipamentos: ["Halter"] });
 ok(p2.novo && t.protocolos.filter((x) => x.ativo !== false).length === 1 && t.protocolos.find((x) => x.id === p1.id).ativo === false, "equipamento mudou: protocolo novo, o antigo fica inativo");
+
+// dor marcada num exercício: ele fica fora do próximo treino gerado
+{
+  await gerarProximo(p2.id, { chamarModelo: modeloFalso });
+  const feito = t.protocolo_treinos.find((x) => x.protocolo_id === p2.id && x.status === "pronto")!;
+  const doido = feito.conteudo.blocks[1].exercises[0];
+  (t as any).sessoes ??= [];
+  (t as any).sessoes.push({ id: "s-dor", aluno_id: aluno, protocolo_treino_id: feito.id, iniciada_em: new Date().toISOString(), concluida_em: null, avaliacao: null, series: [{ exercicioId: doido.exerciseId, nome: doido.exerciseName, serie: 0, dor: "forte" }] });
+  await gerarProximo(p2.id, { chamarModelo: modeloFalso });
+  const seguinte = t.protocolo_treinos.filter((x) => x.protocolo_id === p2.id && x.status === "pronto").sort((a: any, b: any) => b.posicao - a.posicao)[0];
+  const ids = seguinte.conteudo.blocks.flatMap((b: any) => b.exercises.map((e: any) => e.exerciseId));
+  ok(seguinte.id !== feito.id && !ids.includes(doido.exerciseId), `dor forte em ${doido.exerciseName}: fora do treino seguinte`);
+}

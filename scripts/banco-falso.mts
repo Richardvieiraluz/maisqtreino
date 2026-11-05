@@ -26,6 +26,8 @@ export function bancoFalso(tabelas: Record<string, Linha[]> = {}) {
     const b: any = {
       select: () => { if (op !== "select") retorna = true; return b; },
       eq: (c: string, v: any) => (filtros.push((l) => l[c] === v), b),
+      gte: (c: string, v: any) => (filtros.push((l) => l[c] != null && l[c] >= v), b),
+      lt: (c: string, v: any) => (filtros.push((l) => l[c] != null && l[c] < v), b),
       in: (c: string, vs: any[]) => (filtros.push((l) => vs.includes(l[c])), b),
       not: (c: string, _op: string, _v: any) => (filtros.push((l) => l[c] !== null && l[c] !== undefined), b),
       is: (c: string, _v: any) => (filtros.push((l) => l[c] === null || l[c] === undefined), b),

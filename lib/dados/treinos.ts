@@ -3,7 +3,8 @@ import { perfilDoQuiz, type PerfilAluno } from "../ia-treino/aluno";
 import { itemDoCatalogo, type LinhaExercicio } from "../ia-treino/catalogo";
 import { esqueletoDoAluno, gerarTreinoDoAluno, historicoDe, type ChamarModelo, type ItemCatalogoAluno, type TreinoGerado } from "../ia-treino/gerar-aluno";
 import { chamarModeloReal } from "../ia-treino/modelo";
-import { exerciciosDistintos, paraTreinoSessao, type CargaHistorico, type InfoExercicio } from "../ia-treino/para-sessao";
+import { adaptarTreino, calcularAdaptacao, type Adaptacao, type ItemSerie, type SessaoHistorico } from "../ia-treino/adaptacao";
+import { exerciciosDistintos, paraTreinoSessao, type InfoExercicio } from "../ia-treino/para-sessao";
 import { opcoesDeTroca } from "../ia-treino/trocas-aluno";
 import type { RespostasQuiz } from "../quiz";
 import type { TreinoSessao } from "../tipos";
@@ -128,7 +129,7 @@ export type ResultadoFila =
 /** Gera o PRÓXIMO treino da fila (o de menor posição, com todos os anteriores prontos). */
 export async function gerarProximo(protocoloId: string, opcoes: { chamarModelo?: ChamarModelo } = {}): Promise<ResultadoFila> {
   const db = createAdminClient();
-  const { data: p } = await db.from("protocolos").select("id, perfil").eq("id", protocoloId).maybeSingle();
+  const { data: p } = await db.from("protocolos").select("id, perfil, aluno_id").eq("id", protocoloId).maybeSingle();
   if (!p?.perfil) return { situacao: "nada" };
   const { data: linhas } = await db
     .from("protocolo_treinos")
@@ -153,10 +154,20 @@ export async function gerarProximo(protocoloId: string, opcoes: { chamarModelo?:
   if (!reservado?.length) return { situacao: "ocupado" };
 
   const anteriores = treinos.filter((t) => t.posicao < alvo.posicao && t.conteudo).map((t) => idsDoConteudo(t.conteudo as Conteudo));
-  const r = await gerarTreinoDoAluno(
-    { perfil: p.perfil as PerfilAluno, posicao: alvo.posicao, catalogo: await carregarCatalogoIA(), historico: { ...historicoDe(anteriores), treinosAnteriores: anteriores }, protocoloId },
-    { chamarModelo: opcoes.chamarModelo ?? chamarModeloReal },
-  );
+  // Exercícios que o aluno marcou com dor ou trocou várias vezes ficam fora deste treino.
+  const catalogo = await carregarCatalogoIA();
+  const { evitar } = await adaptacaoDoAluno(p.aluno_id);
+  const gerar = (lista: readonly ItemCatalogoAluno[]) =>
+    gerarTreinoDoAluno(
+      { perfil: p.perfil as PerfilAluno, posicao: alvo.posicao, catalogo: lista, historico: { ...historicoDe(anteriores), treinosAnteriores: anteriores }, protocoloId },
+      { chamarModelo: opcoes.chamarModelo ?? chamarModeloReal },
+    );
+  let r = await gerar(evitar.size ? catalogo.filter((x) => !evitar.has(x.id)) : catalogo);
+  // Sem eles o estoque não fecha o treino (antes de chamar a IA): monta com o catálogo inteiro.
+  if (!r.ok && evitar.size && /^(sem exercícios|estrutura|estoque)/.test(r.error)) {
+    r = await gerar(catalogo);
+    r.diagnostico.avisos.unshift("exercícios a evitar mantidos: sem eles o estoque não fechava o treino");
+  } else if (evitar.size) r.diagnostico.avisos.unshift(`fora deste treino (dor ou trocas): ${evitar.size} exercício(s)`);
   if (r.ok) {
     const { error } = await db
       .from("protocolo_treinos")
@@ -172,38 +183,43 @@ export async function gerarProximo(protocoloId: string, opcoes: { chamarModelo?:
 }
 
 /** Treino pronto do protocolo ativo, já no formato da tela de execução. */
-/** Última e melhor carga (kg) de cada exercício, lidas das séries das sessões do aluno. */
-export async function cargasDoAluno(alunoId: string): Promise<Map<string, CargaHistorico>> {
-  const { data } = await createAdminClient().from("sessoes").select("series").eq("aluno_id", alunoId).not("concluida_em", "is", null).order("concluida_em", { ascending: false }).limit(120);
-  const mapa = new Map<string, CargaHistorico>();
-  const vistosNaSessao = new Set<string>();
-  for (const linha of data ?? []) {
-    const series = Array.isArray(linha.series) ? (linha.series as SerieFeita[]) : [];
-    vistosNaSessao.clear();
-    for (const s of series) {
-      if (!s?.exercicioId || !(typeof s.carga === "number" && s.carga > 0)) continue;
-      const atual = mapa.get(s.exercicioId);
-      if (!atual) {
-        mapa.set(s.exercicioId, { ultima: s.carga, melhor: s.carga });
-        vistosNaSessao.add(s.exercicioId);
-      } else {
-        // A mais recente é a maior carga daquela sessão; a melhor é de todas.
-        if (vistosNaSessao.has(s.exercicioId)) atual.ultima = Math.max(atual.ultima, s.carga);
-        atual.melhor = Math.max(atual.melhor, s.carga);
-      }
-    }
-  }
-  return mapa;
+/** Histórico do aluno para adaptar os próximos treinos (carga, volume, dor e trocas). */
+export async function adaptacaoDoAluno(alunoId: string): Promise<Adaptacao> {
+  const db = createAdminClient();
+  const desde = new Date(Date.now() - 90 * 86_400_000).toISOString();
+  const [{ data: sessoes }, { data: trocas }] = await Promise.all([
+    db.from("sessoes").select("iniciada_em, concluida_em, avaliacao, series").eq("aluno_id", alunoId).order("iniciada_em", { ascending: false }).limit(120),
+    db.from("trocas_exercicio").select("exercicio_de, criado_em").eq("aluno_id", alunoId).gte("criado_em", desde),
+  ]);
+  return calcularAdaptacao(
+    (sessoes ?? []).map((x) => ({
+      em: (x.concluida_em ?? x.iniciada_em) as string,
+      concluida: !!x.concluida_em,
+      avaliacao: (x.avaliacao ?? null) as SessaoHistorico["avaliacao"],
+      series: (Array.isArray(x.series) ? x.series : []).filter((i): i is ItemSerie => !!i && typeof i === "object" && typeof (i as ItemSerie).exercicioId === "string"),
+    })),
+    (trocas ?? []).map((t) => ({ de: t.exercicio_de as string, em: t.criado_em as string })),
+    Date.now(),
+  );
 }
 
-/** Uma série feita, como fica em sessoes.series. */
-export interface SerieFeita {
-  exercicioId: string;
-  nome: string;
-  serie: number;
-  reps?: number;
-  segundos?: number;
-  carga?: number;
+/** Uma série feita (ou um registro de dor, com serie 0), como fica em sessoes.series. */
+export type SerieFeita = ItemSerie;
+
+/** Treino gerado + adaptação do aluno (troca o que deve evitar, ajusta o volume). */
+async function treinoAdaptado(alunoId: string, conteudo: Conteudo, perfil: PerfilAluno, posicao: number) {
+  const [catalogo, adaptacao] = await Promise.all([carregarCatalogoIA(), adaptacaoDoAluno(alunoId)]);
+  const opcoesDe = (r: Conteudo) => {
+    try {
+      return opcoesDeTroca(r, perfil, posicao, catalogo);
+    } catch (e) {
+      console.error("[troca] substitutos falharam", e instanceof Error ? e.message : "erro");
+      return new Map<string, { id: string; nome: string; videoUrl?: string }[]>();
+    }
+  };
+  const precisa = adaptacao.menosVolume || conteudo.blocks.some((b) => b.exercises.some((x) => adaptacao.evitar.has(x.exerciseId)));
+  const { rascunho, notas } = precisa ? adaptarTreino(conteudo, adaptacao, opcoesDe(conteudo)) : { rascunho: conteudo, notas: [] as string[] };
+  return { catalogo, adaptacao, rascunho, notas, opcoes: opcoesDe(rascunho) };
 }
 
 export async function treinoParaSessao(alunoId: string, posicao: number): Promise<{ treino: TreinoSessao; protocoloTreinoId: string } | null> {
@@ -212,22 +228,12 @@ export async function treinoParaSessao(alunoId: string, posicao: number): Promis
   if (!p) return null;
   const { data: t } = await db.from("protocolo_treinos").select("id, posicao, titulo, duracao_min, conteudo, status").eq("protocolo_id", p.id).eq("posicao", posicao).maybeSingle();
   if (!t || t.status !== "pronto" || !t.conteudo) return null;
-  const catalogo = await carregarCatalogoIA();
+  const { catalogo, adaptacao, rascunho, notas, opcoes } = await treinoAdaptado(alunoId, t.conteudo as Conteudo, p.perfil as PerfilAluno, posicao);
   const info = new Map<string, InfoExercicio>(catalogo.map((x) => [x.id, { musculos: x.musculos, grupoMuscular: x.muscularGroup, equipamentos: x.equipamentos }]));
-  let opcoes = new Map<string, { id: string; nome: string; videoUrl?: string }[]>();
-  try {
-    opcoes = opcoesDeTroca(t.conteudo as Conteudo, p.perfil as PerfilAluno, posicao, catalogo);
-  } catch (e) {
-    console.error("[troca] substitutos falharam", e instanceof Error ? e.message : "erro");
-  }
-  const ids = idsDoConteudo(t.conteudo as Conteudo);
-  const [cargas, { data: exp }] = await Promise.all([
-    cargasDoAluno(alunoId),
-    db.from("explicacoes").select("exercicio_id, posicao_inicial, movimento, cuidado").in("exercicio_id", ids).in("status", ["aprovado", "com_audio"]),
-  ]);
+  const { data: exp } = await db.from("explicacoes").select("exercicio_id, posicao_inicial, movimento, cuidado").in("exercicio_id", idsDoConteudo(rascunho)).in("status", ["aprovado", "com_audio"]);
   const explicacoes = new Map((exp ?? []).map((x) => [x.exercicio_id as string, { posicao: x.posicao_inicial as string, movimento: x.movimento as string, cuidado: x.cuidado as string }]));
-  const treino = paraTreinoSessao(t.conteudo as Conteudo, {
-    cargas,
+  const treino = paraTreinoSessao(rascunho, {
+    cargas: adaptacao.cargas,
     explicacoes,
     opcoes,
     id: `protocolo-${String(posicao).padStart(2, "0")}`,
@@ -239,7 +245,7 @@ export async function treinoParaSessao(alunoId: string, posicao: number): Promis
     local: p.local,
     info,
   });
-  return { treino, protocoloTreinoId: t.id };
+  return { treino: { ...treino, notas }, protocoloTreinoId: t.id };
 }
 
 export type Proximo =
@@ -333,6 +339,8 @@ export interface DetalheReal {
   musculos: string;
   video: string | null;
   exercicios: [string, string][];
+  /** Ajustes da adaptação (volume, exercícios trocados). */
+  notas: string[];
 }
 
 const LOCAL_ROTULO: Record<string, string> = { casa: "Em casa", condominio: "Condomínio", academia: "Academia" };
@@ -370,12 +378,15 @@ export async function detalheDoTreino(alunoId: string, posicao: number): Promise
     diasSemana: p.perfil.diasSemana ?? 3,
   };
   const t = p.treinos.find((x) => x.posicao === posicao);
-  if (!t || t.status !== "pronto") return { ...base, titulo: t?.titulo ?? null, equipamentos: "", musculos: "", video: null, exercicios: [] };
+  if (!t || t.status !== "pronto") return { ...base, titulo: t?.titulo ?? null, equipamentos: "", musculos: "", video: null, exercicios: [], notas: [] };
 
   const { data } = await db.from("protocolo_treinos").select("conteudo, duracao_min").eq("id", t.id).maybeSingle();
-  const c = data?.conteudo as Conteudo | undefined;
-  if (!c) return { ...base, titulo: t.titulo, equipamentos: "", musculos: "", video: null, exercicios: [] };
-  const catalogo = await carregarCatalogoIA();
+  const original = data?.conteudo as Conteudo | undefined;
+  if (!original) return { ...base, titulo: t.titulo, equipamentos: "", musculos: "", video: null, exercicios: [], notas: [] };
+  // Treino já feito mostra como foi montado; os próximos já com a adaptação do aluno.
+  const adaptado = situacao === "feito" ? null : await treinoAdaptado(alunoId, original, p.perfil, posicao);
+  const c = adaptado?.rascunho ?? original;
+  const catalogo = adaptado?.catalogo ?? (await carregarCatalogoIA());
   const porId = new Map(catalogo.map((x) => [x.id, x]));
   const equip = new Set<string>();
   const musc = new Map<string, number>();
@@ -397,5 +408,6 @@ export async function detalheDoTreino(alunoId: string, posicao: number): Promise
     musculos: [...musc.entries()].sort((a, b) => b[1] - a[1]).slice(0, 4).map(([m]) => PALAVRA_BONECO[m] ?? m).join(" "),
     video: primeiro?.videoUrl ?? null,
     exercicios,
+    notas: adaptado?.notas ?? [],
   };
 }

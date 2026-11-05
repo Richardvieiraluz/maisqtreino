@@ -280,7 +280,9 @@ export function Execucao({
               })}
               {comCarga && (
                 <p className="texto-apoio" style={{ marginTop: 10 }}>
-                  {e.cargaAnterior != null
+                  {e.cargaMotivo && !troca
+                    ? e.cargaMotivo
+                    : e.cargaAnterior != null
                     ? "A carga da última vez já vem preenchida. Registrar ajuda a acompanhar sua evolução."
                     : "Anote a carga que usar em cada série. Na próxima vez ela já vem preenchida."}
                 </p>

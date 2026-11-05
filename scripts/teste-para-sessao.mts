@@ -54,7 +54,7 @@ for (const [nome, quiz] of [
   ok(t.exercicios[0].cargaAnterior === 20 && t.exercicios[0].melhorCarga === 25, "carga anterior e melhor carga vêm do histórico");
   const i = t.exercicios.findIndex((x) => x.modo === "reps" && (x.opcoes?.length ?? 0) > 0);
   const op = t.exercicios[i].opcoes![0];
-  const s: any = { feitos: { [`${i}-0`]: true }, cargas: { [`${i}-0`]: "22,5" }, trocas: { [i]: { nome: op.nome, id: op.id, motivo: "dificil" } } };
+  const s: any = { feitos: { [`${i}-0`]: true }, cargas: { [`${i}-0`]: "22,5" }, trocas: { [i]: { nome: op.nome, id: op.id, motivo: "dificil" } }, dores: {} };
   const series = seriesFeitas(t, s);
   ok(series.length === 1 && series[0].exercicioId === op.id && series[0].carga === 22.5, "série feita grava o exercício trocado e a carga com vírgula");
   const trocas = trocasFeitas(t, s);

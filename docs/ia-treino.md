@@ -53,6 +53,24 @@ como exercícios principais. Em casa só com halter havia 22 exercícios de infe
 encurta (6, 4, 3, 2, 1, 0) e a lista de candidatos sobe de 40 para 80. Nos treinos 19 a 24, se a
 preparação do nível seguinte não fecha, o treino sai no nível atual (anotado no diagnóstico).
 
+## Adaptação pelo que o aluno faz (padrões a confirmar)
+
+Em `lib/ia-treino/adaptacao.ts` (puro). Vale para os treinos ainda não feitos, inclusive os já
+montados: ao abrir o treino, a troca e o ajuste de volume são aplicados sem chamar a IA de novo.
+
+1. **Carga**: último treino com carga anotada avaliado "fácil", todas as séries feitas e sem dor no
+   exercício: a carga preenchida sobe 5% (mínimo 1 kg, de 0,5 em 0,5). "Ideal", "difícil" ou dor:
+   repete a carga. Nunca desce sozinha.
+2. **Volume**: os 2 últimos treinos concluídos avaliados "difícil": 1 série a menos em cada exercício
+   (nunca abaixo de 2), menos no aquecimento. Volta ao normal com um treino que não seja difícil.
+3. **Dor**: exercício marcado com dor sai dos próximos treinos por 14 dias (leve) ou 30 dias (forte).
+   Nos treinos já montados entra o substituto mais parecido. Sair do treino depois de marcar dor
+   grava o treino como interrompido (não conta como feito).
+4. **Trocas**: exercício trocado 2 vezes ou mais em 60 dias sai dos próximos treinos do mesmo jeito.
+
+Se tirar esses exercícios deixa o estoque sem treino possível, o treino é montado com o catálogo
+inteiro (fica anotado no diagnóstico). Teste: `npx tsx scripts/teste-adaptacao.mts`.
+
 ## Testes (sem banco e sem chave)
 
 - `npm run simular`: 24 treinos para 10 perfis com o catálogo real e um modelo falso.

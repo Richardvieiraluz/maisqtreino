@@ -42,6 +42,8 @@ export interface ExercicioSessao {
   rodada?: string;
   /** Id do exercício no catálogo (o mesmo do +Q Pilates). */
   exercicioId?: string;
+  /** Por que a carga preenchida mudou ("Subiu de 10 para 11 kg: o último treino foi fácil."). */
+  cargaMotivo?: string;
   /** Treino gerado: exercício com carga (halter, barra, máquina...), mesmo sem histórico. */
   comCarga?: boolean;
   /** Explicação aprovada pelo Master (Master > Explicações). */
@@ -60,6 +62,8 @@ export interface TreinoSessao {
   nivel: Nivel;
   posicaoProtocolo: number;
   totalProtocolo: number;
+  /** Ajustes feitos pela adaptação (volume, exercícios trocados por dor ou trocas repetidas). */
+  notas?: string[];
   exercicios: ExercicioSessao[];
 }
 

@@ -24,6 +24,9 @@ export const temCarga = (info?: InfoExercicio) => (info?.equipamentos ?? []).som
 export interface CargaHistorico {
   ultima: number;
   melhor: number;
+  /** Carga que vem preenchida (lib/ia-treino/adaptacao.ts). Sem ela, a última. */
+  sugerida?: number;
+  motivo?: string;
 }
 const NIVEL: Record<string, Nivel> = { N0: "Iniciante", N1: "Iniciante", N2: "Intermediário", N3: "Avançado" };
 const LOCAL: Record<string, string> = { casa: "Em casa", condominio: "Condomínio", academia: "Academia" };
@@ -71,7 +74,8 @@ export function paraTreinoSessao(
       return {
         nome: x.exerciseName,
         grupo: grupoDe(a.info.get(x.exerciseId)),
-        cargaAnterior: c ? c.ultima : null,
+        cargaAnterior: c ? (c.sugerida ?? c.ultima) : null,
+        cargaMotivo: c?.motivo,
         melhorCarga: c ? c.melhor : null,
         comCarga: temCarga(a.info.get(x.exerciseId)),
         equipamento: equipamentoDe(a.info.get(x.exerciseId)),

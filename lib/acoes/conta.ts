@@ -57,7 +57,8 @@ function limparSeries(bruto: unknown) {
     const b = x as Record<string, unknown>;
     if (typeof b.exercicioId !== "string" || !UUID.test(b.exercicioId)) return [];
     const reps = numero(b.reps, 500), segundos = numero(b.segundos, 3600), carga = numero(b.carga, 500), serie = numero(b.serie, 50);
-    return [{ exercicioId: b.exercicioId, nome: String(b.nome ?? "").slice(0, 120), serie: serie ?? 1, ...(reps !== undefined && { reps }), ...(segundos !== undefined && { segundos }), ...(carga ? { carga } : {}) }];
+    const dor = b.dor === "leve" || b.dor === "forte" ? b.dor : undefined;
+    return [{ exercicioId: b.exercicioId, nome: String(b.nome ?? "").slice(0, 120), serie: dor ? 0 : (serie ?? 1), ...(reps !== undefined && !dor && { reps }), ...(segundos !== undefined && !dor && { segundos }), ...(carga && !dor ? { carga } : {}), ...(dor && { dor }) }];
   });
 }
 
@@ -77,6 +78,8 @@ export async function registrarSessaoAction(d: {
   teveDor: boolean;
   series?: unknown;
   trocas?: unknown;
+  /** Saiu no meio (dor): grava sem concluir, para não contar como treino feito. */
+  interrompida?: boolean;
 }): Promise<{ ok: true } | { ok: false; error: string }> {
   const sessao = await getSessao();
   if (!sessao) return { ok: false, error: "sem sessão" };
@@ -87,7 +90,8 @@ export async function registrarSessaoAction(d: {
   if (!t || t.status !== "pronto" || dono?.aluno_id !== sessao.id) return { ok: false, error: "treino não encontrado" };
   // Mesmo treino concluído duas vezes (voltou e terminou de novo) conta uma vez só no dia.
   const hoje = new Date(Date.now() - 3 * 3600_000).toISOString().slice(0, 10);
-  const { data: ja } = await db.from("sessoes").select("id").eq("aluno_id", sessao.id).eq("protocolo_treino_id", id).gte("concluida_em", `${hoje}T03:00:00Z`).limit(1);
+  const interrompida = d.interrompida === true;
+  const { data: ja } = interrompida ? { data: null } : await db.from("sessoes").select("id").eq("aluno_id", sessao.id).eq("protocolo_treino_id", id).gte("concluida_em", `${hoje}T03:00:00Z`).limit(1);
   if (ja?.length) return { ok: true };
   const duracao = Math.max(0, Math.min(6 * 3600, Math.round(Number(d.duracaoSeg) || 0)));
   const avaliacao = ["facil", "ideal", "dificil"].includes(String(d.avaliacao)) ? d.avaliacao : null;
@@ -96,7 +100,7 @@ export async function registrarSessaoAction(d: {
     aluno_id: sessao.id,
     protocolo_treino_id: id,
     iniciada_em: new Date(agora.getTime() - duracao * 1000).toISOString(),
-    concluida_em: agora.toISOString(),
+    concluida_em: interrompida ? null : agora.toISOString(),
     duracao_seg: duracao,
     avaliacao,
     teve_dor: !!d.teveDor,

@@ -20,9 +20,26 @@ export function SessaoTreino({ treino, protocoloTreinoId, sequencia: seqReal }: 
   const aviso = useAvisoRapido();
   const { s, despachar, volume, exerciciosFeitos, minutos } = useSessao(treino);
   const voltarAoInicio = () => router.push(`/${demo.qs}`);
+  const gravado = useRef(false);
+  // Saiu no meio do treino depois de marcar dor: grava o treino como interrompido, para a dor
+  // ajustar os próximos (o exercício sai). Sem dor, sair não grava nada.
+  const sair = () => {
+    if (protocoloTreinoId && Object.keys(s.dores).length && !gravado.current) {
+      gravado.current = true;
+      void registrarSessaoAction({
+        protocoloTreinoId,
+        duracaoSeg: Math.round((Date.now() - s.inicio) / 1000),
+        avaliacao: null,
+        teveDor: true,
+        series: seriesFeitas(treino, s),
+        trocas: trocasFeitas(treino, s),
+        interrompida: true,
+      });
+    }
+    voltarAoInicio();
+  };
 
   // Treino do protocolo concluído (chegou ao resumo): grava a sessão uma vez e anda a fila.
-  const gravado = useRef(false);
   useEffect(() => {
     if (s.tela !== "resumo" || !protocoloTreinoId || gravado.current) return;
     gravado.current = true;
@@ -48,7 +65,7 @@ export function SessaoTreino({ treino, protocoloTreinoId, sequencia: seqReal }: 
         despachar={despachar}
         sexo={demo.sexo}
         descansoEmFaixa={demo.descanso === "faixa"}
-        onFechar={voltarAoInicio}
+        onFechar={sair}
       />
     );
   } else if (s.tela === "avaliacao") {

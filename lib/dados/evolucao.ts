@@ -28,7 +28,7 @@ export const evolucaoDoAluno = cache(async (alunoId: string): Promise<EvolucaoRe
   const musculos = new Map(catalogo.map((x) => [x.id, x.musculos]));
   const sessoes: SessaoFeita[] = linhas.map((l) => ({
     concluidaEm: l.concluida_em,
-    series: (Array.isArray(l.series) ? l.series : []).filter((x): x is SessaoFeita["series"][number] => !!x && typeof x === "object" && typeof (x as { exercicioId?: unknown }).exercicioId === "string"),
+    series: (Array.isArray(l.series) ? l.series : []).filter((x): x is SessaoFeita["series"][number] => !!x && typeof x === "object" && typeof (x as { exercicioId?: unknown }).exercicioId === "string" && !(x as { dor?: unknown }).dor),
   }));
   const e = calcularEvolucao(sessoes, Date.now(), p?.perfil.diasSemana ?? 3, (id) => musculos.get(id) ?? []);
   const ids = new Set(p?.treinos.map((t) => t.id) ?? []);

@@ -22,7 +22,7 @@ export function Avaliacao({ escolha, despachar }: { escolha: Nota | null; despac
           Como foi o <span className="destaque">treino</span>?
         </h1>
         <p className="texto" style={{ color: "var(--ink-2)", marginBottom: 24 }}>
-          Sua resposta ajusta a carga do próximo treino do protocolo.
+          Fácil sobe a carga sugerida na próxima vez. Dois difíceis seguidos tiram 1 série de cada exercício.
         </p>
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }} role="radiogroup" aria-label="Avaliação do treino">
           {OPCOES.map(([k, rotulo, sub]) => {
