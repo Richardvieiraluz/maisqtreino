@@ -1,5 +1,5 @@
 // O que o aluno faz no treino ajusta os próximos. PURO (sem banco): testado em
-// scripts/teste-adaptacao.mts. Regras (padrões a confirmar pelo Richard, em docs/ia-treino.md):
+// scripts/teste-adaptacao.mts. Regras confirmadas pelo Richard em 05/11/2026 (docs/ia-treino.md):
 //
 // 1. Carga: no último treino com carga anotada, avaliação "fácil", todas as séries feitas e sem dor
 //    no exercício → sugere subir 5% (mínimo 1 kg, de 0,5 em 0,5). "Ideal", "difícil" ou dor → repete.

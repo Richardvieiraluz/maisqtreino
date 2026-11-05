@@ -53,7 +53,7 @@ como exercícios principais. Em casa só com halter havia 22 exercícios de infe
 encurta (6, 4, 3, 2, 1, 0) e a lista de candidatos sobe de 40 para 80. Nos treinos 19 a 24, se a
 preparação do nível seguinte não fecha, o treino sai no nível atual (anotado no diagnóstico).
 
-## Adaptação pelo que o aluno faz (padrões a confirmar)
+## Adaptação pelo que o aluno faz (confirmado pelo Richard em 05/11/2026)
 
 Em `lib/ia-treino/adaptacao.ts` (puro). Vale para os treinos ainda não feitos, inclusive os já
 montados: ao abrir o treino, a troca e o ajuste de volume são aplicados sem chamar a IA de novo.
