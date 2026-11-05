@@ -66,7 +66,7 @@ export function FolhaExercicio({
                 style={{ display: "flex", alignItems: "center", gap: 12, textAlign: "left", padding: 8, background: "#fff", border: "1px solid #111", cursor: "pointer" }}
               >
                 {a.videoUrl ? (
-                  <video src={a.videoUrl} muted playsInline preload="metadata" style={{ width: 52, height: 64, flex: "none", objectFit: "cover", background: "#fff", border: "1px solid var(--line)" }} />
+                  <video src={`${a.videoUrl}#t=0.1`} muted playsInline preload="metadata" style={{ width: 52, height: 64, flex: "none", objectFit: "cover", background: "#fff", border: "1px solid var(--line)" }} />
                 ) : (
                   <img src={fotoDe(a.nome)} alt="" style={{ width: 52, height: 64, flex: "none", objectFit: "cover", objectPosition: "center bottom", background: "#fff", border: "1px solid var(--line)" }} />
                 )}

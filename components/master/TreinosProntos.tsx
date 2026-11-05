@@ -29,6 +29,7 @@ import {
   type TreinoPronto,
 } from "@/lib/treinos-prontos";
 import { useAvisoRapido } from "../AvisoRapido";
+import { MiniVideo } from "../MiniVideo";
 import { doisDigitos, Selo } from "../marca";
 import { cartao, LayoutMaster, pagina, Segmentado, TituloMaster } from "./LayoutMaster";
 
@@ -414,11 +415,7 @@ export function EditorPronto({ treino, programas }: { treino?: TreinoPronto | nu
             {b.exercises.map((e, ei) => (
               <div key={`${e.exerciseId}-${ei}`} style={{ borderTop: "1px solid var(--line)", paddingTop: 10, display: "flex", flexDirection: "column", gap: 8 }}>
                 <div style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
-                  {e.videoUrl ? (
-                    <video src={e.videoUrl} muted playsInline preload="metadata" style={{ width: 48, height: 60, flex: "none", objectFit: "cover", background: "var(--bg-soft)" }} />
-                  ) : (
-                    <span style={{ width: 48, height: 60, flex: "none", background: "var(--bg-soft)" }} />
-                  )}
+                  <MiniVideo src={e.videoUrl} rotulo={`Vídeo de ${e.exerciseName}`} />
                   <span style={{ flex: 1, fontSize: 16, fontWeight: 850, fontStretch: "78%", textTransform: "uppercase", lineHeight: 1.05 }}>{e.exerciseName}</span>
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 90px", gap: 6 }}>
@@ -455,10 +452,14 @@ export function EditorPronto({ treino, programas }: { treino?: TreinoPronto | nu
               <div style={{ borderTop: "1px solid var(--line)", paddingTop: 10, display: "flex", flexDirection: "column", gap: 6 }}>
                 <input autoFocus value={busca.q} onChange={(e) => buscar(bi, e.target.value)} placeholder="Nome, músculo ou equipamento" aria-label="Buscar exercício" style={campo} />
                 {busca.itens.map((x) => (
-                  <button key={x.id} type="button" onClick={() => incluir(bi, x)} style={{ textAlign: "left", padding: "8px 10px", background: "#fff", border: "1px solid var(--line)", cursor: "pointer", display: "flex", flexDirection: "column", gap: 2 }}>
-                    <span style={{ fontSize: 15, fontWeight: 800 }}>{x.nome}</span>
-                    <span style={{ fontSize: 12, color: "var(--ink-2)" }}>{x.detalhe}</span>
-                  </button>
+                  <div key={x.id} style={{ display: "flex", gap: 8, alignItems: "center", border: "1px solid var(--line)", padding: 6 }}>
+                    <MiniVideo src={x.videoUrl} largura={44} altura={54} rotulo={`Vídeo de ${x.nome}`} />
+                    <button type="button" onClick={() => incluir(bi, x)} style={{ flex: 1, textAlign: "left", padding: "4px 2px", background: "none", border: "none", cursor: "pointer", display: "flex", flexDirection: "column", gap: 2 }}>
+                      <span style={{ fontSize: 15, fontWeight: 800 }}>{x.nome}</span>
+                      <span style={{ fontSize: 12, color: "var(--ink-2)" }}>{x.detalhe}</span>
+                      <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: ".06em" }}>+ INCLUIR</span>
+                    </button>
+                  </div>
                 ))}
                 <button type="button" style={botaoMini} onClick={() => setBusca(null)}>
                   Fechar busca
@@ -506,17 +507,19 @@ export function EditorPronto({ treino, programas }: { treino?: TreinoPronto | nu
             <div style={{ fontSize: 24, fontWeight: 850, fontStretch: "72%", textTransform: "uppercase", lineHeight: 0.95 }}>Trocar exercício</div>
             <p style={{ fontSize: 14, color: "var(--ink-2)" }}>No lugar de {blocos[troca.bloco]?.exercises[troca.ex]?.exerciseName}. Séries e descanso continuam.</p>
             {troca.opcoes.map((o) => (
-              <button
-                type="button"
-                key={o.id}
-                onClick={() => {
-                  mudarEx(troca.bloco, troca.ex, (x) => ({ ...x, exerciseId: o.id, exerciseName: o.nome, videoUrl: o.videoUrl ?? "", comments: "" }));
-                  setTroca(null);
-                }}
-                style={{ textAlign: "left", padding: "12px 10px", background: "#fff", border: "1px solid #111", cursor: "pointer", fontSize: 16, fontWeight: 850, fontStretch: "76%", textTransform: "uppercase" }}
-              >
-                {o.nome}
-              </button>
+              <div key={o.id} style={{ display: "flex", gap: 8, alignItems: "center", border: "1px solid #111", padding: 6 }}>
+                <MiniVideo src={o.videoUrl} largura={44} altura={54} rotulo={`Vídeo de ${o.nome}`} />
+                <button
+                  type="button"
+                  onClick={() => {
+                    mudarEx(troca.bloco, troca.ex, (x) => ({ ...x, exerciseId: o.id, exerciseName: o.nome, videoUrl: o.videoUrl ?? "", comments: "" }));
+                    setTroca(null);
+                  }}
+                  style={{ flex: 1, textAlign: "left", padding: "6px 2px", background: "none", border: "none", cursor: "pointer", fontSize: 16, fontWeight: 850, fontStretch: "76%", textTransform: "uppercase" }}
+                >
+                  {o.nome}
+                </button>
+              </div>
             ))}
             <button type="button" className="botao botao--secundario" onClick={() => setTroca(null)}>
               Voltar

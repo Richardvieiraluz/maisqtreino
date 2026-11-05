@@ -10,6 +10,7 @@ import type { FichaDados, ProdutoOpcao } from "@/lib/dados/master";
 import type { AlunoLista, PainelDados, Parado, Periodo } from "@/lib/master-calculos";
 import { ALUNOS, AUDITORIA, AVALIACOES, diasDesde, EXPLICACOES, EXPLICACOES_OUTRAS, FUNIL as FUNIL_EXEMPLO, iniciais, MAIS_TROCADOS, PAINEL as PAINEL_EXEMPLO, PARADOS as PARADOS_EXEMPLO } from "@/lib/master-exemplo";
 import { useAvisoRapido } from "../AvisoRapido";
+import { MiniVideo } from "../MiniVideo";
 import { doisDigitos, Selo } from "../marca";
 import { cartao, LayoutMaster, pagina, Segmentado, TituloMaster } from "./LayoutMaster";
 
@@ -742,7 +743,7 @@ export function ExplicacoesMaster({ dados }: { dados?: ExplicacoesDados }) {
             <div key={`${e.exercicioId}-${idx}`} style={{ background: "#fff", border: st === "pendente" ? "1px solid #111" : "1px solid var(--line)", padding: 12, marginBottom: 10 }}>
               <div style={{ display: "flex", gap: 12 }}>
                 {e.videoUrl ? (
-                  <video src={e.videoUrl} muted playsInline preload="metadata" controls style={{ width: 64, height: 84, flex: "none", objectFit: "cover", background: "var(--bg-soft)" }} />
+                  <MiniVideo src={e.videoUrl} largura={64} altura={84} rotulo={`Vídeo de ${e.nome}`} />
                 ) : (
                   <div style={{ width: 64, height: 84, flex: "none", background: "var(--bg-soft)", fontSize: 7, fontWeight: 700, color: "var(--ink-2)", display: "flex", alignItems: "flex-end", padding: 3 }}>VÍDEO</div>
                 )}
